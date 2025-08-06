@@ -3,7 +3,6 @@ import RootLayout from "@layouts/RootLayout";
 import OnboardingPage from "@pages/OnboardingPage";
 import MainPage from "@pages/MainPage";
 import LoginPage from "@pages/LoginPage";
-import RootLayout from "@layouts/RootLayout";
 import BoardPage from "./pages/BoardPage";
 import WriteBoardPage from "./pages/UploadBoard";
 import { mainCategoryRoutes } from "./components/main/MainCategoryRoutes";
@@ -14,7 +13,6 @@ import SignPhonePage from "@components/signup/SignPhonePage";
 import SignCreatePage from "@components/signup/SignCreatePage";
 import SignRegionPage from "@components/signup/SignRegionPage";
 import SignCompletePage from "@components/signup/SignCompletePage";
-
 
 export default function App() {
   return (
@@ -32,19 +30,13 @@ export default function App() {
           </Route>
           <Route path="/board" element={<BoardPage />} />
           <Route path="/write" element={<WriteBoardPage />} />
-
-
           <Route path="signup/agree" element={<SignAgreePage />} />
-          <Route path="signup/phone" element={<SignPhonePage />} /> */}
-
-          {/* 여기에 다른 페이지 추가 */}
+          <Route path="signup/phone" element={<SignPhonePage />} />
 
           {/* 온보딩 화면 */}
           <Route index element={<OnboardingPage />} />
-
           {/* 로그인 */}
           <Route path="login" element={<LoginPage />} />
-
           {/* 회원가입 흐름 (nested Outlet) */}
           <Route path="signup" element={<SignupPage />}>
             {/* 이메일·소셜 선택 */}
@@ -62,7 +54,6 @@ export default function App() {
             {/* 서비스 메인 */}
             <Route path="main" element={<MainPage />} />
           </Route>
-
         </Route>
       </Routes>
     </Router>

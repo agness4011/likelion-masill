@@ -7,20 +7,19 @@ import styled from "styled-components";
 export default function RootLayout() {
   const location = useLocation();
 
-  const isLayoutHidden = noLayoutPaths.includes(location.pathname);
-
   const noLayoutPaths = [
-    '/', 
-    '/login',
-    '/signup',
-    '/signup/agree',
-    '/signup/phone',
-    '/signup/create',
-    '/signup/region',
-    '/signup/done',
-    "/write"
-  ];// Header/Footer 없이 보여줄 경로들
+    "/",
+    "/login",
+    "/signup",
+    "/signup/agree",
+    "/signup/phone",
+    "/signup/create",
+    "/signup/region",
+    "/signup/done",
+    "/write",
+  ]; // Header/Footer 없이 보여줄 경로들
 
+  const isLayoutHidden = noLayoutPaths.includes(location.pathname);
 
   return (
     <Wrapper>
@@ -30,4 +29,3 @@ export default function RootLayout() {
     </Wrapper>
   );
 }
-
