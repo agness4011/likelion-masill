@@ -1,7 +1,10 @@
+import HeaderBar from "./HeaderBar";
+
 export default function Header() {
   return (
-    <>
-      <p>여기에 바 생성</p>
-    </>
+    <HeaderBar>
+      <HeaderBar.HeadLeft />
+      <HeaderBar.HeadRight />
+    </HeaderBar>
   );
 }
