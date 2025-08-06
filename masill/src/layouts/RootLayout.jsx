@@ -1,11 +1,14 @@
-import { Outlet, useLocation } from 'react-router-dom';
-import Header from '@commons/header/Header';
-import Footer from '@commons/Footer';
-import Wrapper from '@commons/Wrapper';
+import { Outlet, useLocation } from "react-router-dom";
+import Header from "@commons/header/Header";
+import Footer from "@commons/Footer";
+import Wrapper from "@commons/Wrapper";
+import styled from "styled-components";
 
 export default function RootLayout() {
-  const { pathname } = useLocation();
-  // 온보딩, 로그인, 회원가입 단계(모두)에서 Header/Footer 숨김
+  const location = useLocation();
+
+  const isLayoutHidden = noLayoutPaths.includes(location.pathname);
+
   const noLayoutPaths = [
     '/', 
     '/login',
@@ -14,15 +17,16 @@ export default function RootLayout() {
     '/signup/phone',
     '/signup/create',
     '/signup/region',
-    '/signup/done'
-  ];
-  const isHidden = noLayoutPaths.includes(pathname);
+    '/signup/done',
+    "/write"
+  ];// Header/Footer 없이 보여줄 경로들
+
 
   return (
     <Wrapper>
-      {!isHidden && <Header />}
+      {!isLayoutHidden && <Header />}
       <Outlet />
-      {!isHidden && <Footer />}
+      {!isLayoutHidden && <Footer />}
     </Wrapper>
   );
 }

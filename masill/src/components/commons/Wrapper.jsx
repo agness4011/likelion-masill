@@ -4,15 +4,27 @@ import React from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
-  width: 100%;
-  max-width: 393px;
-  height: 852px; /* Figma 기준 고정 높이 */
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* 자식은 스크롤 컨트롤러로 관리 */
-  background: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+  width: 100vw;
+  height: 100vh;
+  max-width: 430px; /* 모바일 기준 최대 너비 */
+  background: white;
+  overflow-y: auto;
+
+  /* 모바일: 꽉 채움 */
+  @media (max-width: 768px) {
+    margin: 0 auto;
+  }
+
+  /* PC: 화면 중앙에 고정 */
+  @media (min-width: 769px) {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
 `;
 
 export default function Wrapper({ children }) {
