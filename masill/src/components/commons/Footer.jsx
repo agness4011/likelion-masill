@@ -1,7 +1,14 @@
+import React from 'react';
+import styled from 'styled-components';
+
+const FooterWrap = styled.footer`
+  width: 100%;
+  padding: 16px;
+  text-align: center;
+  color: #888;
+  font-size: 0.875rem;
+`;
+
 export default function Footer() {
-  return (
-    <>
-      <p>여기에 푸터 생성</p>
-    </>
-  );
+  return <FooterWrap>© 2025 Masill. All rights reserved.</FooterWrap>;
 }
