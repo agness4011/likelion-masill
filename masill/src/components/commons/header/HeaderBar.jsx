@@ -1,7 +1,18 @@
+import React from "react";
+import styled from "styled-components";
+
+const Bar = styled.nav`
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  background: #fafafa;
+`;
+
 export default function HeaderBar() {
   return (
-    <>
-      <p>여기에 바 생성</p>
-    </>
+    <Bar>
+      <a href="/main">홈</a>
+      <a href="/login">로그인</a>
+    </Bar>
   );
 }
