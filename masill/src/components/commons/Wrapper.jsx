@@ -1,10 +1,10 @@
+// src/components/commons/Wrapper.jsx
+
+import React from "react";
 import styled from "styled-components";
 
-export default function Wrapper({ children }) {
-  return <Container>{children}</Container>;
-}
-
 const Container = styled.div`
+
   width: 100vw;
   height: 100vh;
   max-width: 430px; /* 모바일 기준 최대 너비 */
@@ -26,3 +26,7 @@ const Container = styled.div`
     border-radius: 10px;
   }
 `;
+
+export default function Wrapper({ children }) {
+  return <Container>{children}</Container>;
+}

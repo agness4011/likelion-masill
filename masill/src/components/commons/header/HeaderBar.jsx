@@ -38,6 +38,7 @@ function HeadRight() {
         <img src={Board} alt="게시글작성" />
       </Link>
     </>
+
   );
 }
 
