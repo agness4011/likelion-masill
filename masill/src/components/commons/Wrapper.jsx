@@ -4,6 +4,7 @@ import React from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
+
   width: 100vw;
   height: 100vh;
   max-width: 430px; /* 모바일 기준 최대 너비 */
