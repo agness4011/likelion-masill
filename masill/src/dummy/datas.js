@@ -98,5 +98,5 @@ export const data = [
     heart: 1,
     comment: 1000,
     category: "market",
-  },n
+  },
 ];

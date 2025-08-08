@@ -1,29 +1,24 @@
 // src/components/commons/Wrapper.jsx
-
 import React from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
-
-  width: 100vw;
-  height: 100vh;
-  max-width: 430px; /* 모바일 기준 최대 너비 */
+  width: 100%;
+  max-width: 430px; /* iPhone 14 기준: 393 ~ 430px 정도로 여유 */
+  min-height: 100dvh; /* Safari 대응 위한 뷰포트 단위 */
   background: white;
+  margin: 0 auto;
+  overflow-x: hidden;
   overflow-y: auto;
 
-  /* 모바일: 꽉 채움 */
-  @media (max-width: 768px) {
-    margin: 0 auto;
-  }
+  display: flex;
+  flex-direction: column;
+  position: relative;
 
-  /* PC: 화면 중앙에 고정 */
-  @media (min-width: 769px) {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+  /* 아이패드 대응: 양 옆 여백 */
+  @media (min-width: 768px) {
+    border-radius: 12px;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.1);
   }
 `;
 
