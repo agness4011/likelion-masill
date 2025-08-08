@@ -1,11 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import React, { useState } from "react";
-import DatePicker from "react-mobile-datepicker";
-// import "react-mobile-datepicker/dist/react-mobile-datepicker.css"; // 존재할 경우만
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"; // 이건 꼭 import 해야 합니다.
 import { ko } from "date-fns/locale";
-
 
 export default function WriteBoard({ children }) {
   const navigate = useNavigate();
@@ -38,7 +35,6 @@ function Container({ children }) {
 }
 
 function UploadImg() {
-
   const [previews, setPreviews] = useState([]); // 미리보기 배열
   const [files, setFiles] = useState([]); // 실제 파일 배열
 
@@ -121,7 +117,6 @@ function UploadImg() {
       <p style={{ marginTop: "10px" }}>{previews.length} / 10</p>
     </div>
   );
-
 }
 
 function SetTitle() {
@@ -143,31 +138,6 @@ function SetLocation() {
 }
 
 function SelectDate() {
-  const [value, setValue] = useState(new Date());
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleChange = (newVal) => {
-    setValue(newVal);
-    setIsOpen(false);
-  };
-
-  return (
-    <div>
-      <button onClick={() => setIsOpen(true)}>{value.toLocaleString()}</button>
-
-      <DatePicker
-        show={isOpen}
-        value={value}
-        dateConfig={{
-          year: { format: "YYYY", caption: "년", step: 1 },
-          month: { format: "MM", caption: "월", step: 1 },
-          date: { format: "DD", caption: "일", step: 1 },
-          hour: { format: "hh", caption: "시", step: 1 },
-          minute: { format: "mm", caption: "분", step: 1 },
-        }}
-        onSelect={handleChange}
-        onCancel={() => setIsOpen(false)}
-        theme="ios"
   const [selectedDate, setSelectedDate] = useState(null);
 
   return (
@@ -181,7 +151,6 @@ function SelectDate() {
         dateFormat="yyyy.MM.dd (eee) HH:mm" // 원하는 포맷
         locale={ko} // 한국어 요일 등 적용
         placeholderText="날짜와 시간을 선택하세요"
-
       />
     </div>
   );

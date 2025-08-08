@@ -4,7 +4,6 @@ import RootLayout from "@layouts/RootLayout";
 import OnboardingPage from "@pages/OnboardingPage";
 import Onboarding1 from "@pages/onboarding/Onboarding1";
 import Onboarding2 from "@pages/onboarding/Onboarding2";
-import OnboardingPage from "@pages/OnboardingPage";
 import MainPage from "@pages/MainPage";
 import LoginPage from "@pages/LoginPage";
 import BoardPage from "./pages/BoardPage";
@@ -26,12 +25,12 @@ export default function App() {
       <Routes>
         <Route element={<RootLayout />}>
           {/* 온보딩 */}
-         
-            <Route index element={<OnboardingPage />} />
-            <Route path="/onboarding1" element={<Onboarding1 />} />
-            <Route path="/onboarding2" element={<Onboarding2 />} />
-            {/* 로그인 */}
-        
+
+          <Route index element={<OnboardingPage />} />
+          <Route path="/onboarding1" element={<Onboarding1 />} />
+          <Route path="/onboarding2" element={<Onboarding2 />} />
+          {/* 로그인 */}
+
           <Route path="login" element={<LoginPage />} />
 
           {/* 회원가입 흐름 */}
@@ -45,7 +44,6 @@ export default function App() {
           </Route>
 
           {/* 메인 + 카테고리 */}
-          <Route path="main" element={<MainPage />}>
           <Route path="/main" element={<MainPage />}>
             {mainCategoryRoutes.map((route) => (
               <Route
@@ -55,10 +53,8 @@ export default function App() {
               />
             ))}
           </Route>
-
-          {/* 게시글 작성 흐름 */}
-          <Route path="board" element={<BoardPage />} />
-          <Route path="write" element={<WriteBoardPage />} />
+          <Route path="/board" element={<BoardPage />} />
+          <Route path="/write" element={<WriteBoardPage />} />
 
           {/* 채팅 */}
           <Route path="chat" element={<ChatPage />} />

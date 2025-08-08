@@ -50,7 +50,9 @@ export default function OnboardingPage() {
 const Wrap = styled.div`
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  max-width: 430px;
+  margin: 0 auto;
   background: #eef3ff;
   display: flex;
   flex-direction: column;
@@ -59,14 +61,13 @@ const Wrap = styled.div`
 `;
 
 const CircleTopRight = styled.div`
-  transform: rotate(13.409deg);
-  flex-shrink: 0;
   position: absolute;
-  top: -19.94vh; /* -170px */
-  right: -33.07vw; /* -130px */
-  width: 91.6vw; /* 360px */
-  height: 37.55vh; /* 320px */
+  top: -11rem;
+  right: -12rem;
+  width: 22.5rem;
+  height: 18.75rem;
   border-radius: 50%;
+  transform: rotate(13.409deg);
   background: linear-gradient(
     185deg,
     #4e7aea -21.92%,
@@ -77,10 +78,10 @@ const CircleTopRight = styled.div`
 
 const CircleBottomLeft = styled.div`
   position: absolute;
-  left: -30.53vw; /* -120px */
-  bottom: 31.69vh; /* 270px */
-  width: 81.42vw; /* 320px */
-  height: 37.55vh; /* 320px */
+  left: -11rem;
+  bottom: 18rem;
+  width: 20rem;
+  height: 18.75rem;
   border-radius: 50%;
   background: linear-gradient(
     185deg,
@@ -92,8 +93,8 @@ const CircleBottomLeft = styled.div`
 
 const BottomGradient = styled.div`
   position: absolute;
-  left: 53.5%;
-  bottom: -10.56vh; /* -90px */
+  left: 50%;
+  bottom: -5rem;
   transform: translateX(-50%);
   width: 150%;
   height: 63%;
@@ -104,63 +105,63 @@ const BottomGradient = styled.div`
 
 const Bird = styled.img`
   z-index: 1;
-  width: 56.49vw; /* 222px */
   position: absolute;
-  bottom: 43.43vh; /* 370px */
+  width: 50%;
+  bottom: 40%;
 `;
 
 const Title = styled.p`
   z-index: 1;
-  font-size: clamp(1rem, 5vw, 1.25rem); /* 20px 기준 */
   font-weight: 700;
   line-height: 1.5;
-  position: absolute;
-  bottom: 35.21vh; /* 300px */
-  text-align: center;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  position: absolute;
+  bottom: 30%;
+  text-align: center;
 `;
 
 const IndicatorWrapper = styled.div`
   position: absolute;
-  bottom: 31.69vh; /* 270px */
+  bottom: 18rem;
   display: flex;
-  gap: 1.52vw; /* 6px */
+  gap: 0.375rem;
   z-index: 2;
 `;
 
 const Dot = styled.div`
-  width: 2.03vw; /* 8px */
-  height: 2.03vw; /* 8px */
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 50%;
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
 `;
 
 const ArrowRight = styled.img`
-  width: 5.6vw; /* 22px */
-  height: 2.35vh; /* 20px */
+  width: 1.375rem;
+  height: 1.25rem;
   z-index: 2;
   cursor: pointer;
   position: absolute;
-  bottom: 31.69vh; /* 270px */
-  right: 12.72vw; /* 50px */
+  bottom: 18rem;
+  right: 3rem;
 `;
 
 const BtnArea = styled.div`
   z-index: 1;
   position: absolute;
-  bottom: 4.7vh; /* 40px */
+  bottom: 2.5rem;
   width: 100%;
-  padding: 0 5.09vw; /* 20px */
+  padding: 0 1.25rem;
   display: grid;
   place-items: center;
-  row-gap: 1.41vh; /* 12px */
+  row-gap: 0.75rem;
 `;
 
 const BaseBtn = styled.button`
   width: 100%;
-  max-width: 84.48vw; /* 332px */
-  height: 5.87vh; /* 50px */
+  max-width: 20.75rem;
+  height: 3.125rem;
   border-radius: 26px;
   font-size: clamp(0.875rem, 4vw, 1rem);
   font-weight: 800;
@@ -179,6 +180,7 @@ const LoginBtn = styled(BaseBtn)`
   border: 1px solid rgba(255, 255, 255, 0.95);
   position: relative;
   overflow: hidden;
+
   &::before {
     content: "";
     position: absolute;
@@ -199,6 +201,5 @@ const LookAround = styled.button`
   font-size: clamp(0.75rem, 3vw, 0.8125rem);
   text-decoration: underline;
   cursor: pointer;
-  padding: 0.47vh 2.03vw; /* 4px 8px */
+  padding: 0.25rem 0.5rem;
 `;
-
