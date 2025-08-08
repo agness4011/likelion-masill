@@ -1,3 +1,27 @@
+/* src/index.css */
+
+/* 1) html/body/full-root 높이를 100%로 */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+/* 2) body를 flex 컨테이너로 만들어 중앙 배치 */
+body {
+  display: flex;
+  justify-content: center; /* 수평 중앙 */
+  align-items: center; /* 수직 중앙 */
+  background: #f0f0f0; /* 페이지 바깥 영역 배경 */
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+/* 기존 글로벌 스타일 유지 */
+* {
+  box-sizing: border-box;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

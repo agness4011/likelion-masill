@@ -1,0 +1,48 @@
+/* 뷰포트 꽉 채우기 + 스크롤 완전 차단 */
+.login-container {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+  overflow: hidden; /* 전체 스크롤 차단 */
+}
+
+/* 내용 영역도 스크롤 차단 */
+.login-fields {
+  flex: 1;
+  overflow: hidden; /* 내부 스크롤 제거 */
+}
+
+/* 입력 필드 여백 */
+.field {
+  margin-bottom: 16px;
+}
+
+/* 버튼 스타일 */
+.btn-login {
+  width: 100%;
+  padding: 14px 0;
+  margin-top: 24px;
+  border-radius: 24px;
+  font-size: 1rem;
+  background: #fafafa;
+}
+
+.btn-signup {
+  width: 100%;
+  padding: 14px 0;
+  margin-top: 12px;
+  border-radius: 24px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+/* 소셜 영역 하단 여백 */
+.social-section {
+  margin-bottom: 8px;
+}

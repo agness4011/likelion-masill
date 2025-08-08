@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Viewport Fixed Stage</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #eef3ff; /* 배경 필요 없으면 제거 */
+        overscroll-behavior: none;
+      }
+
+      /* 뷰포트: 중앙 정렬 + 넘침 숨김 */
+      .viewport {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      /* 고정 스테이지(기준 해상도 박스) */
+      .stage {
+        position: relative;
+        width: 393px; /* BASE_W */
+        height: 852px; /* BASE_H */
+        transform-origin: center center;
+        overflow: hidden; /* 내부 넘침 가리기 */
+        background: #fff; /* 데모용 */
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border-radius: 16px; /* 데모용 */
+      }
+
+      /* 데모 콘텐츠: 전부 'px' 기준으로 놓으면 어떤 기종에서도 동일하게 보임 */
+      .header {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        font: 700 20px/1.2 system-ui, -apple-system, Segoe UI, Roboto,
+          sans-serif;
+      }
+      .content {
+        position: absolute;
+        inset: 64px 16px 16px 16px; /* 상우하좌 */
+        border-radius: 12px;
+        background: #f5f7ff;
+        padding: 16px;
+        font: 14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+      .img {
+        width: 200px; /* 기준 해상도에서의 절대 크기 */
+        display: block;
+        margin-top: 12px;
+        border-radius: 8px;
+      }
+
+      /* iOS 안전영역 필요 시 사용 */
+      .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom, 0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="viewport">
+      <div class="stage" id="stage">
+        <div class="header">Fixed Stage (393 × 852)</div>
+        <div class="content safe-bottom">
+          <p>
+            기종이 달라도 이 영역은 비율 고정 상태로 그대로 보이고, 화면에 맞춰
+            스케일만 바뀝니다.
+          </p>
+          <img class="img" src="./ms16.png" alt="demo" />
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 기준 사이즈
+      const BASE_W = 393;
+      const BASE_H = 852;
+      const stage = document.getElementById("stage");
+
+      function fit() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const scale = Math.min(vw / BASE_W, vh / BASE_H);
+        stage.style.transform = `scale(${scale})`;
+      }
+
+      window.addEventListener("load", fit);
+      window.addEventListener("resize", fit);
+      window.addEventListener("orientationchange", fit);
+    </script>
+  </body>
+</html>

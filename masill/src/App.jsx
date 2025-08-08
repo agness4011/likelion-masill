@@ -1,21 +1,69 @@
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import RootLayout from "@layouts/RootLayout";
+
+import OnboardingPage from "@pages/OnboardingPage";
+import Onboarding1 from "@pages/onboarding/Onboarding1";
+import Onboarding2 from "@pages/onboarding/Onboarding2";
+import MainPage from "@pages/MainPage";
 import LoginPage from "@pages/LoginPage";
+import BoardPage from "./pages/BoardPage";
+import WriteBoardPage from "./pages/UploadBoard";
+import { mainCategoryRoutes } from "./components/main/MainCategoryRoutes";
+
+import SignupPage from "@pages/signup/SignupPage";
+import SignPage from "@components/signup/SignPage";
+import SignAgreePage from "@components/signup/SignAgreePage";
+import SignPhonePage from "@components/signup/SignPhonePage";
+import SignCreatePage from "@components/signup/SignCreatePage";
+import SignRegionPage from "@components/signup/SignRegionPage";
+import SignCompletePage from "@components/signup/SignCompletePage";
+
+import ChatPage from "@pages/chat/ChatPage";
+import ChatRoomPage from "@pages/chat/ChatRoomPage";
+
 export default function App() {
   return (
     <Router>
       <Routes>
         <Route element={<RootLayout />}>
-          <Route index element={<MainPage />} />
-
-          {/* 로그인 페이지 */}
+          {/* 온보딩 */}
+         
+            <Route index element={<OnboardingPage />} />
+            <Route path="/onboarding1" element={<Onboarding1 />} />
+            <Route path="/onboarding2" element={<Onboarding2 />} />
+            {/* 로그인 */}
+        
           <Route path="login" element={<LoginPage />} />
 
-          {/* 회원가입 관련 페이지 */}
-          <Route path="signup" element={<SignPage />} />
-          <Route path="signup/agree" element={<SignAgreePage />} />
-          <Route path="signup/phone" element={<SignPhonePage />} />
+          {/* 회원가입 흐름 */}
+          <Route path="signup" element={<SignupPage />}>
+            <Route index element={<SignPage />} />
+            <Route path="agree" element={<SignAgreePage />} />
+            <Route path="phone" element={<SignPhonePage />} />
+            <Route path="create" element={<SignCreatePage />} />
+            <Route path="region" element={<SignRegionPage />} />
+            <Route path="done" element={<SignCompletePage />} />
+          </Route>
 
-          {/* 여기에 다른 페이지 추가 */}
+          {/* 메인 + 카테고리 */}
+          <Route path="main" element={<MainPage />}>
+            {mainCategoryRoutes.map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={route.element}
+              />
+            ))}
+          </Route>
+
+          {/* 게시글 작성 흐름 */}
+          <Route path="board" element={<BoardPage />} />
+          <Route path="write" element={<WriteBoardPage />} />
+
+          {/* 채팅 */}
+          <Route path="chat" element={<ChatPage />} />
+          <Route path="chat/:roomId" element={<ChatRoomPage />} />
         </Route>
       </Routes>
     </Router>
