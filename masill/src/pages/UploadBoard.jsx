@@ -7,7 +7,8 @@ export default function UploadBoard() {
         <WriteBoard.UploadImg />
         <WriteBoard.SetTitle />
         <WriteBoard.SetLocation />
-        {/* <WriteBoard.SelectDate /> */}
+        <WriteBoard.SelectDate />
+        <WriteBoard.SelectDate />
         <WriteBoard.WriteContext />
       </WriteBoard.Container>
     </WriteBoard>

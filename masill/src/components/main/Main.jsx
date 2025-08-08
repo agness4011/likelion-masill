@@ -1,7 +1,8 @@
 import SearchGlass from "../../assets/react.svg";
+import MoveHeartImg from "../../assets/react.svg";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { BoardData, BoardImage } from "./MainStyles.styled";
+import { useNavigate, Link } from "react-router-dom";
+import { BoardData, BoardImage, MoveToInterest } from "./MainStyles.styled";
 import dayjs from "dayjs";
 
 import { data as initialData } from "../../dummy/datas";
@@ -12,17 +13,17 @@ export default function Main({ children }) {
 
 function SearchBar() {
   const [text, setText] = useState("");
-  const search = () => {
-    setText("");
-  };
+
   return (
     <div>
-      <input
-        type="text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <img src={SearchGlass} alt="서치버튼" onClick={search} />
+      <Link to="/search">
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <img src={SearchGlass} alt="서치버튼" />
+      </Link>
     </div>
   );
 }
@@ -47,36 +48,39 @@ function PostContent({ children }) {
 function Post({ area, category }) {
   const [sortType, setSortType] = useState("AI 추천순");
 
-  // 게시글 상태 배열 (하트 상태 포함)
   const [posts, setPosts] = useState(
     initialData.map((post) => ({ ...post, isHeartClicked: false }))
   );
 
-  // 하트 클릭 처리
   const clickHeart = (id) => {
     setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === id) {
-          const isClicked = !post.isHeartClicked;
-          return {
-            ...post,
-            isHeartClicked: isClicked,
-            heart: isClicked ? post.heart + 1 : post.heart - 1,
-          };
-        }
-        return post;
-      })
+      prevPosts.map((post) =>
+        post.id === id
+          ? {
+              ...post,
+              isHeartClicked: !post.isHeartClicked,
+              heart: post.isHeartClicked ? post.heart - 1 : post.heart + 1,
+            }
+          : post
+      )
     );
   };
 
-  // 카테고리 필터링
-  const filteredPosts = posts.filter((post) => post.category === category);
+  const today = dayjs().format("YYYY.MM.DD");
+
+  // 🔽 게시글 필터링 로직
+  const filteredPosts = posts.filter((post) => {
+    if (category === "event") {
+      return post.date === today;
+    }
+    return post.category === category;
+  });
 
   // 정렬
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     if (sortType === "AI 추천순") return a.id - b.id;
-    if (sortType === "조회수") return b.heart - a.heart;
-    if (sortType === "인기수") return b.heart - a.heart;
+    if (sortType === "조회수" || sortType === "인기수")
+      return b.heart - a.heart;
     if (sortType === "댓글수") return b.comment - a.comment;
     return 0;
   });
@@ -95,11 +99,9 @@ function Post({ area, category }) {
       </div>
       <div>
         {sortedPosts.map((item) => {
-          const today = dayjs();
-          const eventDate = dayjs(item.date, "YYYY.MM.DD"); // 'YYYY.MM.DD' 형식
-          const diff = eventDate.diff(today, "day");
-
-          const isClosingSoon = diff >= 0 && diff <= 3; // 오늘 ~ 3일 이내
+          const eventDate = dayjs(item.date, "YYYY.MM.DD");
+          const diff = eventDate.diff(dayjs(), "day");
+          const isClosingSoon = diff >= 0 && diff <= 3;
 
           return (
             <BoardData
@@ -126,7 +128,7 @@ function Post({ area, category }) {
                     color: item.isHeartClicked ? "red" : "black",
                   }}
                   onClick={(e) => {
-                    e.stopPropagation(); // 클릭 이벤트 전파 방지
+                    e.stopPropagation();
                     clickHeart(item.id);
                   }}
                 >
@@ -142,6 +144,15 @@ function Post({ area, category }) {
   );
 }
 
+function MoveInterset() {
+  return (
+    <Link to="/interst">
+      <MoveToInterest src={MoveHeartImg} alt="관심 이동" />
+    </Link>
+  );
+}
+
+Main.MoveInterset = MoveInterset;
 Main.PostContent = PostContent;
 Main.Post = Post;
 Main.SearchBar = SearchBar;
