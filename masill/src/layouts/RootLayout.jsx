@@ -17,6 +17,9 @@ export default function RootLayout() {
     "/signup/region",
     "/signup/done",
     "/write",
+    "/onboarding1", //온보딩 페이지는 안 보이게
+    "/onboarding2",
+
   ]; // Header/Footer 없이 보여줄 경로들
 
   const isLayoutHidden = noLayoutPaths.includes(location.pathname);

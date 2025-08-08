@@ -65,6 +65,7 @@ export const data = [
     comment: 1000,
     category: "market",
   },
+
   {
     id: 7,
     image:
@@ -97,5 +98,5 @@ export const data = [
     heart: 1,
     comment: 1000,
     category: "market",
-  },
+  },n
 ];

@@ -1,43 +1,61 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import bird from "@logo/bird.svg"; // 경로 확인
+
 import arrowright from "@logo/arrowright.png";
+import arrowleft from "@logo/arrowleft.png";
+import chatonboarding1 from "@logo/chatonboarding1.svg";
+import chatonboarding2 from "@logo/chatonboarding2.svg";
 
 export default function OnboardingPage() {
   const nav = useNavigate();
+  const [showSecond, setShowSecond] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSecond(true);
+    }, 2000); // 2초 후 전환
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <Wrap>
       <CircleTopRight />
       <CircleBottomLeft />
+
+      {/* 같은 위치에서 이미지 전환 (교차 페이드) */}
+      <ChatImage
+        src={chatonboarding1}
+        alt="chatonboarding1"
+        style={{ opacity: showSecond ? 0 : 1 }}
+      />
+      <ChatImage
+        src={chatonboarding2}
+        alt="chatonboarding2"
+        style={{ opacity: showSecond ? 1 : 0 }}
+      />
+
       <BottomGradient />
 
-      {/* 새 */}
-      <Bird src={bird} alt="bird" />
-
-      {/* 문구 */}
       <Title>
-        우리 동네 가볍게
+        <AccentText>masill_bird</AccentText>에게
         <br />
-        마실갈 곳 쏙쏙 골라보기
+        추천받는 맞춤 마실
       </Title>
 
-      {/* 점 3개 */}
       <IndicatorWrapper>
-        <Dot active />
         <Dot />
+        <Dot active />
         <Dot />
       </IndicatorWrapper>
 
-      {/* 오른쪽 화살표 이미지 클릭 시 페이지 이동 */}
+      <ArrowLeft src={arrowleft} alt="arrowleft" onClick={() => nav("/")} />
       <ArrowRight
         src={arrowright}
         alt="arrowright"
-        onClick={() => nav("/onboarding1")}
+        onClick={() => nav("/onboarding2")}
       />
 
-      {/* 버튼 영역 */}
       <BtnArea>
         <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
         <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
@@ -60,12 +78,11 @@ const Wrap = styled.div`
 
 const CircleTopRight = styled.div`
   transform: rotate(13.409deg);
-  flex-shrink: 0;
   position: absolute;
-  top: -19.94vh; /* -170px */
-  right: -33.07vw; /* -130px */
-  width: 91.6vw; /* 360px */
-  height: 37.55vh; /* 320px */
+  top: -170px;
+  right: -130px;
+  width: 360px;
+  height: 320px;
   border-radius: 50%;
   background: linear-gradient(
     185deg,
@@ -77,10 +94,10 @@ const CircleTopRight = styled.div`
 
 const CircleBottomLeft = styled.div`
   position: absolute;
-  left: -30.53vw; /* -120px */
-  bottom: 31.69vh; /* 270px */
-  width: 81.42vw; /* 320px */
-  height: 37.55vh; /* 320px */
+  left: -120px;
+  bottom: 270px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
   background: linear-gradient(
     185deg,
@@ -90,10 +107,21 @@ const CircleBottomLeft = styled.div`
   );
 `;
 
+/* 전환 애니메이션 */
+const ChatImage = styled.img`
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  opacity: ${(props) => (props.$fadeIn ? 1 : 0)};
+  transition: opacity 0.8s ease-in-out;
+`;
+
 const BottomGradient = styled.div`
   position: absolute;
   left: 53.5%;
-  bottom: -10.56vh; /* -90px */
+  bottom: -90px;
   transform: translateX(-50%);
   width: 150%;
   height: 63%;
@@ -102,67 +130,83 @@ const BottomGradient = styled.div`
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
 `;
 
-const Bird = styled.img`
-  z-index: 1;
-  width: 56.49vw; /* 222px */
-  position: absolute;
-  bottom: 43.43vh; /* 370px */
-`;
-
 const Title = styled.p`
   z-index: 1;
-  font-size: clamp(1rem, 5vw, 1.25rem); /* 20px 기준 */
-  font-weight: 700;
-  line-height: 1.5;
+  font: bold 24px "Pretendard Variable", sans-serif;
   position: absolute;
-  bottom: 35.21vh; /* 300px */
+  bottom: 300px;
   text-align: center;
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 700;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+`;
+const AccentText = styled.span`
+  background: linear-gradient(
+    90deg,
+    #4e7aea -21.92%,
+    #ffdbac 85.22%,
+    #ffbe93 100.53%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
 `;
 
 const IndicatorWrapper = styled.div`
   position: absolute;
-  bottom: 31.69vh; /* 270px */
+  bottom: 270px;
   display: flex;
-  gap: 1.52vw; /* 6px */
+  gap: 6px;
   z-index: 2;
 `;
 
 const Dot = styled.div`
-  width: 2.03vw; /* 8px */
-  height: 2.03vw; /* 8px */
+  width: 8px;
+  height: 8px;
+  /* 위치 자유롭게 조정 가능 */
   border-radius: 50%;
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
 `;
 
-const ArrowRight = styled.img`
-  width: 5.6vw; /* 22px */
-  height: 2.35vh; /* 20px */
+const ArrowLeft = styled.img`
+  width: 22px;
+  height: 20px;
   z-index: 2;
   cursor: pointer;
   position: absolute;
-  bottom: 31.69vh; /* 270px */
-  right: 12.72vw; /* 50px */
+  bottom: 270px;
+  left: 50px;
+`;
+
+const ArrowRight = styled.img`
+  width: 22px;
+  height: 20px;
+  z-index: 2;
+  cursor: pointer;
+  position: absolute;
+  bottom: 270px;
+  right: 50px;
 `;
 
 const BtnArea = styled.div`
   z-index: 1;
   position: absolute;
-  bottom: 4.7vh; /* 40px */
+  bottom: 40px;
   width: 100%;
-  padding: 0 5.09vw; /* 20px */
+  padding: 0 20px;
   display: grid;
   place-items: center;
-  row-gap: 1.41vh; /* 12px */
+  row-gap: 12px;
 `;
 
 const BaseBtn = styled.button`
   width: 100%;
-  max-width: 84.48vw; /* 332px */
-  height: 5.87vh; /* 50px */
+  max-width: 332px;
+  height: 50px;
   border-radius: 26px;
-  font-size: clamp(0.875rem, 4vw, 1rem);
+  font-size: 16px;
   font-weight: 800;
 `;
 
@@ -196,9 +240,8 @@ const LookAround = styled.button`
   background: transparent;
   border: none;
   color: #fff;
-  font-size: clamp(0.75rem, 3vw, 0.8125rem);
+  font-size: 13px;
   text-decoration: underline;
   cursor: pointer;
-  padding: 0.47vh 2.03vw; /* 4px 8px */
+  padding: 4px 8px;
 `;
-

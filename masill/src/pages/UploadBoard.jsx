@@ -9,6 +9,7 @@ export default function UploadBoard() {
         <WriteBoard.SetLocation />
         <WriteBoard.SelectDate />
         <WriteBoard.SelectDate />
+
         <WriteBoard.WriteContext />
       </WriteBoard.Container>
     </WriteBoard>

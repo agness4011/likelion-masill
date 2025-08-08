@@ -14,6 +14,7 @@ export const BoardImage = styled.img`
   flex-shrink: 0;
 `;
 
+
 export const MoveToInterest = styled.img`
   position: sticky;
   bottom: 20px;
@@ -24,3 +25,4 @@ export const MoveToInterest = styled.img`
   cursor: pointer;
   z-index: 9999;
 `;
+

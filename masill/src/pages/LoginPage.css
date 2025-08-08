@@ -1,23 +1,28 @@
-/* 전체 컨테이너(393×852 중앙) */
 .login-container {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%; /* AuthContainer가 852px 높이를 already 채우고 있다고 가정 */
-  padding: 20px;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+  overflow: hidden; /* 전체 스크롤 차단 */
 }
 
-/* 필드 부분 래퍼 */
+/* 내용 영역도 스크롤 차단 */
 .login-fields {
   flex: 1;
+  overflow: hidden; /* 내부 스크롤 제거 */
 }
 
-/* 개별 입력 필드 여백 조정 */
+/* 입력 필드 여백 */
 .field {
   margin-bottom: 16px;
 }
 
-/* 로그인 버튼 */
+
+/* 버튼 스타일 */
 .btn-login {
   width: 100%;
   padding: 14px 0;
@@ -27,7 +32,6 @@
   background: #fafafa;
 }
 
-/* 회원가입 버튼 */
 .btn-signup {
   width: 100%;
   padding: 14px 0;
@@ -38,7 +42,7 @@
   background: #fff;
 }
 
-/* 소셜 로그인 섹션 하단 정렬 */
+/* 소셜 영역 하단 여백 */
 .social-section {
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }

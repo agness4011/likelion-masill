@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import bird from "@logo/bird.svg"; // 경로 확인
-import arrowright from "@logo/arrowright.png";
+
+import arrowleft from "@logo/arrowleft.png";
 
 export default function OnboardingPage() {
   const nav = useNavigate();
@@ -14,26 +14,25 @@ export default function OnboardingPage() {
       <BottomGradient />
 
       {/* 새 */}
-      <Bird src={bird} alt="bird" />
 
       {/* 문구 */}
       <Title>
-        우리 동네 가볍게
+        우리 동네 마실,
         <br />
-        마실갈 곳 쏙쏙 골라보기
+        어디로 가볼까요?
       </Title>
 
       {/* 점 3개 */}
       <IndicatorWrapper>
+        <Dot />
+        <Dot />
         <Dot active />
-        <Dot />
-        <Dot />
       </IndicatorWrapper>
 
       {/* 오른쪽 화살표 이미지 클릭 시 페이지 이동 */}
-      <ArrowRight
-        src={arrowright}
-        alt="arrowright"
+      <Arrowleft
+        src={arrowleft}
+        alt="arrowleft"
         onClick={() => nav("/onboarding1")}
       />
 
@@ -62,107 +61,109 @@ const CircleTopRight = styled.div`
   transform: rotate(13.409deg);
   flex-shrink: 0;
   position: absolute;
-  top: -19.94vh; /* -170px */
-  right: -33.07vw; /* -130px */
-  width: 91.6vw; /* 360px */
-  height: 37.55vh; /* 320px */
+  top: -170px;
+  right: -130px;
+  width: 360px;
+  height: 320px;
   border-radius: 50%;
-  background: linear-gradient(
-    185deg,
-    #4e7aea -21.92%,
-    #ffdbac 85.22%,
-    #ffbe93 100.53%
+  background: var(
+    --Accent-GD-01,
+    linear-gradient(185deg, #4e7aea -21.92%, #ffdbac 85.22%, #ffbe93 100.53%)
   );
 `;
 
 const CircleBottomLeft = styled.div`
   position: absolute;
-  left: -30.53vw; /* -120px */
-  bottom: 31.69vh; /* 270px */
-  width: 81.42vw; /* 320px */
-  height: 37.55vh; /* 320px */
+  left: -120px;
+  bottom: 270px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
-  background: linear-gradient(
-    185deg,
-    #4e7aea -21.92%,
-    #ffdbac 85.22%,
-    #ffbe93 100.53%
+  background: var(
+    --Accent-GD-01,
+    linear-gradient(185deg, #4e7aea -21.92%, #ffdbac 85.22%, #ffbe93 100.53%)
   );
 `;
 
 const BottomGradient = styled.div`
   position: absolute;
   left: 53.5%;
-  bottom: -10.56vh; /* -90px */
+  bottom: -90px;
   transform: translateX(-50%);
   width: 150%;
   height: 63%;
   border-top-left-radius: 50% 99%;
   border-top-right-radius: 50% 83%;
-  background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
+  background: var(
+    --Accent-GD-02,
+    linear-gradient(180deg, #1b409c 0%, #ff7852 100%)
+  );
 `;
 
 const Bird = styled.img`
   z-index: 1;
-  width: 56.49vw; /* 222px */
+  width: 222px;
   position: absolute;
-  bottom: 43.43vh; /* 370px */
+  bottom: 294px;
 `;
 
 const Title = styled.p`
   z-index: 1;
-  font-size: clamp(1rem, 5vw, 1.25rem); /* 20px 기준 */
-  font-weight: 700;
-  line-height: 1.5;
+  font: bold 24px "Pretendard Variable", sans-serif;
   position: absolute;
-  bottom: 35.21vh; /* 300px */
+  bottom: 300px;
   text-align: center;
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 700;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 `;
 
+/* 점 3개 */
 const IndicatorWrapper = styled.div`
   position: absolute;
-  bottom: 31.69vh; /* 270px */
+  bottom: 270px; /* 위치 자유롭게 조정 가능 */
   display: flex;
-  gap: 1.52vw; /* 6px */
+  gap: 6px;
   z-index: 2;
 `;
 
 const Dot = styled.div`
-  width: 2.03vw; /* 8px */
-  height: 2.03vw; /* 8px */
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
 `;
 
-const ArrowRight = styled.img`
-  width: 5.6vw; /* 22px */
-  height: 2.35vh; /* 20px */
+/* 화살표 이미지 */
+const Arrowleft = styled.img`
+  width: 22px;
+  height: 20px;
   z-index: 2;
   cursor: pointer;
   position: absolute;
-  bottom: 31.69vh; /* 270px */
-  right: 12.72vw; /* 50px */
+  bottom: 270px; /* 점과 별개로 위치 조정 가능 */
+  left: 50px;
 `;
 
 const BtnArea = styled.div`
   z-index: 1;
   position: absolute;
-  bottom: 4.7vh; /* 40px */
+  bottom: 40px;
   width: 100%;
-  padding: 0 5.09vw; /* 20px */
+  padding: 0 20px;
   display: grid;
   place-items: center;
-  row-gap: 1.41vh; /* 12px */
+  row-gap: 12px;
 `;
 
 const BaseBtn = styled.button`
   width: 100%;
-  max-width: 84.48vw; /* 332px */
-  height: 5.87vh; /* 50px */
+  max-width: 332px;
+  height: 50px;
   border-radius: 26px;
-  font-size: clamp(0.875rem, 4vw, 1rem);
+  font-size: 16px;
   font-weight: 800;
 `;
 
@@ -196,9 +197,8 @@ const LookAround = styled.button`
   background: transparent;
   border: none;
   color: #fff;
-  font-size: clamp(0.75rem, 3vw, 0.8125rem);
+  font-size: 13px;
   text-decoration: underline;
   cursor: pointer;
-  padding: 0.47vh 2.03vw; /* 4px 8px */
+  padding: 4px 8px;
 `;
-

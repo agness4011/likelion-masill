@@ -3,6 +3,7 @@ import MoveHeartImg from "../../assets/react.svg";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { BoardData, BoardImage, MoveToInterest } from "./MainStyles.styled";
+
 import dayjs from "dayjs";
 
 import { data as initialData } from "../../dummy/datas";
@@ -14,6 +15,10 @@ export default function Main({ children }) {
 function SearchBar() {
   const [text, setText] = useState("");
 
+  const search = () => {
+    setText("");
+  };
+
   return (
     <div>
       <Link to="/search">
@@ -24,6 +29,7 @@ function SearchBar() {
         />
         <img src={SearchGlass} alt="서치버튼" />
       </Link>
+
     </div>
   );
 }
@@ -52,6 +58,26 @@ function Post({ area, category }) {
     initialData.map((post) => ({ ...post, isHeartClicked: false }))
   );
 
+  // 하트 클릭 처리
+  const clickHeart = (id) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id === id) {
+          const isClicked = !post.isHeartClicked;
+          return {
+            ...post,
+            isHeartClicked: isClicked,
+            heart: isClicked ? post.heart + 1 : post.heart - 1,
+          };
+        }
+        return post;
+      })
+    );
+  };
+
+  // 카테고리 필터링
+  const filteredPosts = posts.filter((post) => post.category === category);
+
   const clickHeart = (id) => {
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
@@ -75,6 +101,7 @@ function Post({ area, category }) {
     }
     return post.category === category;
   });
+
 
   // 정렬
   const sortedPosts = [...filteredPosts].sort((a, b) => {
@@ -128,7 +155,9 @@ function Post({ area, category }) {
                     color: item.isHeartClicked ? "red" : "black",
                   }}
                   onClick={(e) => {
+
                     e.stopPropagation();
+
                     clickHeart(item.id);
                   }}
                 >
@@ -143,6 +172,8 @@ function Post({ area, category }) {
     </div>
   );
 }
+
+
 
 function MoveInterset() {
   return (
