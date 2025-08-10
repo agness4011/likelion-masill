@@ -1,60 +1,38 @@
-// src/pages/Onboarding1.jsx
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/Onboarding.jsx
+import React from "react";
 import styled from "styled-components";
-
-import PixelCanvas from "@/components/commons/PixelCanvas"; // 393x852 스케일 래퍼
+import { useNavigate } from "react-router-dom";
+import PixelCanvas from "@/components/commons/PixelCanvas";
+import bird from "@logo/bird.svg";
 import arrowright from "@logo/arrowright.png";
-import arrowleft from "@logo/arrowleft.png";
-import chatonboarding1 from "@logo/chatonboarding1.svg";
-import chatonboarding2 from "@logo/chatonboarding2.svg";
 
 export default function OnboardingPage() {
   const nav = useNavigate();
-  const [showSecond, setShowSecond] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setShowSecond(true), 1500);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
     <PixelCanvas w={393} h={852}>
       <Wrap>
         <CircleTopRight />
         <CircleBottomLeft />
-
-        {/* 같은 위치에서 교차 페이드 */}
-        <ChatImage
-          src={chatonboarding1}
-          alt="chatonboarding1"
-          style={{ opacity: showSecond ? 0 : 1 }}
-        />
-        <ChatImage
-          src={chatonboarding2}
-          alt="chatonboarding2"
-          style={{ opacity: showSecond ? 1 : 0 }}
-        />
-
         <BottomGradient />
 
+        <Bird src={bird} alt="bird" />
+
         <Title>
-          <AccentText>masill_bird</AccentText>에게
+          우리 동네 가볍게
           <br />
-          추천받는 맞춤 마실
+          마실갈 곳 쏙쏙 골라보기
         </Title>
 
         <IndicatorWrapper>
-          <Dot />
           <Dot active />
+          <Dot />
           <Dot />
         </IndicatorWrapper>
 
-        <ArrowLeft src={arrowleft} alt="arrowleft" onClick={() => nav("/")} />
         <ArrowRight
           src={arrowright}
           alt="arrowright"
-          onClick={() => nav("/onboarding2")}
+          onClick={() => nav("/onboarding1")}
         />
 
         <BtnArea>
@@ -67,7 +45,6 @@ export default function OnboardingPage() {
   );
 }
 
-/* 393x852 캔버스(픽셀 좌표계) 안을 꽉 채움 */
 const Wrap = styled.div`
   position: absolute;
   inset: 0;
@@ -75,6 +52,7 @@ const Wrap = styled.div`
   overflow: hidden;
 `;
 
+/* 모든 좌표와 크기는 Figma px 값 그대로 */
 const CircleTopRight = styled.div`
   position: absolute;
   transform: rotate(13.409deg);
@@ -90,7 +68,6 @@ const CircleTopRight = styled.div`
     #ffbe93 100.53%
   );
 `;
-
 const CircleBottomLeft = styled.div`
   position: absolute;
   left: -120px;
@@ -105,18 +82,6 @@ const CircleBottomLeft = styled.div`
     #ffbe93 100.53%
   );
 `;
-
-/* 전환 애니메이션(두 이미지 같은 좌표에 포개기) */
-const ChatImage = styled.img`
-  position: absolute;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  transition: opacity 0.8s ease-in-out;
-  pointer-events: none;
-`;
-
 const BottomGradient = styled.div`
   position: absolute;
   left: 53.5%;
@@ -128,36 +93,31 @@ const BottomGradient = styled.div`
   border-top-right-radius: 50% 83%;
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
 `;
-
+const Bird = styled.img`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 222px;
+  bottom: 370px;
+  z-index: 1;
+`;
 const Title = styled.p`
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   bottom: 300px;
-
   z-index: 1;
+  font: bold;
   text-align: center;
+  color: #fff;
   font-family: "Pretendard Variable", system-ui, -apple-system, "Segoe UI",
     Roboto, sans-serif;
   font-weight: 700;
   font-size: 20px;
   line-height: 1.5;
-  color: #ffffff;
+  letter-spacing: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 `;
-
-const AccentText = styled.span`
-  background: linear-gradient(
-    90deg,
-    #4e7aea -21.92%,
-    #ffdbac 85.22%,
-    #ffbe93 100.53%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
-`;
-
 const IndicatorWrapper = styled.div`
   position: absolute;
   left: 50%;
@@ -167,34 +127,21 @@ const IndicatorWrapper = styled.div`
   gap: 6px;
   z-index: 2;
 `;
-
 const Dot = styled.div`
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
 `;
-
-const ArrowLeft = styled.img`
-  position: absolute;
-  bottom: 270px;
-  left: 50px;
-  width: 22px;
-  height: 20px;
-  z-index: 2;
-  cursor: pointer;
-`;
-
 const ArrowRight = styled.img`
   position: absolute;
   bottom: 270px;
   right: 50px;
+  z-index: 2;
   width: 22px;
   height: 20px;
-  z-index: 2;
   cursor: pointer;
 `;
-
 const BtnArea = styled.div`
   position: absolute;
   left: 0;
@@ -206,26 +153,23 @@ const BtnArea = styled.div`
   row-gap: 12px;
   z-index: 1;
 `;
-
 const BaseBtn = styled.button`
   width: 100%;
   max-width: 332px;
   height: 50px;
   border-radius: 26px;
-  font-size: 16px;
   font-weight: 800;
+  font-size: 16px;
 `;
-
 const JoinBtn = styled(BaseBtn)`
-  background: #ffffff;
+  background: #fff;
   color: #1d1d1d;
   border: none;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 `;
-
 const LoginBtn = styled(BaseBtn)`
   background: transparent;
-  color: #ffffff;
+  color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.95);
   position: relative;
   overflow: hidden;
@@ -241,13 +185,12 @@ const LoginBtn = styled(BaseBtn)`
     );
   }
 `;
-
 const LookAround = styled.button`
   background: transparent;
   border: none;
   color: #fff;
+  cursor: pointer;
   font-size: 13px;
   text-decoration: underline;
-  cursor: pointer;
   padding: 4px 8px;
 `;
