@@ -28,6 +28,7 @@ export default function MainPage() {
 
       <Main.PostContent>
         <Outlet />
+        <Main.MoveInterset />
       </Main.PostContent>
     </Main>
   );

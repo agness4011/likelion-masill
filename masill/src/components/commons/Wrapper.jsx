@@ -1,3 +1,5 @@
+
+// src/components/commons/Wrapper.jsx
 import React from "react";
 import styled from "styled-components";
 
@@ -38,8 +40,6 @@ const Container = styled.div`
       border-radius: 0;
       box-shadow: none;
     }
-  }
-`;
 
 export default function Wrapper({ children }) {
   return (

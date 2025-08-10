@@ -13,3 +13,16 @@ export const BoardImage = styled.img`
   height: 80px;
   flex-shrink: 0;
 `;
+
+
+export const MoveToInterest = styled.img`
+  position: sticky;
+  bottom: 20px;
+
+  left: 400px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  z-index: 9999;
+`;
+
