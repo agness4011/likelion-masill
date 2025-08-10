@@ -1,34 +1,32 @@
 import SearchGlass from "../../assets/react.svg";
-import MoveHeartImg from "../../assets/react.svg";
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { BoardData, BoardImage, MoveToInterest } from "./MainStyles.styled";
-
+import { useNavigate } from "react-router-dom";
+import { BoardData, BoardImage } from "./MainStyles.styled";
 import dayjs from "dayjs";
-
 import { data as initialData } from "../../dummy/datas";
 
+// ✅ 온보딩과 동일한 PixelCanvas 세팅 사용
+import PixelCanvas from "../../components/commons/PixelCanvas";
+
 export default function Main({ children }) {
-  return <div>{children}</div>;
+  return (
+    <PixelCanvas w={393} h={852}>
+      {children}
+    </PixelCanvas>
+  );
 }
 
 function SearchBar() {
   const [text, setText] = useState("");
-
-  const search = () => {
-    setText("");
-  };
-
+  const search = () => setText("");
   return (
     <div>
-      <Link to="/search">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <img src={SearchGlass} alt="서치버튼" />
-      </Link>
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <img src={SearchGlass} alt="서치버튼" onClick={search} />
     </div>
   );
 }
@@ -52,40 +50,30 @@ function PostContent({ children }) {
 
 function Post({ area, category }) {
   const [sortType, setSortType] = useState("AI 추천순");
-
   const [posts, setPosts] = useState(
     initialData.map((post) => ({ ...post, isHeartClicked: false }))
   );
 
   const clickHeart = (id) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
+    setPosts((prev) =>
+      prev.map((post) =>
         post.id === id
           ? {
               ...post,
               isHeartClicked: !post.isHeartClicked,
-              heart: post.isHeartClicked ? post.heart - 1 : post.heart + 1,
+              heart: !post.isHeartClicked ? post.heart + 1 : post.heart - 1,
             }
           : post
       )
     );
   };
 
-  const today = dayjs().format("YYYY.MM.DD");
+  const filteredPosts = posts.filter((post) => post.category === category);
 
-  // 🔽 게시글 필터링 로직
-  const filteredPosts = posts.filter((post) => {
-    if (category === "event") {
-      return post.date === today;
-    }
-    return post.category === category;
-  });
-
-  // 정렬
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     if (sortType === "AI 추천순") return a.id - b.id;
-    if (sortType === "조회수" || sortType === "인기수")
-      return b.heart - a.heart;
+    if (sortType === "조회수") return b.heart - a.heart;
+    if (sortType === "인기수") return b.heart - a.heart;
     if (sortType === "댓글수") return b.comment - a.comment;
     return 0;
   });
@@ -104,8 +92,9 @@ function Post({ area, category }) {
       </div>
       <div>
         {sortedPosts.map((item) => {
+          const today = dayjs();
           const eventDate = dayjs(item.date, "YYYY.MM.DD");
-          const diff = eventDate.diff(dayjs(), "day");
+          const diff = eventDate.diff(today, "day");
           const isClosingSoon = diff >= 0 && diff <= 3;
 
           return (
@@ -134,7 +123,6 @@ function Post({ area, category }) {
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
-
                     clickHeart(item.id);
                   }}
                 >
@@ -150,15 +138,6 @@ function Post({ area, category }) {
   );
 }
 
-function MoveInterset() {
-  return (
-    <Link to="/interst">
-      <MoveToInterest src={MoveHeartImg} alt="관심 이동" />
-    </Link>
-  );
-}
-
-Main.MoveInterset = MoveInterset;
 Main.PostContent = PostContent;
 Main.Post = Post;
 Main.SearchBar = SearchBar;

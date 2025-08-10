@@ -1,73 +1,88 @@
-import React from "react";
+// src/pages/Onboarding1.jsx
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import bird from "@logo/bird.svg"; // 경로 확인
+
+import PixelCanvas from "@/components/commons/PixelCanvas"; // 393x852 스케일 래퍼
 import arrowright from "@logo/arrowright.png";
+import arrowleft from "@logo/arrowleft.png";
+import chatonboarding1 from "@logo/chatonboarding1.svg";
+import chatonboarding2 from "@logo/chatonboarding2.svg";
 
 export default function OnboardingPage() {
   const nav = useNavigate();
+  const [showSecond, setShowSecond] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowSecond(true), 1500);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <Wrap>
-      <CircleTopRight />
-      <CircleBottomLeft />
-      <BottomGradient />
+    <PixelCanvas w={393} h={852}>
+      <Wrap>
+        <CircleTopRight />
+        <CircleBottomLeft />
 
-      {/* 새 */}
-      <Bird src={bird} alt="bird" />
+        {/* 같은 위치에서 교차 페이드 */}
+        <ChatImage
+          src={chatonboarding1}
+          alt="chatonboarding1"
+          style={{ opacity: showSecond ? 0 : 1 }}
+        />
+        <ChatImage
+          src={chatonboarding2}
+          alt="chatonboarding2"
+          style={{ opacity: showSecond ? 1 : 0 }}
+        />
 
-      {/* 문구 */}
-      <Title>
-        우리 동네 가볍게
-        <br />
-        마실갈 곳 쏙쏙 골라보기
-      </Title>
+        <BottomGradient />
 
-      {/* 점 3개 */}
-      <IndicatorWrapper>
-        <Dot active />
-        <Dot />
-        <Dot />
-      </IndicatorWrapper>
+        <Title>
+          <AccentText>masill_bird</AccentText>에게
+          <br />
+          추천받는 맞춤 마실
+        </Title>
 
-      {/* 오른쪽 화살표 이미지 클릭 시 페이지 이동 */}
-      <ArrowRight
-        src={arrowright}
-        alt="arrowright"
-        onClick={() => nav("/onboarding1")}
-      />
+        <IndicatorWrapper>
+          <Dot />
+          <Dot active />
+          <Dot />
+        </IndicatorWrapper>
 
-      {/* 버튼 영역 */}
-      <BtnArea>
-        <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
-        <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
-        <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
-      </BtnArea>
-    </Wrap>
+        <ArrowLeft src={arrowleft} alt="arrowleft" onClick={() => nav("/")} />
+        <ArrowRight
+          src={arrowright}
+          alt="arrowright"
+          onClick={() => nav("/onboarding2")}
+        />
+
+        <BtnArea>
+          <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
+          <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
+          <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
+        </BtnArea>
+      </Wrap>
+    </PixelCanvas>
   );
 }
 
+/* 393x852 캔버스(픽셀 좌표계) 안을 꽉 채움 */
 const Wrap = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  max-width: 430px;
-  margin: 0 auto;
-  background: #eef3ff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
   overflow: hidden;
 `;
 
 const CircleTopRight = styled.div`
   position: absolute;
-  top: -11rem;
-  right: -12rem;
-  width: 22.5rem;
-  height: 18.75rem;
-  border-radius: 50%;
   transform: rotate(13.409deg);
+  top: -170px;
+  right: -130px;
+  width: 360px;
+  height: 320px;
+  border-radius: 50%;
   background: linear-gradient(
     185deg,
     #4e7aea -21.92%,
@@ -78,10 +93,10 @@ const CircleTopRight = styled.div`
 
 const CircleBottomLeft = styled.div`
   position: absolute;
-  left: -11rem;
-  bottom: 18rem;
-  width: 20rem;
-  height: 18.75rem;
+  left: -120px;
+  bottom: 270px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
   background: linear-gradient(
     185deg,
@@ -91,10 +106,21 @@ const CircleBottomLeft = styled.div`
   );
 `;
 
+/* 전환 애니메이션(두 이미지 같은 좌표에 포개기) */
+const ChatImage = styled.img`
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+`;
+
 const BottomGradient = styled.div`
   position: absolute;
-  left: 50%;
-  bottom: -5rem;
+  left: 53.5%;
+  bottom: -90px;
   transform: translateX(-50%);
   width: 150%;
   height: 63%;
@@ -103,67 +129,90 @@ const BottomGradient = styled.div`
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
 `;
 
-const Bird = styled.img`
-  z-index: 1;
-  position: absolute;
-  width: 50%;
-  bottom: 40%;
-`;
-
 const Title = styled.p`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 300px;
+
   z-index: 1;
+  text-align: center;
+  font-family: "Pretendard Variable", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
   font-weight: 700;
+  font-size: 20px;
   line-height: 1.5;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  position: absolute;
-  bottom: 30%;
-  text-align: center;
+`;
+
+const AccentText = styled.span`
+  background: linear-gradient(
+    90deg,
+    #4e7aea -21.92%,
+    #ffdbac 85.22%,
+    #ffbe93 100.53%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
 `;
 
 const IndicatorWrapper = styled.div`
   position: absolute;
-  bottom: 18rem;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 270px;
   display: flex;
-  gap: 0.375rem;
+  gap: 6px;
   z-index: 2;
 `;
 
 const Dot = styled.div`
-  width: 0.5rem;
-  height: 0.5rem;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
 `;
 
-const ArrowRight = styled.img`
-  width: 1.375rem;
-  height: 1.25rem;
+const ArrowLeft = styled.img`
+  position: absolute;
+  bottom: 270px;
+  left: 50px;
+  width: 22px;
+  height: 20px;
   z-index: 2;
   cursor: pointer;
+`;
+
+const ArrowRight = styled.img`
   position: absolute;
-  bottom: 18rem;
-  right: 3rem;
+  bottom: 270px;
+  right: 50px;
+  width: 22px;
+  height: 20px;
+  z-index: 2;
+  cursor: pointer;
 `;
 
 const BtnArea = styled.div`
-  z-index: 1;
   position: absolute;
-  bottom: 2.5rem;
+  left: 0;
+  bottom: 40px;
   width: 100%;
-  padding: 0 1.25rem;
+  padding: 0 20px;
   display: grid;
   place-items: center;
-  row-gap: 0.75rem;
+  row-gap: 12px;
+  z-index: 1;
 `;
 
 const BaseBtn = styled.button`
   width: 100%;
-  max-width: 20.75rem;
-  height: 3.125rem;
+  max-width: 332px;
+  height: 50px;
   border-radius: 26px;
-  font-size: clamp(0.875rem, 4vw, 1rem);
+  font-size: 16px;
   font-weight: 800;
 `;
 
@@ -180,7 +229,6 @@ const LoginBtn = styled(BaseBtn)`
   border: 1px solid rgba(255, 255, 255, 0.95);
   position: relative;
   overflow: hidden;
-
   &::before {
     content: "";
     position: absolute;
@@ -198,8 +246,8 @@ const LookAround = styled.button`
   background: transparent;
   border: none;
   color: #fff;
-  font-size: clamp(0.75rem, 3vw, 0.8125rem);
+  font-size: 13px;
   text-decoration: underline;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding: 4px 8px;
 `;

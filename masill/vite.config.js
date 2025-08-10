@@ -19,6 +19,7 @@ export default defineConfig({
       { find: "@store", replacement: "/src/store" },
       { find: "@styles", replacement: "/src/styles" },
       { find: "@logo", replacement: "/src/assets/logo" },
+      { find: "@assets", replacement: "/src/assets" },
     ],
   },
 });

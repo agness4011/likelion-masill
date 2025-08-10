@@ -1,6 +1,8 @@
+// src/pages/Onboarding2.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import PixelCanvas from "@/components/commons/PixelCanvas"; // 393x852 스케일 래퍼
 
 import arrowleft from "@logo/arrowleft.png";
 
@@ -8,52 +10,45 @@ export default function OnboardingPage() {
   const nav = useNavigate();
 
   return (
-    <Wrap>
-      <CircleTopRight />
-      <CircleBottomLeft />
-      <BottomGradient />
+    <PixelCanvas w={393} h={852}>
+      <Wrap>
+        <CircleTopRight />
+        <CircleBottomLeft />
+        <BottomGradient />
 
-      {/* 새 */}
+        <Title>
+          우리 동네 마실,
+          <br />
+          어디로 가볼까요?
+        </Title>
 
-      {/* 문구 */}
-      <Title>
-        우리 동네 마실,
-        <br />
-        어디로 가볼까요?
-      </Title>
+        <IndicatorWrapper>
+          <Dot />
+          <Dot />
+          <Dot active />
+        </IndicatorWrapper>
 
-      {/* 점 3개 */}
-      <IndicatorWrapper>
-        <Dot />
-        <Dot />
-        <Dot active />
-      </IndicatorWrapper>
+        <Arrowleft
+          src={arrowleft}
+          alt="arrowleft"
+          onClick={() => nav("/onboarding1")}
+        />
 
-      {/* 오른쪽 화살표 이미지 클릭 시 페이지 이동 */}
-      <Arrowleft
-        src={arrowleft}
-        alt="arrowleft"
-        onClick={() => nav("/onboarding1")}
-      />
-
-      {/* 버튼 영역 */}
-      <BtnArea>
-        <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
-        <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
-        <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
-      </BtnArea>
-    </Wrap>
+        <BtnArea>
+          <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
+          <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
+          <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
+        </BtnArea>
+      </Wrap>
+    </PixelCanvas>
   );
 }
 
 const Wrap = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  background: #eef3ff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  inset: 0; /* 캔버스 꽉 채움 (좌표계: 393x852) */
+
+  background: #ffffff;
   overflow: hidden;
 `;
 
@@ -66,9 +61,11 @@ const CircleTopRight = styled.div`
   width: 360px;
   height: 320px;
   border-radius: 50%;
-  background: var(
-    --Accent-GD-01,
-    linear-gradient(185deg, #4e7aea -21.92%, #ffdbac 85.22%, #ffbe93 100.53%)
+  background: linear-gradient(
+    185deg,
+    #4e7aea -21.92%,
+    #ffdbac 85.22%,
+    #ffbe93 100.53%
   );
 `;
 
@@ -79,9 +76,11 @@ const CircleBottomLeft = styled.div`
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: var(
-    --Accent-GD-01,
-    linear-gradient(185deg, #4e7aea -21.92%, #ffdbac 85.22%, #ffbe93 100.53%)
+  background: linear-gradient(
+    185deg,
+    #4e7aea -21.92%,
+    #ffdbac 85.22%,
+    #ffbe93 100.53%
   );
 `;
 
@@ -94,41 +93,35 @@ const BottomGradient = styled.div`
   height: 63%;
   border-top-left-radius: 50% 99%;
   border-top-right-radius: 50% 83%;
-  background: var(
-    --Accent-GD-02,
-    linear-gradient(180deg, #1b409c 0%, #ff7852 100%)
-  );
-`;
-
-const Bird = styled.img`
-  z-index: 1;
-  width: 222px;
-  position: absolute;
-  bottom: 294px;
+  background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
 `;
 
 const Title = styled.p`
-  z-index: 1;
-  font: bold 24px "Pretendard Variable", sans-serif;
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 300px;
+
+  z-index: 1;
   text-align: center;
+  font-family: "Pretendard Variable", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  font-weight: 700;
   font-size: 20px;
   line-height: 1.5;
-  font-weight: 700;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 `;
 
-/* 점 3개 */
 const IndicatorWrapper = styled.div`
   position: absolute;
-  bottom: 270px; /* 위치 자유롭게 조정 가능 */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 270px;
   display: flex;
   gap: 6px;
   z-index: 2;
 `;
-
 const Dot = styled.div`
   width: 8px;
   height: 8px;
@@ -136,14 +129,13 @@ const Dot = styled.div`
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
 `;
 
-/* 화살표 이미지 */
 const Arrowleft = styled.img`
   width: 22px;
   height: 20px;
   z-index: 2;
   cursor: pointer;
   position: absolute;
-  bottom: 270px; /* 점과 별개로 위치 조정 가능 */
+  bottom: 270px;
   left: 50px;
 `;
 
