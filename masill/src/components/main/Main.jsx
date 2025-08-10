@@ -9,11 +9,7 @@ import { data as initialData } from "../../dummy/datas";
 import PixelCanvas from "../../components/commons/PixelCanvas";
 
 export default function Main({ children }) {
-  return (
-    <PixelCanvas w={393} h={852}>
-      {children}
-    </PixelCanvas>
-  );
+  return <div>{children}</div>;
 }
 
 function SearchBar() {

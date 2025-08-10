@@ -18,6 +18,7 @@ const Wrap = styled.div`
   grid-template-rows: auto 1fr auto;
   gap: 16px;
 
+  overflow: hidden;
   > * {
     position: relative;
     z-index: 1; /* 원 위에 내용 올리기 */
@@ -75,37 +76,34 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthContainer scroll={false}>
-      <Wrap>
-        {/* 배경 원 2개 */}
-        <CircleTopRight />
-        <BottomGradient />
+    <Wrap>
+      {/* 배경 원 2개 */}
+      <CircleTopRight />
+      <BottomGradient />
 
-        {/* 상단: 뒤로가기 + 로고 */}
-        <AuthHeader onBack={() => nav(-1)} logoSrc={MasilLogo} logoAlt="마실" />
+      {/* 상단: 뒤로가기 + 로고 */}
+      <AuthHeader onBack={() => nav(-1)} logoSrc={MasilLogo} logoAlt="마실" />
 
-        {/* 중간: 폼 */}
-        <Form>
-          <AuthInput
-            label="아이디"
-            placeholder="이메일 주소를 입력해주세요."
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <AuthInput
-            label="비밀번호"
-            type="password"
-            placeholder="비밀번호를 입력해주세요."
-            value={pw}
-            onChange={(e) => setPw(e.target.value)}
-          />
-          <AuthButton onClick={handleLogin}>로그인</AuthButton>
-        </Form>
+      {/* 중간: 폼 */}
+      <Form>
+        <AuthInput
+          label="아이디"
+          placeholder="이메일 주소를 입력해주세요."
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <AuthInput
+          label="비밀번호"
+          type="password"
+          placeholder="비밀번호를 입력해주세요."
+          value={pw}
+          onChange={(e) => setPw(e.target.value)}
+        />
+        <AuthButton onClick={handleLogin}>로그인</AuthButton>
+      </Form>
 
-        {/* 하단: 소셜 로그인 + 회원가입 링크 */}
-        <SocialLogin onSignup={() => nav("/signup")} />
-      </Wrap>
-    </AuthContainer>
+      {/* 하단: 소셜 로그인 + 회원가입 링크 */}
+      <SocialLogin onSignup={() => nav("/signup")} />
+    </Wrap>
   );
 }
-
