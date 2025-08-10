@@ -1,7 +1,9 @@
+// src/pages/Onboarding1.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
+import PixelCanvas from "@/components/commons/PixelCanvas"; // 393x852 스케일 래퍼
 import arrowright from "@logo/arrowright.png";
 import arrowleft from "@logo/arrowleft.png";
 import chatonboarding1 from "@logo/chatonboarding1.svg";
@@ -12,73 +14,70 @@ export default function OnboardingPage() {
   const [showSecond, setShowSecond] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSecond(true);
-    }, 2000); // 2초 후 전환
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setShowSecond(true), 1500);
+    return () => clearTimeout(t);
   }, []);
 
   return (
-    <Wrap>
-      <CircleTopRight />
-      <CircleBottomLeft />
+    <PixelCanvas w={393} h={852}>
+      <Wrap>
+        <CircleTopRight />
+        <CircleBottomLeft />
 
-      {/* 같은 위치에서 이미지 전환 (교차 페이드) */}
-      <ChatImage
-        src={chatonboarding1}
-        alt="chatonboarding1"
-        style={{ opacity: showSecond ? 0 : 1 }}
-      />
-      <ChatImage
-        src={chatonboarding2}
-        alt="chatonboarding2"
-        style={{ opacity: showSecond ? 1 : 0 }}
-      />
+        {/* 같은 위치에서 교차 페이드 */}
+        <ChatImage
+          src={chatonboarding1}
+          alt="chatonboarding1"
+          style={{ opacity: showSecond ? 0 : 1 }}
+        />
+        <ChatImage
+          src={chatonboarding2}
+          alt="chatonboarding2"
+          style={{ opacity: showSecond ? 1 : 0 }}
+        />
 
-      <BottomGradient />
+        <BottomGradient />
 
-      <Title>
-        <AccentText>masill_bird</AccentText>에게
-        <br />
-        추천받는 맞춤 마실
-      </Title>
+        <Title>
+          <AccentText>masill_bird</AccentText>에게
+          <br />
+          추천받는 맞춤 마실
+        </Title>
 
-      <IndicatorWrapper>
-        <Dot />
-        <Dot active />
-        <Dot />
-      </IndicatorWrapper>
+        <IndicatorWrapper>
+          <Dot />
+          <Dot active />
+          <Dot />
+        </IndicatorWrapper>
 
-      <ArrowLeft src={arrowleft} alt="arrowleft" onClick={() => nav("/")} />
-      <ArrowRight
-        src={arrowright}
-        alt="arrowright"
-        onClick={() => nav("/onboarding2")}
-      />
+        <ArrowLeft src={arrowleft} alt="arrowleft" onClick={() => nav("/")} />
+        <ArrowRight
+          src={arrowright}
+          alt="arrowright"
+          onClick={() => nav("/onboarding2")}
+        />
 
-      <BtnArea>
-        <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
-        <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
-        <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
-      </BtnArea>
-    </Wrap>
+        <BtnArea>
+          <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
+          <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
+          <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
+        </BtnArea>
+      </Wrap>
+    </PixelCanvas>
   );
 }
 
+/* 393x852 캔버스(픽셀 좌표계) 안을 꽉 채움 */
 const Wrap = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  background: #eef3ff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
   overflow: hidden;
 `;
 
 const CircleTopRight = styled.div`
-  transform: rotate(13.409deg);
   position: absolute;
+  transform: rotate(13.409deg);
   top: -170px;
   right: -130px;
   width: 360px;
@@ -107,15 +106,15 @@ const CircleBottomLeft = styled.div`
   );
 `;
 
-/* 전환 애니메이션 */
+/* 전환 애니메이션(두 이미지 같은 좌표에 포개기) */
 const ChatImage = styled.img`
   position: absolute;
   top: 50px;
   left: 50%;
   transform: translateX(-50%);
   width: 200px;
-  opacity: ${(props) => (props.$fadeIn ? 1 : 0)};
   transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
 `;
 
 const BottomGradient = styled.div`
@@ -131,17 +130,22 @@ const BottomGradient = styled.div`
 `;
 
 const Title = styled.p`
-  z-index: 1;
-  font: bold 24px "Pretendard Variable", sans-serif;
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 300px;
+
+  z-index: 1;
   text-align: center;
+  font-family: "Pretendard Variable", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  font-weight: 700;
   font-size: 20px;
   line-height: 1.5;
-  font-weight: 700;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 `;
+
 const AccentText = styled.span`
   background: linear-gradient(
     90deg,
@@ -156,6 +160,8 @@ const AccentText = styled.span`
 
 const IndicatorWrapper = styled.div`
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 270px;
   display: flex;
   gap: 6px;
@@ -165,40 +171,40 @@ const IndicatorWrapper = styled.div`
 const Dot = styled.div`
   width: 8px;
   height: 8px;
-  /* 위치 자유롭게 조정 가능 */
   border-radius: 50%;
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
 `;
 
 const ArrowLeft = styled.img`
-  width: 22px;
-  height: 20px;
-  z-index: 2;
-  cursor: pointer;
   position: absolute;
   bottom: 270px;
   left: 50px;
-`;
-
-const ArrowRight = styled.img`
   width: 22px;
   height: 20px;
   z-index: 2;
   cursor: pointer;
+`;
+
+const ArrowRight = styled.img`
   position: absolute;
   bottom: 270px;
   right: 50px;
+  width: 22px;
+  height: 20px;
+  z-index: 2;
+  cursor: pointer;
 `;
 
 const BtnArea = styled.div`
-  z-index: 1;
   position: absolute;
+  left: 0;
   bottom: 40px;
   width: 100%;
   padding: 0 20px;
   display: grid;
   place-items: center;
   row-gap: 12px;
+  z-index: 1;
 `;
 
 const BaseBtn = styled.button`

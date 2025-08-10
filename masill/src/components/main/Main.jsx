@@ -3,18 +3,22 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BoardData, BoardImage } from "./MainStyles.styled";
 import dayjs from "dayjs";
-
 import { data as initialData } from "../../dummy/datas";
 
+// ✅ 온보딩과 동일한 PixelCanvas 세팅 사용
+import PixelCanvas from "../../components/commons/PixelCanvas";
+
 export default function Main({ children }) {
-  return <div>{children}</div>;
+  return (
+    <PixelCanvas w={393} h={852}>
+      {children}
+    </PixelCanvas>
+  );
 }
 
 function SearchBar() {
   const [text, setText] = useState("");
-  const search = () => {
-    setText("");
-  };
+  const search = () => setText("");
   return (
     <div>
       <input
@@ -46,33 +50,26 @@ function PostContent({ children }) {
 
 function Post({ area, category }) {
   const [sortType, setSortType] = useState("AI 추천순");
-
-  // 게시글 상태 배열 (하트 상태 포함)
   const [posts, setPosts] = useState(
     initialData.map((post) => ({ ...post, isHeartClicked: false }))
   );
 
-  // 하트 클릭 처리
   const clickHeart = (id) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === id) {
-          const isClicked = !post.isHeartClicked;
-          return {
-            ...post,
-            isHeartClicked: isClicked,
-            heart: isClicked ? post.heart + 1 : post.heart - 1,
-          };
-        }
-        return post;
-      })
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === id
+          ? {
+              ...post,
+              isHeartClicked: !post.isHeartClicked,
+              heart: !post.isHeartClicked ? post.heart + 1 : post.heart - 1,
+            }
+          : post
+      )
     );
   };
 
-  // 카테고리 필터링
   const filteredPosts = posts.filter((post) => post.category === category);
 
-  // 정렬
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     if (sortType === "AI 추천순") return a.id - b.id;
     if (sortType === "조회수") return b.heart - a.heart;
@@ -96,10 +93,9 @@ function Post({ area, category }) {
       <div>
         {sortedPosts.map((item) => {
           const today = dayjs();
-          const eventDate = dayjs(item.date, "YYYY.MM.DD"); // 'YYYY.MM.DD' 형식
+          const eventDate = dayjs(item.date, "YYYY.MM.DD");
           const diff = eventDate.diff(today, "day");
-
-          const isClosingSoon = diff >= 0 && diff <= 3; // 오늘 ~ 3일 이내
+          const isClosingSoon = diff >= 0 && diff <= 3;
 
           return (
             <BoardData
@@ -126,7 +122,7 @@ function Post({ area, category }) {
                     color: item.isHeartClicked ? "red" : "black",
                   }}
                   onClick={(e) => {
-                    e.stopPropagation(); // 클릭 이벤트 전파 방지
+                    e.stopPropagation();
                     clickHeart(item.id);
                   }}
                 >

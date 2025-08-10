@@ -1,71 +1,65 @@
+// src/pages/Onboarding.jsx
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import bird from "@logo/bird.svg"; // 경로 확인
+import { useNavigate } from "react-router-dom";
+import PixelCanvas from "@/components/commons/PixelCanvas";
+import bird from "@logo/bird.svg";
 import arrowright from "@logo/arrowright.png";
 
 export default function OnboardingPage() {
   const nav = useNavigate();
-
   return (
-    <Wrap>
-      <CircleTopRight />
-      <CircleBottomLeft />
-      <BottomGradient />
+    <PixelCanvas w={393} h={852}>
+      <Wrap>
+        <CircleTopRight />
+        <CircleBottomLeft />
+        <BottomGradient />
 
-      {/* 새 */}
-      <Bird src={bird} alt="bird" />
+        <Bird src={bird} alt="bird" />
 
-      {/* 문구 */}
-      <Title>
-        우리 동네 가볍게
-        <br />
-        마실갈 곳 쏙쏙 골라보기
-      </Title>
+        <Title>
+          우리 동네 가볍게
+          <br />
+          마실갈 곳 쏙쏙 골라보기
+        </Title>
 
-      {/* 점 3개 */}
-      <IndicatorWrapper>
-        <Dot active />
-        <Dot />
-        <Dot />
-      </IndicatorWrapper>
+        <IndicatorWrapper>
+          <Dot active />
+          <Dot />
+          <Dot />
+        </IndicatorWrapper>
 
-      {/* 오른쪽 화살표 이미지 클릭 시 페이지 이동 */}
-      <ArrowRight
-        src={arrowright}
-        alt="arrowright"
-        onClick={() => nav("/onboarding1")}
-      />
+        <ArrowRight
+          src={arrowright}
+          alt="arrowright"
+          onClick={() => nav("/onboarding1")}
+        />
 
-      {/* 버튼 영역 */}
-      <BtnArea>
-        <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
-        <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
-        <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
-      </BtnArea>
-    </Wrap>
+        <BtnArea>
+          <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
+          <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
+          <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
+        </BtnArea>
+      </Wrap>
+    </PixelCanvas>
   );
 }
 
 const Wrap = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  background: #eef3ff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
   overflow: hidden;
 `;
 
+/* 모든 좌표와 크기는 Figma px 값 그대로 */
 const CircleTopRight = styled.div`
-  transform: rotate(13.409deg);
-  flex-shrink: 0;
   position: absolute;
-  top: -19.94vh; /* -170px */
-  right: -33.07vw; /* -130px */
-  width: 91.6vw; /* 360px */
-  height: 37.55vh; /* 320px */
+  transform: rotate(13.409deg);
+  top: -170px;
+  right: -130px;
+  width: 360px;
+  height: 320px;
   border-radius: 50%;
   background: linear-gradient(
     185deg,
@@ -74,13 +68,12 @@ const CircleTopRight = styled.div`
     #ffbe93 100.53%
   );
 `;
-
 const CircleBottomLeft = styled.div`
   position: absolute;
-  left: -30.53vw; /* -120px */
-  bottom: 31.69vh; /* 270px */
-  width: 81.42vw; /* 320px */
-  height: 37.55vh; /* 320px */
+  left: -120px;
+  bottom: 270px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
   background: linear-gradient(
     185deg,
@@ -89,11 +82,10 @@ const CircleBottomLeft = styled.div`
     #ffbe93 100.53%
   );
 `;
-
 const BottomGradient = styled.div`
   position: absolute;
   left: 53.5%;
-  bottom: -10.56vh; /* -90px */
+  bottom: -90px;
   transform: translateX(-50%);
   width: 150%;
   height: 63%;
@@ -101,81 +93,83 @@ const BottomGradient = styled.div`
   border-top-right-radius: 50% 83%;
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
 `;
-
 const Bird = styled.img`
-  z-index: 1;
-  width: 56.49vw; /* 222px */
   position: absolute;
-  bottom: 43.43vh; /* 370px */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 222px;
+  bottom: 370px;
+  z-index: 1;
 `;
-
 const Title = styled.p`
-  z-index: 1;
-  font-size: clamp(1rem, 5vw, 1.25rem); /* 20px 기준 */
-  font-weight: 700;
-  line-height: 1.5;
   position: absolute;
-  bottom: 35.21vh; /* 300px */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 300px;
+  z-index: 1;
+  font: bold;
   text-align: center;
-  color: #ffffff;
+  color: #fff;
+  font-family: "Pretendard Variable", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.5;
+  letter-spacing: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 `;
-
 const IndicatorWrapper = styled.div`
   position: absolute;
-  bottom: 31.69vh; /* 270px */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 270px;
   display: flex;
-  gap: 1.52vw; /* 6px */
+  gap: 6px;
   z-index: 2;
 `;
-
 const Dot = styled.div`
-  width: 2.03vw; /* 8px */
-  height: 2.03vw; /* 8px */
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
 `;
-
 const ArrowRight = styled.img`
-  width: 5.6vw; /* 22px */
-  height: 2.35vh; /* 20px */
+  position: absolute;
+  bottom: 270px;
+  right: 50px;
   z-index: 2;
+  width: 22px;
+  height: 20px;
   cursor: pointer;
-  position: absolute;
-  bottom: 31.69vh; /* 270px */
-  right: 12.72vw; /* 50px */
 `;
-
 const BtnArea = styled.div`
-  z-index: 1;
   position: absolute;
-  bottom: 4.7vh; /* 40px */
+  left: 0;
+  bottom: 40px;
   width: 100%;
-  padding: 0 5.09vw; /* 20px */
+  padding: 0 20px;
   display: grid;
   place-items: center;
-  row-gap: 1.41vh; /* 12px */
+  row-gap: 12px;
+  z-index: 1;
 `;
-
 const BaseBtn = styled.button`
   width: 100%;
-  max-width: 84.48vw; /* 332px */
-  height: 5.87vh; /* 50px */
+  max-width: 332px;
+  height: 50px;
   border-radius: 26px;
-  font-size: clamp(0.875rem, 4vw, 1rem);
   font-weight: 800;
+  font-size: 16px;
 `;
-
 const JoinBtn = styled(BaseBtn)`
-  background: #ffffff;
+  background: #fff;
   color: #1d1d1d;
   border: none;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 `;
-
 const LoginBtn = styled(BaseBtn)`
   background: transparent;
-  color: #ffffff;
+  color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.95);
   position: relative;
   overflow: hidden;
@@ -191,13 +185,12 @@ const LoginBtn = styled(BaseBtn)`
     );
   }
 `;
-
 const LookAround = styled.button`
   background: transparent;
   border: none;
   color: #fff;
-  font-size: clamp(0.75rem, 3vw, 0.8125rem);
-  text-decoration: underline;
   cursor: pointer;
-  padding: 0.47vh 2.03vw; /* 4px 8px */
+  font-size: 13px;
+  text-decoration: underline;
+  padding: 4px 8px;
 `;
