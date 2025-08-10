@@ -19,7 +19,7 @@ export default function OnboardingPage() {
   }, []);
 
   return (
-    <PixelCanvas w={393} h={852}>
+    <div>
       <Wrap>
         <CircleTopRight />
         <CircleBottomLeft />
@@ -63,7 +63,7 @@ export default function OnboardingPage() {
           <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
         </BtnArea>
       </Wrap>
-    </PixelCanvas>
+    </div>
   );
 }
 
