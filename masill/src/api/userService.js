@@ -1,18 +1,25 @@
 // src/api/userService.ts
-import { publicAPI } from './axios';
+import { publicAPI, privateAPI } from './axios';
 
 // 로그인 API
 export const login = async (loginData) => {
   try {
     try {
+      console.log('로그인 API 호출 시작:', loginData);
       const { data } = await publicAPI.post('/auth/login', loginData);
+      console.log('로그인 API 성공:', data);
 
       // 서버 응답 키 이름에 맞춰 사용 (필요하면 키명 조정)
       const accessToken = data.accessToken || data.token || null;
       const refreshToken = data.refreshToken || null;
       const user = data.user ?? null;
 
-      if (accessToken) localStorage.setItem('accessToken', accessToken);
+      console.log('추출된 토큰:', { accessToken, refreshToken });
+
+      if (accessToken) {
+        localStorage.setItem('accessToken', accessToken);
+        console.log('실제 토큰 저장됨:', accessToken);
+      }
       if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
       if (user) localStorage.setItem('currentUser', JSON.stringify(user));
 
@@ -44,23 +51,31 @@ export const login = async (loginData) => {
             (cred) => cred.email === loginData.email && cred.password === loginData.password
           );
 
-          if (matchedCredential) {
-            const fake = {
-              success: true,
-              message: '로그인 성공 (더미)',
-              accessToken: 'dummy_access_token_' + Date.now(),
-              refreshToken: 'dummy_refresh_token_' + Date.now(),
-              user: {
-                id: Math.floor(Math.random() * 10000) + 1,
-                email: loginData.email,
-                nickname: matchedCredential.nickname,
-              },
-            };
-            // 더미도 저장(이후 API에서 Authorization 자동 주입)
-            localStorage.setItem('accessToken', fake.accessToken);
-            localStorage.setItem('refreshToken', fake.refreshToken);
-            localStorage.setItem('currentUser', JSON.stringify(fake.user));
-            resolve(fake);
+                     if (matchedCredential) {
+             // 새로운 유효한 토큰 생성 (현재 시간 기준)
+             const now = Math.floor(Date.now() / 1000);
+             const exp = now + (60 * 60 * 24); // 24시간 후 만료
+             
+             // 새로운 토큰 생성 (더미이지만 유효한 형식)
+             const newToken = `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaGprMTIzNEBnbWFpbC5jb20iLCJqdGkiOiJqaGprMTIzNEBnbWFpbC5jb20iLCJpYXQiOi${now}LCJleHAiOi${exp}}.newSignature_${Date.now()}`;
+             
+                            const fake = {
+                 success: true,
+                 message: '로그인 성공 (더미)',
+                 accessToken: newToken,
+                 refreshToken: 'dummy_refresh_token_' + Date.now(),
+               user: {
+                 id: Math.floor(Math.random() * 10000) + 1,
+                 email: loginData.email,
+                 nickname: matchedCredential.nickname,
+               },
+             };
+             // 새로운 토큰 저장
+             localStorage.setItem('accessToken', newToken);
+             localStorage.setItem('refreshToken', fake.refreshToken);
+             localStorage.setItem('currentUser', JSON.stringify(fake.user));
+             console.log('더미 로그인에서 새 토큰 저장됨:', newToken);
+             resolve(fake);
           } else {
             resolve({
               success: false,
@@ -145,35 +160,77 @@ export const signUp = async (userData) => {
 // 닉네임 중복 확인 API (실제 호출 우선, 실패 시만 더미)
 export const checkNicknameDuplicate = async (nickname) => {
   try {
-    const { data } = await publicAPI.get('/users/nickname/check', {
+    console.log('닉네임 중복 확인 API 호출 시작:', nickname);
+    console.log('현재 토큰:', localStorage.getItem('accessToken'));
+    
+    const { data } = await privateAPI.get('/users/nickname/check', {
       params: { nickname }, // => ?nickname=...
     });
-    return data; // { available: boolean, message: string } 형태 가정
+         console.log('닉네임 중복 확인 API 성공:', data);
+     
+     // 백엔드 응답 형식에 맞게 처리
+     if (data && typeof data === 'object') {
+       // 다양한 응답 형식 처리
+       const available = data.available !== undefined ? data.available : 
+                        data.isAvailable !== undefined ? data.isAvailable :
+                        data.duplicate !== undefined ? !data.duplicate :
+                        data.success !== undefined ? data.success : true;
+       
+       const message = data.message || data.msg || 
+                      (available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
+       
+       console.log('처리된 응답:', { available, message });
+       return { available, message };
+     }
+     
+     return data; // { available: boolean, message: string } 형태 가정
   } catch (apiError) {
-    const status = apiError.response?.status;
-    if (status === 403) {
-      console.warn('403: 인증 필요. 백엔드에서 공개 API로 열거나, 프론트는 토큰 포함 호출 필요');
-    }
-    console.warn('닉네임 중복 확인 API 실패. 더미로 대체:', apiError);
-
-    // === 더미 ===
-    return await new Promise((resolve) => {
-      setTimeout(() => {
-        const reservedNicknames = ['admin', 'test', 'user', '관리자', '테스트'];
-        const isDup = reservedNicknames.includes(String(nickname).toLowerCase());
-        resolve({
-          available: !isDup,
-          message: isDup ? '이미 사용 중인 닉네임입니다.' : '사용 가능한 닉네임입니다.',
-        });
-      }, 300);
+    console.error('닉네임 중복 확인 API 실패:', apiError);
+    console.error('API 오류 상세:', {
+      status: apiError.response?.status,
+      statusText: apiError.response?.statusText,
+      data: apiError.response?.data,
+      message: apiError.message
     });
+    
+    const status = apiError.response?.status;
+    
+    // 실제 API가 실패할 때만 더미 응답 사용
+    if ([401, 403, 500].includes(status)) {
+      console.warn(`${status} 오류로 인해 더미 응답 사용`);
+      
+             // === 더미 ===
+       return await new Promise((resolve) => {
+         setTimeout(() => {
+           // 실제로는 중복되지 않은 닉네임들을 사용가능하게 처리
+           const reservedNicknames = ['admin', 'test', 'user', '관리자', '테스트', '비쿠'];
+           const isDup = reservedNicknames.includes(String(nickname).toLowerCase());
+           console.log('더미 응답 - 닉네임:', nickname, '중복여부:', isDup);
+           
+           // 대부분의 닉네임을 사용가능하게 처리 (테스트용)
+           const available = !isDup;
+           resolve({
+             available: available,
+             message: available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.',
+           });
+         }, 300);
+       });
+    }
+    
+    // 다른 오류는 그대로 throw
+    throw apiError;
   }
 };
 
 // 닉네임 변경 API
 export const updateNickname = async (nickname) => {
   try {
-    const res = await publicAPI.patch('/users/me/nickname', { nickname });
+    console.log('닉네임 변경 API 호출 시작:', nickname);
+    console.log('현재 토큰:', localStorage.getItem('accessToken'));
+    
+    const res = await privateAPI.patch('/users/me/nickname', { nickname });
+    console.log('닉네임 변경 API 성공:', res);
+    
     return {
       success: true,
       code: res.status,
@@ -181,10 +238,20 @@ export const updateNickname = async (nickname) => {
       data: { nickname },
     };
   } catch (apiError) {
-    console.warn('닉네임 변경 실패. 필요 시 더미 분기:', apiError);
+    console.error('닉네임 변경 API 실패:', apiError);
+    console.error('API 오류 상세:', {
+      status: apiError.response?.status,
+      statusText: apiError.response?.statusText,
+      data: apiError.response?.data,
+      message: apiError.message
+    });
+    
     const status = apiError.response?.status;
 
+    // 실제 API가 실패할 때만 더미 응답 사용
     if ([401, 403, 500].includes(status)) {
+      console.warn(`${status} 오류로 인해 더미 응답 사용`);
+      
       // === 더미 ===
       return await new Promise((resolve) => {
         setTimeout(() => {
@@ -208,6 +275,8 @@ export const updateNickname = async (nickname) => {
         }, 600);
       });
     }
+    
+    // 다른 오류는 그대로 throw
     throw apiError;
   }
 };
