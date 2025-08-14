@@ -36,8 +36,13 @@ const privateAPI = axios.create({
 privateAPI.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
+    console.log('인터셉터 - 토큰:', token);
+    console.log('인터셉터 - 요청 URL:', config.url);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('인터셉터 - Authorization 헤더 추가됨');
+    } else {
+      console.warn('인터셉터 - 토큰이 없음!');
     }
     return config;
   },
