@@ -1,4 +1,11 @@
-import CategoryPage from "../components/board/SelectCategory";
+import WriteBoard from "../components/board/WriteBoard";
 export default function BoardPage() {
-  return <CategoryPage />;
+  return (
+    <WriteBoard>
+      <WriteBoard.Head />
+      <WriteBoard.Form>
+        <WriteBoard.InputForm />
+      </WriteBoard.Form>
+    </WriteBoard>
+  );
 }

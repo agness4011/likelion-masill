@@ -1,28 +1,121 @@
 import { useState } from "react";
-import BackImg from "../../assets/logo/Back";
-import { useNavigate, Link } from "react-router-dom";
+import BackImg from "../../assets/detail/Arrow-Left.svg";
+import Brid from "../../assets/detail/Union.png";
+import Pencil from "../../assets/detail/pencil.png";
+import Button from "../../assets/detail/Button.png";
+import FullHeart from "../../assets/detail/fullheart.png";
+import Heart from "../../assets/detail/heart.png";
+import { useNavigate, Link, useParams } from "react-router-dom";
+import dayjs from "dayjs";
+import "dayjs/locale/ko";
+
+import { eventData } from "../../dummy/datas";
+
+import {
+  BackBtn,
+  LeftBtn,
+  RightBtn,
+  TopImg,
+  PageIndicator,
+  ImageWrapper,
+  LowContainer,
+  PencilBtn,
+  LowHeaderContainer,
+  HeartImg,
+} from "./Detail.styled";
 
 export default function DetailBoard({ children }) {
   return <div>{children}</div>;
 }
 
-function Hight() {
+function Hight({ children }) {
   return <div>{children}</div>;
 }
 
-function GoBackPage() {
-  const navigate = useNavigate();
+function ShowImage() {
+  const { eventId } = useParams(); // URL에서 eventId 가져오기
+  const event = eventData.find((e) => e.eventId === Number(eventId));
+
+  if (!event) {
+    return <p>이벤트를 찾을 수 없습니다.</p>;
+  }
+
+  const images = event.images;
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleRight = () => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handleLeft = () => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
   return (
-    <>
-      <img ser={BackImg} alt="피이지 뒤로 가는 버튼" onClick={navigate(-1)} />
-    </>
+    <ImageWrapper>
+      <LeftBtn onClick={handleLeft} src={Button} />
+      <TopImg
+        src={images[currentIndex].imageUrl}
+        alt={`이미지 ${currentIndex + 1}`}
+      />
+      <RightBtn onClick={handleRight} src={Button} />
+
+      <PageIndicator>
+        {currentIndex + 1} / {images.length}
+      </PageIndicator>
+    </ImageWrapper>
   );
 }
 
-function ShowImage() {
-  const [img, setImg] = useState(null);
+function Low({ children }) {
+  return <LowContainer>{children}</LowContainer>;
 }
+function LowHead() {
+  const navigate = useNavigate();
+  return (
+    <LowHeaderContainer>
+      <BackBtn
+        src={BackImg}
+        alt="페이지 뒤로 가는 버튼"
+        onClick={() => navigate(-1)}
+      />
+      <PencilBtn src={Pencil} />
+    </LowHeaderContainer>
+  );
+}
+function LowBody({ children }) {
+  return <div>{children}</div>;
+}
+function BodyTop() {
+  const { eventId } = useParams(); // URL에서 eventId 가져오기
+  const event = eventData.find((e) => e.eventId === Number(eventId));
 
+  if (!event) {
+    return <p>이벤트를 찾을 수 없습니다.</p>;
+  }
+
+  return (
+    <div>
+      {/* <p></p>  카테고리*/}
+      <div>
+        <p>{event.title}</p>
+        <p>{event.location}</p>
+        <p>
+          {" "}
+          {`${dayjs(event.startAt).format("YYYY.MM.DD.(dd)")} ~ ${dayjs(
+            event.endAt
+          ).format("YYYY.MM.DD.(dd)")} ${dayjs(event.startAt).format(
+            "HH:mm"
+          )}~${dayjs(event.endAt).format("HH:mm")}`}
+        </p>
+      </div>
+      <div>
+        <p>{event.favoriteCount}</p>
+        {/* <HeartImg src="" */}
+      </div>
+    </div>
+  );
+}
 function UserChat() {
   return (
     <div>
@@ -76,10 +169,6 @@ function DatalButton() {
   );
 }
 
-function Low({ type }) {
-  return <div>{children}</div>;
-}
-
 function DetailContext() {
   return (
     <div>
@@ -100,9 +189,12 @@ function Group() {
 }
 
 function Comment() {}
+DetailBoard.BodyTop = BodyTop;
+DetailBoard.LowBody = LowBody;
+DetailBoard.Low = Low;
 DetailBoard.UserChat = UserChat;
 DetailBoard.Location = Location;
 DetailBoard.DatalButton = DatalButton;
 DetailBoard.High = Hight;
-DetailBoard.GoBackPage = GoBackPage;
+DetailBoard.LowHead = LowHead;
 DetailBoard.ShowImage = ShowImage;
