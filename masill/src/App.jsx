@@ -1,12 +1,14 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import RootLayout from "@layouts/RootLayout";
+import { UserProvider } from "./contexts/UserContext";
 
 import OnboardingPage from "@pages/OnboardingPage";
 import Onboarding1 from "@pages/onboarding/Onboarding1";
 import Onboarding2 from "@pages/onboarding/Onboarding2";
 import MainPage from "@pages/MainPage";
 import LoginPage from "@pages/LoginPage";
+import SearchPage from "@pages/search/SearchPage";
 import BoardPage from "./pages/BoardPage";
 import WriteBoardPage from "./pages/UploadBoard";
 import { mainCategoryRoutes } from "./components/main/MainCategoryRoutes";
@@ -17,17 +19,25 @@ import SignAgreePage from "@components/signup/SignAgreePage";
 import SignPhonePage from "@components/signup/SignPhonePage";
 import SignCreatePage from "@components/signup/SignCreatePage";
 import SignRegionPage from "@components/signup/SignRegionPage";
+import SignRegionDetailPage from "@components/signup/SignRegionDetailPage";
 import SignCompletePage from "@components/signup/SignCompletePage";
 
 import ChatPage from "@pages/chat/ChatPage";
 import ChatRoomPage from "@pages/chat/ChatRoomPage";
 import AuthContainer from "./components/auth/AuthContainer";
+import MyHomePage from "./pages/myhome/MyHomePage";
+import MyPostsPage from "./pages/myhome/MyPostsPage";
+import WishlistPage from "./pages/myhome/WishlistPage";
+import NicknameChangePage from "./pages/myhome/NicknameChangePage";
+import SajangPage from "./pages/myhome/SajangPage";
+
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route element={<RootLayout />}>
+    <UserProvider>
+      <Router>
+        <Routes>
+          <Route element={<RootLayout />}>
           {/* 온보딩 */}
 
           <Route index element={<OnboardingPage />} />
@@ -51,7 +61,8 @@ export default function App() {
             <Route path="phone" element={<SignPhonePage />} />
             <Route path="create" element={<SignCreatePage />} />
             <Route path="region" element={<SignRegionPage />} />
-            <Route path="done" element={<SignCompletePage />} />
+            <Route path="region-detail" element={<SignRegionDetailPage />} />
+            <Route path="complete" element={<SignCompletePage />} />
           </Route>
 
           {/* 메인 + 카테고리 */}
@@ -65,6 +76,9 @@ export default function App() {
             ))}
           </Route>
 
+          {/* 검색 */}
+          <Route path="search" element={<SearchPage />} />
+
           {/* 게시글 작성 흐름 */}
           <Route path="board" element={<BoardPage />} />
           <Route path="write" element={<WriteBoardPage />} />
@@ -72,8 +86,17 @@ export default function App() {
           {/* 채팅 */}
           <Route path="chat" element={<ChatPage />} />
           <Route path="chat/:roomId" element={<ChatRoomPage />} />
+
+          {/* 마이페이지 */}
+          <Route path="myhome" element={<MyHomePage />} />
+          <Route path="myhome/my-posts" element={<MyPostsPage />} />
+          <Route path="myhome/wishlist" element={<WishlistPage />} />
+          <Route path="myhome/nickname-change" element={<NicknameChangePage />} />
+          <Route path="myhome/sajang" element={<SajangPage />} />
+
         </Route>
       </Routes>
     </Router>
+    </UserProvider>
   );
 }

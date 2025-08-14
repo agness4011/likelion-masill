@@ -1,8 +1,119 @@
 // src/pages/SignRegionPage.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import AuthContainer from "@components/auth/AuthContainer";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+
+const Container = styled.div`
+  width: 100%;
+  height: 100vh;
+  background: #fff;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+`;
+
+const TopBar = styled.div`
+  width: 100%;
+  padding: 0 0 0 8px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+`;
+
+const BackBtn = styled.button`
+  position: absolute;
+  left: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #222;
+  cursor: pointer;
+`;
+
+const TitleText = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  color: #222;
+`;
+
+const ProgressBarWrap = styled.div`
+  width: 100%;
+  height: 6px;
+  background: #f4f7ff;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+`;
+
+const ProgressBar = styled.div`
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #4e7aea 0%, #c1cae0 100%);
+  border-radius: 3px;
+  transition: width 0.3s;
+`;
+
+const ContentSection = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+`;
+
+const SectionTitle = styled.div`
+  font-size: 17px;
+  font-weight: 700;
+  color: #222;
+  width: 90%;
+  max-width: 340px;
+  margin-bottom: 24px;
+  text-align: left;
+  flex-shrink: 0;
+`;
+
+const RegionGrid = styled.div`
+  width: 90%;
+  max-width: 340px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+  overflow: hidden;
+  padding-bottom: 20px;
+`;
+
+const RegionButton = styled.button`
+  height: 48px;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  background: ${({ selected }) => (selected ? '#1B409C' : '#fff')};
+  color: ${({ selected }) => (selected ? '#fff' : '#222')};
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 12px;
+
+  &:hover {
+    border-color: ${({ selected }) => (selected ? '#1B409C' : '#1B409C')};
+  }
+`;
+
+
+
+
 
 const regions = [
   "서울특별시",
@@ -21,99 +132,46 @@ const regions = [
   "전라남도",
   "경상북도",
   "경상남도",
-  "제주특별자치도",
+  "제주특별자치도"
 ];
-
-const Wrap = styled.div`
-  /* 393x852 캔버스 내부 레이아웃 (px 좌표계) */
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  padding: 24px 20px 40px;
-  display: grid;
-  grid-template-rows: auto 1fr auto; /* 제목 / 리스트(스크롤) / 버튼 */
-  gap: 16px;
-`;
-
-const Title = styled.h2`
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.4;
-`;
-
-const ScrollArea = styled.div`
-  overflow-y: auto; /* 캔버스 내부에서만 스크롤 */
-  -webkit-overflow-scrolling: touch;
-  padding-top: 8px;
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-`;
-
-const RegionBtn = styled.button`
-  padding: 12px;
-  border: 1px solid ${({ $selected }) => ($selected ? "#333" : "#ccc")};
-  border-radius: 24px;
-  background: ${({ $selected }) => ($selected ? "#fafafa" : "#fff")};
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1.2;
-`;
-
-const Controls = styled.div`
-  display: grid;
-
-  button {
-    height: 50px;
-    border-radius: 26px;
-    font-weight: 800;
-    font-size: 16px;
-    border: 0;
-    cursor: pointer;
-    color: #1d1d1d;
-    background: #ffeed0;
-  }
-
-  button[disabled] {
-    background: #e6e6e6;
-    color: #9a9a9a;
-    cursor: not-allowed;
-  }
-`;
 
 export default function SignRegionPage() {
   const nav = useNavigate();
-  const [sel, setSel] = useState(null);
+  const [selectedRegion, setSelectedRegion] = useState("");
+
+  const handleRegionSelect = (region) => {
+    setSelectedRegion(region);
+    // 지역 선택 시 바로 다음 페이지로 이동
+    localStorage.setItem('selectedRegion', region);
+    nav("/signup/region-detail");
+  };
 
   return (
-    <AuthContainer scroll={false}>
-      <Wrap>
-        <Title>지역 선택하기</Title>
-
-        <ScrollArea>
-          <Grid>
-            {regions.map((r) => (
-              <RegionBtn
-                key={r}
-                $selected={sel === r}
-                onClick={() => setSel(r)}
-              >
-                {r}
-              </RegionBtn>
-            ))}
-          </Grid>
-        </ScrollArea>
-
-        <Controls>
-          <button disabled={!sel} onClick={() => nav("/signup/done")}>
-            다음
-          </button>
-        </Controls>
-      </Wrap>
-    </AuthContainer>
+    <Container>
+      <TopBar>
+        <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
+          &#8592;
+        </BackBtn>
+        <TitleText>회원가입</TitleText>
+      </TopBar>
+      <ProgressBarWrap>
+        <ProgressBar />
+      </ProgressBarWrap>
+      <ContentSection>
+        <SectionTitle>지역 선택</SectionTitle>
+        
+        <RegionGrid>
+          {regions.map((region) => (
+            <RegionButton
+              key={region}
+              selected={selectedRegion === region}
+              onClick={() => handleRegionSelect(region)}
+            >
+              {region}
+            </RegionButton>
+          ))}
+        </RegionGrid>
+      </ContentSection>
+    </Container>
   );
 }

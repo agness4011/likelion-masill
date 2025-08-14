@@ -13,16 +13,21 @@ export default function Main({ children }) {
 }
 
 function SearchBar() {
-  const [text, setText] = useState("");
-  const search = () => setText("");
+  const navigate = useNavigate();
+  
+  const handleSearchClick = () => {
+    navigate('/search');
+  };
+  
   return (
-    <div>
+    <div onClick={handleSearchClick} style={{ cursor: 'pointer' }}>
       <input
         type="text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
+        placeholder="검색어를 입력하세요"
+        readOnly
+        style={{ cursor: 'pointer' }}
       />
-      <img src={SearchGlass} alt="서치버튼" onClick={search} />
+      <img src={SearchGlass} alt="서치버튼" />
     </div>
   );
 }

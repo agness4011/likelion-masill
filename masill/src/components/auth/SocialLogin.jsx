@@ -1,57 +1,70 @@
 import React from "react";
 import styled from "styled-components";
-import KakaoIcon from "@logo/kakao.svg";
-import NaverIcon from "@logo/naver.svg";
+//import KakaoIcon from "@logo/kakao.svg";
+//import NaverIcon from "@logo/naver.svg";
 
 const Block = styled.div`
-  max-width: 480px;
+  max-width: 320px;
   margin: 0 auto;
+  text-align: center;
 `;
 
 const Divider = styled.div`
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12px;
-  color: #8a8f98;
-  font-size: 12px;
-  margin: 10px 0 16px;
-  &::before,
-  &::after {
+  position: relative;
+  margin: 30px 0;
+
+  &::before {
     content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
     height: 1px;
-    background: #e5e7eb;
-    display: block;
+    background: #ddd;
   }
+`;
+
+const DividerText = styled.span`
+  background: #fff;
+  padding: 0 16px;
+  color: #666;
+  font-size: 14px;
 `;
 
 const Row = styled.div`
   display: flex;
-  gap: 16px;
+  gap: 20px;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-top: 20px;
 `;
 
 const SocialBtn = styled.button`
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #ddd;
   background: #fff;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  font-size: 20px;
+
+  &:hover {
+    background: #f5f5f5;
+  }
 `;
 
 const Signup = styled.div`
-  text-align: center;
-  font-size: 13px;
-  color: #6b7280;
+  margin-top: 30px;
+  font-size: 14px;
+  color: #666;
+
   a {
-    margin-left: 6px;
-    color: #3b82f6;
+    color: #4e7aea;
     text-decoration: underline;
     cursor: pointer;
+    margin-left: 4px;
   }
 `;
 
@@ -60,6 +73,7 @@ export default function SocialLogin({ onSignup }) {
     // TODO: 카카오/톡 소셜 로그인
     alert("소셜 로그인은 추후 연동");
   };
+
   const handleNaver = () => {
     // TODO: 네이버 로그인
     alert("네이버 로그인은 추후 연동");
@@ -67,18 +81,36 @@ export default function SocialLogin({ onSignup }) {
 
   return (
     <Block>
-      <Divider>소셜 로그인</Divider>
+      <Divider>
+        <DividerText>소셜 로그인</DividerText>
+      </Divider>
+
       <Row>
-        <SocialBtn onClick={handleKakao} aria-label="톡으로 로그인">
-          <img src={KakaoIcon} alt="" width="28" height="28" />
+        <SocialBtn onClick={handleKakao} aria-label="카카오톡으로 로그인">
+          💬
         </SocialBtn>
         <SocialBtn onClick={handleNaver} aria-label="네이버로 로그인">
-          <img src={NaverIcon} alt="" width="28" height="28" />
+          <div
+            style={{
+              width: "20px",
+              height: "20px",
+              background: "#03c75a",
+              borderRadius: "2px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bold",
+            }}
+          >
+            N
+          </div>
         </SocialBtn>
       </Row>
+
       <Signup>
-        아직 회원이 아니신가요?
-        <a onClick={onSignup}>회원가입</a>
+        아직 회원이 아니신가요?<a onClick={onSignup}>회원가입</a>
       </Signup>
     </Block>
   );
