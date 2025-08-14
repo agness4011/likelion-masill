@@ -1,102 +1,250 @@
-export const data = [
+export const eventData = [
   {
-    id: 1,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 1,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "음식1",
-    location: "성북구 ",
-    date: "2025.08.07",
-    heart: 2,
-    comment: 50,
-    category: "food",
+    content: null,
+    location: "성북구",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 2,
+    commentCount: 2,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+      {
+        sequence: 3,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
   {
-    id: 2,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 2,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "음식2",
-    location: "서경대 ",
-    date: "2025.09.18",
-    heart: 5,
-    comment: 40,
-    category: "food",
+    content: null,
+    location: "서경대",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 5,
+    commentCount: 40,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
   {
-    id: 3,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 3,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "음식3",
-    location: "길음역 ",
-    date: "2025.09.18",
-    heart: 1,
-    comment: 1000,
-    category: "food",
+    content: null,
+    location: "길음역",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 1,
+    commentCount: 1000,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
   {
-    id: 4,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 4,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "플리마켓1",
-    location: "성북구 ",
-    date: "2025.09.18",
-    heart: 2,
-    comment: 50,
-    category: "market",
+    content: null,
+    location: "성북구",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 2,
+    commentCount: 50,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
   {
-    id: 5,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 5,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "플리마켓2",
-    location: "서경대 ",
-    date: "2025.09.18",
-    heart: 5,
-    comment: 40,
-    category: "market",
+    content: null,
+    location: "서경대",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 5,
+    commentCount: 40,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
   {
-    id: 6,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 6,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "플리마켓3",
-    location: "길음역 ",
-    date: "2025.09.18",
-    heart: 1,
-    comment: 1000,
-    category: "market",
+    content: null,
+    location: "길음역",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 1,
+    commentCount: 1000,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
-
   {
-    id: 7,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 7,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "플리마켓1",
-    location: "성북구 ",
-    date: "2025.09.18",
-    heart: 2,
-    comment: 50,
-    category: "market",
+    content: null,
+    location: "성북구",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 2,
+    commentCount: 50,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
   {
-    id: 8,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 8,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "플리마켓2",
-    location: "서경대 ",
-    date: "2025.09.18",
-    heart: 5,
-    comment: 40,
-    category: "market",
+    content: null,
+    location: "서경대",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 5,
+    commentCount: 40,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
   {
-    id: 9,
-    image:
-      "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+    eventId: 9,
+    username: "KIM",
+    userImage:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "플리마켓3",
-    location: "길음역 ",
-    date: "2025.09.18",
-    heart: 1,
-    comment: 1000,
-    category: "market",
+    content: null,
+    location: "길음역",
+    startAt: "2025-10-18T00:00:00",
+    endAt: "2025-10-18T00:00:00",
+    summary: null,
+    favoriteCount: 1,
+    commentCount: 1000,
+    viewCount: 0,
+    images: [
+      {
+        sequence: 1,
+        imageUrl:
+          "https://pimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png",
+      },
+      {
+        sequence: 2,
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
+      },
+    ],
   },
 ];

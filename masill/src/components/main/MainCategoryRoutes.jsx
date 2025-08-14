@@ -18,7 +18,23 @@ export const mainCategoryRoutes = [
     element: <Main.Post category="outdoor" area="야외활동" />,
   },
   {
-    path: "food",
-    element: <Main.Post category="food" area="음식" />,
+    path: "volunteer",
+    element: <Main.Post category="volunteer" area="자원봉사" />,
+  },
+  {
+    path: "festivity",
+    element: <Main.Post category="festivity" area="축제" />,
+  },
+  {
+    path: "shop",
+    element: <Main.Post category="shop" area="가게행사" />,
+  },
+  {
+    path: "education",
+    element: <Main.Post category="education" area="교육" />,
+  },
+  {
+    path: "etc",
+    element: <Main.Post category="etc" area="기타" />,
   },
 ];

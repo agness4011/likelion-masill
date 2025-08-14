@@ -5,11 +5,16 @@ import RootLayout from "@layouts/RootLayout";
 import OnboardingPage from "@pages/OnboardingPage";
 import Onboarding1 from "@pages/onboarding/Onboarding1";
 import Onboarding2 from "@pages/onboarding/Onboarding2";
+
 import MainPage from "@pages/MainPage";
+import Main from "./components/main/Main";
+
 import LoginPage from "@pages/LoginPage";
+
 import BoardPage from "./pages/BoardPage";
 import WriteBoardPage from "./pages/UploadBoard";
 import { mainCategoryRoutes } from "./components/main/MainCategoryRoutes";
+import DetailBoardPage from "./pages/DetailBoardPage";
 
 import SignupPage from "@pages/signup/SignupPage";
 import SignPage from "@components/signup/SignPage";
@@ -56,11 +61,15 @@ export default function App() {
 
           {/* 메인 + 카테고리 */}
           <Route path="main" element={<MainPage />}>
+            {/* /main 기본 경로 (index route) */}
+            <Route index element={<Main.Post />} />
+
+            {/* 카테고리별 route */}
             {mainCategoryRoutes.map((route) => (
               <Route
                 key={route.path}
                 path={route.path}
-                element={route.element}
+                element={<Main.Post />} // Post 컴포넌트 렌더링
               />
             ))}
           </Route>
@@ -68,6 +77,7 @@ export default function App() {
           {/* 게시글 작성 흐름 */}
           <Route path="board" element={<BoardPage />} />
           <Route path="write" element={<WriteBoardPage />} />
+          <Route path="detail/:eventId" element={<DetailBoardPage />} />
 
           {/* 채팅 */}
           <Route path="chat" element={<ChatPage />} />
