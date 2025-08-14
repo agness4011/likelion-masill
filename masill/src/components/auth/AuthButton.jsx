@@ -2,12 +2,17 @@ import React from "react";
 import styled from "styled-components";
 
 const Button = styled.button`
-  width: 100%;
-  padding: 14px 0;
-  border-radius: 24px;
-  font-size: 1rem;
+  display: flex;
+  width: 345px;
+  height: 50px;
+  padding: 5px 90px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  border-radius: 18px;
+
   cursor: pointer;
-  margin-bottom: 12px;
   border: ${({ variant }) =>
     variant === "secondary" ? "1px solid #ccc" : "none"};
 

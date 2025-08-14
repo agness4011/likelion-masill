@@ -1,31 +1,56 @@
-// src/pages/LoginPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthContainer from "@components/auth/AuthContainer";
-import AuthInput from "@components/auth/AuthInput";
-import AuthButton from "@components/auth/AuthButton";
-import AuthHeader from "@components/auth/AuthHeader";
-import SocialLogin from "@components/auth/SocialLogin";
 import styled from "styled-components";
-import MasilLogo from "@/assets/masill-logo.svg"; // alias 없으면 ../assets 로
+import MasilLogo from "@/assets/masill-logo.svg";
+import KakaoLogo from "@logo/kakao.svg";
+import NaverLogo from "@logo/naver.svg";
+import { login } from "../api/userService";
+import { useUser } from "../contexts/UserContext";
 
-const Wrap = styled.div`
-  position: relative;
-  min-height: 100dvh;
+const Container = styled.div`
+  width: 100%;
+  height: 100vh;
   background: #fff;
-  padding: 16px 20px 32px;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 16px;
-
-  overflow: hidden;
-  > * {
-    position: relative;
-    z-index: 1; /* 원 위에 내용 올리기 */
-  }
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: visible;
 `;
 
-/* 상단 오른쪽 원 */
+const TopBar = styled.div`
+  width: 100%;
+  padding: 0 0 0 8px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+`;
+
+const BackBtn = styled.button`
+  position: absolute;
+  left: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #222;
+  cursor: pointer;
+`;
+
+const ContentSection = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+`;
+
 const CircleTopRight = styled.div`
   position: absolute;
   width: 243px;
@@ -49,61 +74,323 @@ const BottomGradient = styled.div`
   width: 674.37px;
   height: 674.37px;
   left: -320px;
-  top: 741px;
+  bottom: -700px;
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
   filter: blur(2.25px);
   transform: rotate(-95.46deg);
   border-radius: 50%;
-  z-index: 0;
 `;
 
-const Form = styled.div`
-  display: grid;
-  align-content: start;
-  gap: 14px;
-  max-width: 480px;
-  margin: 0 auto;
+const LogoSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 60px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+`;
+
+const LogoImage = styled.img`
+  height: 70px;
+  width: auto;
+`;
+
+const FormSection = styled.div`
+  width: 100%;
+  max-width: 340px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 40px;
+  overflow: visible;
+`;
+
+const InputSection = styled.div`
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 60px;
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+`;
+
+const InputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const InputLabel = styled.label`
+  font-size: 14px;
+  color: #222;
+  margin-bottom: 8px;
+  font-weight: 500;
+`;
+
+const InputField = styled.input`
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-bottom: 1px solid #e1e5e9;
+  outline: none;
+  font-size: 16px;
+  color: #222;
+  background: transparent;
+  padding: 0;
+
+  &::placeholder {
+    color: #b0b4c0;
+  }
+
+  &:focus {
+    border-bottom-color: #1B409C;
+  }
+`;
+
+const LoginButton = styled.button`
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: #C1CAE0;
+  color: #727C94;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 32px;
+
+  &:hover {
+    background: #1B409C;
+    color: #fff;
+  }
+
+  &:active {
+    background: #1B409C;
+    color: #fff;
+  }
+`;
+
+const SocialLoginSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 35px;
+`;
+
+const SocialDivider = styled.div`
+  width: 100%;
+  height: 1px;
+  background: #e1e5e9;
+  position: relative;
+  margin-bottom: 26px;
+
+  &::before {
+    content: "소셜 로그인";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 0 16px;
+    font-size: 14px;
+    color: #727C94;
+  }
+`;
+
+const SocialButtons = styled.div`
+  display: flex;
+  gap: 24px;
+`;
+
+const SocialButton = styled.button`
+  width: 48px;
+  height: 49px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+const KakaoIcon = styled.img`
+  width: 32px;
+  height: 32px;
+`;
+
+const NaverIcon = styled.img`
+  width: 32px;
+  height: 32px;
+`;
+
+const SignupSection = styled.div`
+  text-align: center;
+  margin-top: -35px;
+  margin-bottom: 65px;
+  position: relative;
+  z-index: 10;
+`;
+
+const SignupText = styled.span`
+  font-size: 14px;
+  color: #727C94;
+`;
+
+const SignupLink = styled.span`
+  font-size: 14px;
+  color: #1B409C;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 5px;
 `;
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [pw, setPw] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const nav = useNavigate();
+  const { updateNickname } = useUser();
 
-  const handleLogin = () => {
-    // TODO: 실제 인증 로직
-    nav("/main");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    console.log("로그인 버튼 클릭됨");
+    console.log("입력된 이메일:", email);
+    console.log("입력된 비밀번호:", password);
+
+    setIsLoading(true);
+    
+    try {
+      const loginData = {
+        email: email,
+        password: password
+      };
+      
+      console.log("로그인 시도:", loginData);
+      
+      const response = await login(loginData);
+      console.log("로그인 응답:", response);
+      
+      if (response.success) {
+        console.log("로그인 성공!");
+        // 로그인 성공 시 토큰 저장
+        if (response.accessToken) {
+          localStorage.setItem('accessToken', response.accessToken);
+          console.log("Access Token 저장됨");
+        }
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+          console.log("Refresh Token 저장됨");
+        }
+        if (response.user?.nickname) {
+          localStorage.setItem('nickname', response.user.nickname);
+          updateNickname(response.user.nickname);
+          console.log("닉네임 저장됨:", response.user.nickname);
+        }
+        
+        alert("로그인 성공!");
+        nav("/main");
+      } else {
+        console.log("로그인 실패:", response.message);
+        alert(response.message || "로그인에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("로그인 오류:", error);
+      alert("로그인 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignup = () => {
+    nav("/signup");
   };
 
   return (
-    <Wrap>
+    <Container>
       {/* 배경 원 2개 */}
       <CircleTopRight />
       <BottomGradient />
+      
 
-      {/* 상단: 뒤로가기 + 로고 */}
-      <AuthHeader onBack={() => nav(-1)} logoSrc={MasilLogo} logoAlt="마실" />
+      <TopBar>
+        <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
+          &#8592;
+        </BackBtn>
+      </TopBar>
 
-      {/* 중간: 폼 */}
-      <Form>
-        <AuthInput
-          label="아이디"
-          placeholder="이메일 주소를 입력해주세요."
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <AuthInput
-          label="비밀번호"
-          type="password"
-          placeholder="비밀번호를 입력해주세요."
-          value={pw}
-          onChange={(e) => setPw(e.target.value)}
-        />
-        <AuthButton onClick={handleLogin}>로그인</AuthButton>
-      </Form>
+      <ContentSection>
+        <LogoSection>
+          <LogoImage src={MasilLogo} alt="마실" />
+        </LogoSection>
 
-      {/* 하단: 소셜 로그인 + 회원가입 링크 */}
-      <SocialLogin onSignup={() => nav("/signup")} />
-    </Wrap>
+        <InputSection>
+          <InputGroup>
+            <InputContainer>
+              <InputLabel htmlFor="email">아이디</InputLabel>
+              <InputField
+                id="email"
+                type="email"
+                placeholder="이메일 주소를 입력해주세요."
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </InputContainer>
+
+            <InputContainer>
+              <InputLabel htmlFor="password">비밀번호</InputLabel>
+              <InputField
+                id="password"
+                type="password"
+                placeholder="비밀번호를 입력해주세요."
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </InputContainer>
+          </InputGroup>
+        </InputSection>
+
+        <FormSection>
+          <LoginButton 
+            onClick={handleLogin}
+          >
+            {isLoading ? "로그인 중..." : "로그인"}
+          </LoginButton>
+
+          <SocialLoginSection>
+            <SocialDivider />
+            <SocialButtons>
+              <SocialButton>
+                <KakaoIcon src={KakaoLogo} alt="카카오" />
+              </SocialButton>
+              <SocialButton>
+                <NaverIcon src={NaverLogo} alt="네이버" />
+              </SocialButton>
+            </SocialButtons>
+          </SocialLoginSection>
+        </FormSection>
+      </ContentSection>
+
+      <SignupSection>
+        <SignupText>아직 회원이 아니신가요?</SignupText>
+        <SignupLink onClick={handleSignup}>회원가입</SignupLink>
+      </SignupSection>
+     
+    </Container>
+    
   );
 }

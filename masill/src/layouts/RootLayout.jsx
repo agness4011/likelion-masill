@@ -14,13 +14,25 @@ export default function RootLayout() {
     "/signup/phone",
     "/signup/create",
     "/signup/region",
-    "/signup/done",
+    "/signup/complete",
     "/write",
     "/onboarding1",
     "/onboarding2",
+    "/signup/region-detail",
+    "/chat",
+    "/myhome",
+    "/myhome/my-posts",
+    "/myhome/nickname-change",
+    "/myhome/sajang",
+    "/myhome/wishlist",
+    "/search",
+    "/search/ai-chat",  
   ];
 
-  const isLayoutHidden = noLayoutPaths.includes(location.pathname);
+  // 채팅방 경로 패턴 매칭
+  const isChatRoom = /^\/chat\/\d+$/.test(location.pathname);
+  
+  const isLayoutHidden = noLayoutPaths.includes(location.pathname) || isChatRoom;
 
   return (
     <PixelCanvas
