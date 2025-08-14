@@ -1,13 +1,72 @@
 // src/pages/Onboarding2.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+
 import PixelCanvas from "@/components/commons/PixelCanvas"; // 393x852 스케일 래퍼
 
+// 실제 이미지 import
+import onbg1 from "@logo/onboarding2/onbg1.svg";
+import onbg2 from "@logo/onboarding2/onbg2.svg";
+import onbg3 from "@logo/onboarding2/onbg3.svg";
+import onbg4 from "@logo/onboarding2/onbg4.svg";
+import onbg5 from "@logo/onboarding2/onbg5.svg";
 import arrowleft from "@logo/arrowleft.png";
 
+// 캐러셀 데이터
+const carouselData = [
+  {
+    id: 1,
+    image: onbg1
+  },
+  {
+    id: 2,
+    image: onbg2
+  },
+  {
+    id: 3,
+    image: onbg3
+  },
+  {
+    id: 4,
+    image: onbg4
+  },
+  {
+    id: 5,
+    image: onbg5
+  }
+];
+
 export default function OnboardingPage() {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const nav = useNavigate();
+
+  // 자동 슬라이드 효과
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % carouselData.length);
+    }, 3000); // 3초마다 자동 전환
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getVisibleCards = () => {
+    const cards = [];
+    for (let i = 0; i < carouselData.length; i++) {
+      const index = (currentIndex + i) % carouselData.length;
+      cards.push({
+        ...carouselData[index],
+        position: i,
+        isActive: i === 0
+      });
+    }
+    return cards;
+  };
+
+  // 페이지네이션 점 계산 (3개 고정)
+  const getPaginationIndex = () => {
+    return currentIndex % 3;
+  };
 
   return (
     <div>
@@ -23,9 +82,9 @@ export default function OnboardingPage() {
         </Title>
 
         <IndicatorWrapper>
-          <Dot />
-          <Dot />
-          <Dot active />
+          <Dot active={false} />
+          <Dot active={false} />
+          <Dot active={true} />
         </IndicatorWrapper>
 
         <Arrowleft
@@ -33,6 +92,16 @@ export default function OnboardingPage() {
           alt="arrowleft"
           onClick={() => nav("/onboarding1")}
         />
+
+        <CarouselContainer>
+          <CarouselWrapper>
+            {getVisibleCards().map((card) => (
+              <CarouselCard key={card.id} position={card.position} isActive={card.isActive}>
+                <CardImage src={card.image} alt="이벤트 이미지" />
+              </CarouselCard>
+            ))}
+          </CarouselWrapper>
+        </CarouselContainer>
 
         <BtnArea>
           <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
@@ -72,7 +141,7 @@ const CircleTopRight = styled.div`
 const CircleBottomLeft = styled.div`
   position: absolute;
   left: -120px;
-  bottom: 270px;
+  bottom: 330px;
   width: 320px;
   height: 320px;
   border-radius: 50%;
@@ -122,11 +191,13 @@ const IndicatorWrapper = styled.div`
   gap: 6px;
   z-index: 2;
 `;
+
 const Dot = styled.div`
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: ${({ active }) => (active ? "#fff" : "rgba(255,255,255,0.5)")};
+  transition: background 0.3s ease;
 `;
 
 const Arrowleft = styled.img`
@@ -137,6 +208,58 @@ const Arrowleft = styled.img`
   position: absolute;
   bottom: 270px;
   left: 50px;
+`;
+
+const CarouselContainer = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 35%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+`;
+
+const CarouselWrapper = styled.div`
+  position: relative;
+  width: 300px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const CarouselCard = styled.div`
+  position: absolute;
+  width: 200px;
+  height: 280px;
+  
+  border-radius: 16px;
+ 
+  overflow: hidden;
+  transition: all 0.5s ease;
+  transform: ${({ position, isActive }) => {
+    if (isActive) return 'scale(1) translateX(0)';
+    if (position === 1) return 'scale(0.8) translateX(120px)';
+    if (position === 2) return 'scale(0.8) translateX(-120px)';
+    return 'scale(0.6) translateX(0)';
+  }};
+  filter: ${({ isActive }) => isActive ? 'blur(0px)' : 'blur(2px)'};
+  opacity: ${({ position }) => {
+    if (position === 0) return 1;
+    if (position === 1 || position === 2) return 0.7;
+    return 0.3;
+  }};
+  z-index: ${({ isActive }) => isActive ? 3 : 2};
+`;
+
+const CardImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 const BtnArea = styled.div`

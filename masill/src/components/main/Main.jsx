@@ -60,6 +60,7 @@ function SearchBar() {
       />
       <SearchImg src={SearchGlass} alt="서치버튼" onClick={search} />
     </SearchWrapper>
+
   );
 }
 
