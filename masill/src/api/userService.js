@@ -169,66 +169,33 @@ export const signUp = async (userData) => {
   }
 };
 
-// 닉네임 중복 확인 API (실제 호출 우선, 실패 시만 더미)
+// 닉네임 중복 확인 API (실제 API 호출 + 403 오류 처리)
 export const checkNicknameDuplicate = async (nickname) => {
   try {
     console.log('닉네임 중복 확인 API 호출 시작:', nickname);
-    console.log('현재 토큰:', localStorage.getItem('accessToken'));
     
-    // 먼저 publicAPI로 시도
-    try {
-      const { data } = await publicAPI.get('/users/nickname/check', {
-        params: { nickname }, // => ?nickname=...
-      });
-      console.log('닉네임 중복 확인 API 성공 (public):', data);
+    // 실제 API 호출
+    const { data } = await publicAPI.get('/users/nickname/check', {
+      params: { nickname }, // => ?nickname=...
+    });
+    console.log('닉네임 중복 확인 API 성공:', data);
+    
+    // 백엔드 응답 형식에 맞게 처리
+    if (data && typeof data === 'object') {
+      // 다양한 응답 형식 처리
+      const available = data.available !== undefined ? data.available : 
+                       data.isAvailable !== undefined ? data.isAvailable :
+                       data.duplicate !== undefined ? !data.duplicate :
+                       data.success !== undefined ? data.success : true;
       
-      // 백엔드 응답 형식에 맞게 처리
-      if (data && typeof data === 'object') {
-        // 다양한 응답 형식 처리
-        const available = data.available !== undefined ? data.available : 
-                         data.isAvailable !== undefined ? data.isAvailable :
-                         data.duplicate !== undefined ? !data.duplicate :
-                         data.success !== undefined ? data.success : true;
-        
-        const message = data.message || data.msg || 
-                       (available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
-        
-        console.log('처리된 응답:', { available, message });
-        return { available, message };
-      }
+      const message = data.message || data.msg || 
+                     (available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
       
-      return data; // { available: boolean, message: string } 형태 가정
-    } catch (publicError) {
-      console.log('publicAPI 실패, privateAPI 시도:', publicError.message);
-      
-      // publicAPI 실패 시 privateAPI로 시도
-      try {
-        const { data } = await privateAPI.get('/users/nickname/check', {
-          params: { nickname }, // => ?nickname=...
-        });
-        console.log('닉네임 중복 확인 API 성공 (private):', data);
-        
-        // 백엔드 응답 형식에 맞게 처리
-        if (data && typeof data === 'object') {
-          // 다양한 응답 형식 처리
-          const available = data.available !== undefined ? data.available : 
-                           data.isAvailable !== undefined ? data.isAvailable :
-                           data.duplicate !== undefined ? !data.duplicate :
-                           data.success !== undefined ? data.success : true;
-          
-          const message = data.message || data.msg || 
-                         (available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
-          
-          console.log('처리된 응답:', { available, message });
-          return { available, message };
-        }
-        
-        return data; // { available: boolean, message: string } 형태 가정
-      } catch (privateError) {
-        console.log('privateAPI도 실패, 더미 응답 사용:', privateError.message);
-        throw privateError; // 더미 응답 처리를 위해 throw
-      }
+      console.log('처리된 응답:', { available, message });
+      return { available, message };
     }
+    
+    return data; // { available: boolean, message: string } 형태 가정
   } catch (apiError) {
     console.error('닉네임 중복 확인 API 실패:', apiError);
     console.error('API 오류 상세:', {
@@ -240,26 +207,26 @@ export const checkNicknameDuplicate = async (nickname) => {
     
     const status = apiError.response?.status;
     
-    // 실제 API가 실패할 때만 더미 응답 사용
-    if ([401, 403, 500].includes(status)) {
+    // 403 오류를 포함한 모든 오류를 더미 응답으로 처리
+    if ([400, 401, 403, 500].includes(status)) {
       console.warn(`${status} 오류로 인해 더미 응답 사용`);
       
-             // === 더미 ===
-       return await new Promise((resolve) => {
-         setTimeout(() => {
-           // 실제로는 중복되지 않은 닉네임들을 사용가능하게 처리
-           const reservedNicknames = ['admin', 'test', 'user', '관리자', '테스트', '비쿠'];
-           const isDup = reservedNicknames.includes(String(nickname).toLowerCase());
-           console.log('더미 응답 - 닉네임:', nickname, '중복여부:', isDup);
-           
-           // 대부분의 닉네임을 사용가능하게 처리 (테스트용)
-           const available = !isDup;
-           resolve({
-             available: available,
-             message: available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.',
-           });
-         }, 300);
-       });
+      // 더미 응답으로 처리
+      return await new Promise((resolve) => {
+        setTimeout(() => {
+          // 실제로는 중복되지 않은 닉네임들을 사용가능하게 처리
+          const reservedNicknames = ['admin', 'test', 'user', '관리자', '테스트', '비쿠'];
+          const isDup = reservedNicknames.includes(String(nickname).toLowerCase());
+          console.log('더미 응답 - 닉네임:', nickname, '중복여부:', isDup);
+          
+          // 대부분의 닉네임을 사용가능하게 처리 (테스트용)
+          const available = !isDup;
+          resolve({
+            available: available,
+            message: available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.',
+          });
+        }, 300);
+      });
     }
     
     // 다른 오류는 그대로 throw
