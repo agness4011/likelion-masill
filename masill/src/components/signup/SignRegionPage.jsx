@@ -1,7 +1,8 @@
 // src/pages/SignRegionPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { getRegions } from "../../api/userService";
 
 const Container = styled.div`
   width: 100%;
@@ -115,29 +116,31 @@ const RegionButton = styled.button`
 
 
 
-const regions = [
-  "서울특별시",
-  "부산광역시",
-  "대구광역시",
-  "인천광역시",
-  "광주광역시",
-  "대전광역시",
-  "울산광역시",
-  "세종특별자치시",
-  "경기도",
-  "강원특별자치도",
-  "충청북도",
-  "충청남도",
-  "전북특별자치도",
-  "전라남도",
-  "경상북도",
-  "경상남도",
-  "제주특별자치도"
-];
-
 export default function SignRegionPage() {
   const nav = useNavigate();
   const [selectedRegion, setSelectedRegion] = useState("");
+  const [regions, setRegions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 지역 목록 가져오기
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        setLoading(true);
+        const regionData = await getRegions();
+        console.log('가져온 지역 데이터:', regionData);
+        setRegions(regionData);
+      } catch (error) {
+        console.error('지역 데이터 가져오기 실패:', error);
+        setError('지역 정보를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRegions();
+  }, []);
 
   const handleRegionSelect = (region) => {
     setSelectedRegion(region);
@@ -160,17 +163,27 @@ export default function SignRegionPage() {
       <ContentSection>
         <SectionTitle>지역 선택</SectionTitle>
         
-        <RegionGrid>
-          {regions.map((region) => (
-            <RegionButton
-              key={region}
-              selected={selectedRegion === region}
-              onClick={() => handleRegionSelect(region)}
-            >
-              {region}
-            </RegionButton>
-          ))}
-        </RegionGrid>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            지역 정보를 불러오는 중...
+          </div>
+        ) : error ? (
+          <div style={{ textAlign: 'center', padding: '20px', color: 'red' }}>
+            {error}
+          </div>
+        ) : (
+          <RegionGrid>
+            {regions.map((region) => (
+              <RegionButton
+                key={region}
+                selected={selectedRegion === region}
+                onClick={() => handleRegionSelect(region)}
+              >
+                {region}
+              </RegionButton>
+            ))}
+          </RegionGrid>
+        )}
       </ContentSection>
     </Container>
   );

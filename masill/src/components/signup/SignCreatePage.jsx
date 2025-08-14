@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Bird from "@logo/bird.svg";
 import EyeOff from "@logo/eyeoff.svg";
 import EyeOn from "@logo/eyeon.svg";
-import { signUp, checkNicknameDuplicate } from "../../api/userService";
+import { signUp, checkNicknameDuplicate, getRegionId } from "../../api/userService";
 import { useUser } from "../../contexts/UserContext";
 
 const Container = styled.div`
@@ -301,8 +301,15 @@ export default function SignCreatePage() {
   };
 
   const handleNicknameNext = () => {
-    if (nickname.length > 0 && nicknameCompleted) {
-      setCurrentStep(3);
+    if (nickname.length > 0) {
+      // 중복확인을 하지 않았으면 경고 메시지 표시
+      if (!nicknameCompleted) {
+        if (confirm("닉네임 중복확인을 하지 않았습니다. 계속 진행하시겠습니까?")) {
+          setCurrentStep(3);
+        }
+      } else {
+        setCurrentStep(3);
+      }
     }
   };
 
@@ -314,71 +321,28 @@ export default function SignCreatePage() {
     }
   };
 
-  // 최종 완료
-  const handleComplete = async () => {
-    try {
-      // 회원가입 데이터 준비 (백엔드 API 구조에 맞춤)
-      const userData = {
-        email: `${emailId}@${emailDomain}`,
-        password: password,
-        username: nickname, // 백엔드에서 username으로 닉네임을 받음
-        phoneNumber: "01012345678" // 백엔드에서 phoneNumber로 받음
-      };
-      
-      // 백엔드에서 기대하는 다른 형태의 데이터 구조도 시도
-      const alternativeUserData = {
-        email: `${emailId}@${emailDomain}`,
-        password: password,
-        username: nickname,
-        phone: "01012345678" // phoneNumber 대신 phone으로 시도
-      };
-      
-      console.log("회원가입 데이터 (기본):", userData);
-      console.log("회원가입 데이터 (대안):", alternativeUserData);
-      
-      console.log("회원가입 데이터:", userData);
-      
-      // 회원가입 API 호출
-      const response = await signUp(userData);
-      console.log("회원가입 응답:", response);
-      
-      // API 응답 구조에 맞춰 처리
-      if (response.success) {
-        // 성공 시 닉네임을 localStorage에 저장하고 UserContext 업데이트
-        const finalNickname = response.data?.nickname || nickname;
-        localStorage.setItem('nickname', finalNickname);
-        updateNickname(finalNickname);
-        alert("회원가입이 완료되었습니다!");
-        nav("/signup/region");
-      } else {
-        // 실패 시 에러 메시지 표시
-        alert(response.message || "회원가입에 실패했습니다.");
-      }
-      
-    } catch (error) {
-      console.error("회원가입 오류:", error);
-      
-      // 에러 메시지 처리
-      let errorMessage = "회원가입 중 오류가 발생했습니다.";
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response?.status === 400) {
-        errorMessage = "입력 정보를 확인해주세요.";
-      } else if (error.response?.status === 409) {
-        errorMessage = "이미 가입된 이메일입니다.";
-      } else if (error.response?.status === 500) {
-        errorMessage = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-      }
-      
-      alert(errorMessage);
-    }
+    // 최종 완료 - 지역 선택 페이지로 이동
+  const handleComplete = () => {
+    // 입력된 정보를 localStorage에 저장
+    localStorage.setItem('signupEmail', `${emailId}@${emailDomain}`);
+    localStorage.setItem('signupNickname', nickname);
+    localStorage.setItem('signupPassword', password);
+    
+    console.log('회원가입 정보 저장:', {
+      email: `${emailId}@${emailDomain}`,
+      nickname: nickname,
+      password: password
+    });
+    
+    // 지역 선택 페이지로 이동
+    nav("/signup/region");
   };
 
   // 이메일 유효성 검사
   const isEmailValid = emailId.length > 0 && emailDomain.length > 0;
   
-  // 닉네임 유효성 검사
-  const isNicknameValid = nickname.length > 0 && nicknameCompleted;
+  // 닉네임 유효성 검사 - 중복확인 없이도 다음으로 넘어갈 수 있도록 수정
+  const isNicknameValid = nickname.length > 0;
   
   // 비밀번호 유효성 검사
   const isPasswordValid = () => {

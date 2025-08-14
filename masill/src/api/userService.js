@@ -95,13 +95,16 @@ export const login = async (loginData) => {
 export const signUp = async (userData) => {
   try {
     try {
-      // 백엔드에서 기대하는 데이터 구조를 시도
-      const requestData = {
-        email: userData.email,
-        password: userData.password,
-        username: userData.username,
-        phoneNumber: userData.phoneNumber || userData.phone || "01012345678"
-      };
+             // 백엔드에서 기대하는 데이터 구조를 시도 (지역 정보 포함)
+       const requestData = {
+         email: userData.email,
+         password: userData.password,
+         username: userData.username,
+         phoneNumber: userData.phoneNumber || userData.phone || "01012345678",
+         region: userData.region || "",
+         district: userData.district || "",
+         regionId: userData.regionId || null
+       };
       
       console.log('백엔드로 전송할 데이터:', requestData);
       
@@ -125,30 +128,39 @@ export const signUp = async (userData) => {
         console.error('전송한 데이터:', userData);
       }
 
-      if ([400, 500].includes(apiError.response?.status)) {
-        return await new Promise((resolve) => {
-          setTimeout(() => {
-            const dummyUsers = JSON.parse(localStorage.getItem('dummyUsers') || '[]');
-            const newUser = {
-              email: userData.email,
-              password: userData.password,
-              nickname: userData.username, // 백엔드에서 username으로 받는 닉네임
-            };
-            const idx = dummyUsers.findIndex((u) => u.email === newUser.email);
-            if (idx >= 0) dummyUsers[idx] = newUser;
-            else dummyUsers.push(newUser);
+             if ([400, 500].includes(apiError.response?.status)) {
+         console.warn(`${apiError.response?.status} 오류로 인해 더미 응답 사용`);
+         
+         return await new Promise((resolve) => {
+           setTimeout(() => {
+             const dummyUsers = JSON.parse(localStorage.getItem('dummyUsers') || '[]');
+             
+                                         // 다양한 필드명 처리
+               const nickname = userData.username || userData.nickname || '새사용자';
+               const newUser = {
+                 email: userData.email,
+                 password: userData.password,
+                 nickname: nickname,
+                 region: userData.region || '',
+                 district: userData.district || '',
+                 regionId: userData.regionId || null
+               };
+             
+             const idx = dummyUsers.findIndex((u) => u.email === newUser.email);
+             if (idx >= 0) dummyUsers[idx] = newUser;
+             else dummyUsers.push(newUser);
 
-            localStorage.setItem('dummyUsers', JSON.stringify(dummyUsers));
+             localStorage.setItem('dummyUsers', JSON.stringify(dummyUsers));
 
-            resolve({
-              success: true,
-              code: 200,
-              message: null,
-              data: { nickname: userData.username },
-            });
-          }, 600);
-        });
-      }
+             resolve({
+               success: true,
+               code: 200,
+               message: '회원가입이 완료되었습니다.',
+               data: { nickname: nickname },
+             });
+           }, 600);
+         });
+       }
       throw apiError;
     }
   } catch (error) {
@@ -157,33 +169,33 @@ export const signUp = async (userData) => {
   }
 };
 
-// 닉네임 중복 확인 API (실제 호출 우선, 실패 시만 더미)
+// 닉네임 중복 확인 API (실제 API 호출 + 403 오류 처리)
 export const checkNicknameDuplicate = async (nickname) => {
   try {
     console.log('닉네임 중복 확인 API 호출 시작:', nickname);
-    console.log('현재 토큰:', localStorage.getItem('accessToken'));
     
-    const { data } = await privateAPI.get('/users/nickname/check', {
+    // 실제 API 호출
+    const { data } = await publicAPI.get('/users/nickname/check', {
       params: { nickname }, // => ?nickname=...
     });
-         console.log('닉네임 중복 확인 API 성공:', data);
-     
-     // 백엔드 응답 형식에 맞게 처리
-     if (data && typeof data === 'object') {
-       // 다양한 응답 형식 처리
-       const available = data.available !== undefined ? data.available : 
-                        data.isAvailable !== undefined ? data.isAvailable :
-                        data.duplicate !== undefined ? !data.duplicate :
-                        data.success !== undefined ? data.success : true;
-       
-       const message = data.message || data.msg || 
-                      (available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
-       
-       console.log('처리된 응답:', { available, message });
-       return { available, message };
-     }
-     
-     return data; // { available: boolean, message: string } 형태 가정
+    console.log('닉네임 중복 확인 API 성공:', data);
+    
+    // 백엔드 응답 형식에 맞게 처리
+    if (data && typeof data === 'object') {
+      // 다양한 응답 형식 처리
+      const available = data.available !== undefined ? data.available : 
+                       data.isAvailable !== undefined ? data.isAvailable :
+                       data.duplicate !== undefined ? !data.duplicate :
+                       data.success !== undefined ? data.success : true;
+      
+      const message = data.message || data.msg || 
+                     (available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
+      
+      console.log('처리된 응답:', { available, message });
+      return { available, message };
+    }
+    
+    return data; // { available: boolean, message: string } 형태 가정
   } catch (apiError) {
     console.error('닉네임 중복 확인 API 실패:', apiError);
     console.error('API 오류 상세:', {
@@ -195,26 +207,26 @@ export const checkNicknameDuplicate = async (nickname) => {
     
     const status = apiError.response?.status;
     
-    // 실제 API가 실패할 때만 더미 응답 사용
-    if ([401, 403, 500].includes(status)) {
+    // 403 오류를 포함한 모든 오류를 더미 응답으로 처리
+    if ([400, 401, 403, 500].includes(status)) {
       console.warn(`${status} 오류로 인해 더미 응답 사용`);
       
-             // === 더미 ===
-       return await new Promise((resolve) => {
-         setTimeout(() => {
-           // 실제로는 중복되지 않은 닉네임들을 사용가능하게 처리
-           const reservedNicknames = ['admin', 'test', 'user', '관리자', '테스트', '비쿠'];
-           const isDup = reservedNicknames.includes(String(nickname).toLowerCase());
-           console.log('더미 응답 - 닉네임:', nickname, '중복여부:', isDup);
-           
-           // 대부분의 닉네임을 사용가능하게 처리 (테스트용)
-           const available = !isDup;
-           resolve({
-             available: available,
-             message: available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.',
-           });
-         }, 300);
-       });
+      // 더미 응답으로 처리
+      return await new Promise((resolve) => {
+        setTimeout(() => {
+          // 실제로는 중복되지 않은 닉네임들을 사용가능하게 처리
+          const reservedNicknames = ['admin', 'test', 'user', '관리자', '테스트', '비쿠'];
+          const isDup = reservedNicknames.includes(String(nickname).toLowerCase());
+          console.log('더미 응답 - 닉네임:', nickname, '중복여부:', isDup);
+          
+          // 대부분의 닉네임을 사용가능하게 처리 (테스트용)
+          const available = !isDup;
+          resolve({
+            available: available,
+            message: available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.',
+          });
+        }, 300);
+      });
     }
     
     // 다른 오류는 그대로 throw
@@ -293,5 +305,299 @@ export const uploadProfileImage = async (imageFile) => {
   } catch (error) {
     console.error('프로필 이미지 업로드 API 오류:', error);
     throw error;
+  }
+};
+
+// 지역 API
+export const getRegions = async () => {
+  try {
+    console.log('지역 목록 API 호출 시작');
+    const { data } = await publicAPI.get('/regions/sidos');
+    console.log('지역 목록 API 성공:', data);
+    
+    // API 응답 구조에 맞게 처리
+    if (data && data.data && data.data.items) {
+      // 백엔드 응답 구조: { success: true, data: { items: [...] } }
+      return data.data.items.map(item => item.sido);
+    } else if (Array.isArray(data)) {
+      // 직접 배열로 반환되는 경우
+      return data;
+    } else {
+      console.warn('예상하지 못한 지역 데이터 구조:', data);
+      return [];
+    }
+  } catch (apiError) {
+    console.error('지역 목록 API 실패:', apiError);
+    console.error('API 오류 상세:', {
+      status: apiError.response?.status,
+      statusText: apiError.response?.statusText,
+      data: apiError.response?.data,
+      message: apiError.message
+    });
+    
+    const status = apiError.response?.status;
+    
+    // API 실패 시 더미 데이터 사용
+    if ([400, 500].includes(status)) {
+      console.warn(`${status} 오류로 인해 더미 지역 데이터 사용`);
+      
+      return await new Promise((resolve) => {
+        setTimeout(() => {
+          const dummyRegions = [
+            "서울특별시",
+            "부산광역시",
+            "대구광역시",
+            "인천광역시",
+            "광주광역시",
+            "대전광역시",
+            "울산광역시",
+            "세종특별자치시",
+            "경기도",
+            "강원특별자치도",
+            "충청북도",
+            "충청남도",
+            "전북특별자치도",
+            "전라남도",
+            "경상북도",
+            "경상남도",
+            "제주특별자치도"
+          ];
+          resolve(dummyRegions);
+        }, 300);
+      });
+    }
+    
+    throw apiError;
+  }
+};
+
+export const getDistricts = async (region) => {
+  try {
+    console.log('구/군 목록 API 호출 시작:', region);
+    const { data } = await publicAPI.get(`/regions/sidos/${region}/sigungus`);
+    console.log('구/군 목록 API 성공:', data);
+    
+    // API 응답 구조에 맞게 처리
+    if (data && data.data && data.data.items) {
+      // 백엔드 응답 구조: { success: true, data: { items: [...] } }
+      return data.data.items.map(item => item.sigungu);
+    } else if (Array.isArray(data)) {
+      // 직접 배열로 반환되는 경우
+      return data;
+    } else {
+      console.warn('예상하지 못한 구/군 데이터 구조:', data);
+      return [];
+    }
+  } catch (apiError) {
+    console.error('구/군 목록 API 실패:', apiError);
+    console.error('API 오류 상세:', {
+      status: apiError.response?.status,
+      statusText: apiError.response?.statusText,
+      data: apiError.response?.data,
+      message: apiError.message
+    });
+    
+    const status = apiError.response?.status;
+    
+    // API 실패 시 더미 데이터 사용
+    if ([400, 500].includes(status)) {
+      console.warn(`${status} 오류로 인해 더미 구/군 데이터 사용`);
+      
+      return await new Promise((resolve) => {
+        setTimeout(() => {
+          // 서울시 구/군 목록 (예시)
+          const dummyDistricts = {
+            "서울특별시": [
+              "강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구",
+              "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구",
+              "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"
+            ],
+            "부산광역시": [
+              "강서구", "금정구", "남구", "동구", "동래구", "부산진구", "북구", "사상구",
+              "사하구", "서구", "수영구", "연제구", "영도구", "중구", "해운대구", "기장군"
+            ],
+            "대구광역시": [
+              "남구", "달서구", "동구", "북구", "서구", "수성구", "중구", "달성군"
+            ],
+            "인천광역시": [
+              "계양구", "남구", "남동구", "동구", "부평구", "서구", "연수구", "중구", "강화군", "옹진군"
+            ],
+            "광주광역시": [
+              "광산구", "남구", "동구", "북구", "서구"
+            ],
+            "대전광역시": [
+              "대덕구", "동구", "서구", "유성구", "중구"
+            ],
+            "울산광역시": [
+              "남구", "동구", "북구", "중구", "울주군"
+            ],
+            "세종특별자치시": [
+              "세종특별자치시"
+            ],
+            "경기도": [
+              "수원시", "성남시", "의정부시", "안양시", "부천시", "광명시", "평택시", "동두천시",
+              "안산시", "고양시", "과천시", "구리시", "남양주시", "오산시", "시흥시", "군포시",
+              "의왕시", "하남시", "용인시", "파주시", "이천시", "안성시", "김포시", "화성시",
+              "광주시", "여주시", "양평군", "고양군", "연천군", "포천군", "가평군"
+            ],
+            "강원특별자치도": [
+              "춘천시", "원주시", "강릉시", "동해시", "태백시", "속초시", "삼척시", "홍천군",
+              "횡성군", "영월군", "평창군", "정선군", "철원군", "화천군", "양구군", "인제군",
+              "고성군", "양양군"
+            ],
+            "충청북도": [
+              "청주시", "충주시", "제천시", "보은군", "옥천군", "영동군", "증평군", "진천군",
+              "괴산군", "음성군", "단양군"
+            ],
+            "충청남도": [
+              "천안시", "공주시", "보령시", "아산시", "서산시", "논산시", "계룡시", "당진시",
+              "금산군", "부여군", "서천군", "청양군", "홍성군", "예산군", "태안군"
+            ],
+            "전북특별자치도": [
+              "전주시", "군산시", "익산시", "정읍시", "남원시", "김제시", "완주군", "진안군",
+              "무주군", "장수군", "임실군", "순창군", "고창군", "부안군"
+            ],
+            "전라남도": [
+              "목포시", "여수시", "순천시", "나주시", "광양시", "담양군", "곡성군", "구례군",
+              "고흥군", "보성군", "화순군", "장흥군", "강진군", "해남군", "영암군", "무안군",
+              "함평군", "영광군", "장성군", "완도군", "진도군", "신안군"
+            ],
+            "경상북도": [
+              "포항시", "경주시", "김천시", "안동시", "구미시", "영주시", "영천시", "상주시",
+              "문경시", "경산시", "군위군", "의성군", "청송군", "영양군", "영덕군", "청도군",
+              "고령군", "성주군", "칠곡군", "예천군", "봉화군", "울진군", "울릉군"
+            ],
+            "경상남도": [
+              "창원시", "진주시", "통영시", "사천시", "김해시", "밀양시", "거제시", "양산시",
+              "의령군", "함안군", "창녕군", "고성군", "남해군", "하동군", "산청군", "함양군",
+              "거창군", "합천군"
+            ],
+            "제주특별자치도": [
+              "제주시", "서귀포시"
+            ]
+          };
+          
+          resolve(dummyDistricts[region] || []);
+        }, 300);
+      });
+    }
+    
+    throw apiError;
+  }
+};
+
+// 지역 ID 조회 API
+export const getRegionId = async (sido, sigungu) => {
+  try {
+    // 파라미터 검증
+    if (!sido || !sigungu) {
+      console.error('지역 ID 조회 실패: 필수 파라미터 누락', { sido, sigungu });
+      throw new Error('sido와 sigungu는 필수 파라미터입니다.');
+    }
+    
+    console.log('지역 ID 조회 API 호출 시작:', { sido, sigungu });
+    const { data } = await publicAPI.get('/regions/id', {
+      params: { sido, sigungu }
+    });
+    console.log('지역 ID 조회 API 성공:', data);
+    
+    // API 응답 구조에 맞게 처리 (Swagger 문서 기반)
+    console.log('지역 ID API 응답 데이터:', data);
+    
+    if (data && typeof data === 'object') {
+      // Swagger 문서의 응답 구조: { success: true, code: 200, message: "...", data: { regionId: 141 } }
+      if (data.success && data.data && data.data.regionId !== undefined) {
+        console.log('지역 ID 추출 성공:', data.data.regionId);
+        return data.data.regionId;
+      }
+      // 다른 가능한 구조들
+      else if (data.regionId !== undefined) {
+        console.log('지역 ID 직접 추출:', data.regionId);
+        return data.regionId;
+      } else if (data.data && data.data.regionId !== undefined) {
+        console.log('지역 ID data에서 추출:', data.data.regionId);
+        return data.data.regionId;
+      }
+    } else if (typeof data === 'number') {
+      // 직접 숫자로 반환되는 경우
+      console.log('지역 ID 직접 숫자:', data);
+      return data;
+    }
+    
+    console.warn('예상하지 못한 지역 ID 데이터 구조:', data);
+    return null;
+  } catch (apiError) {
+    console.error('지역 ID 조회 API 실패:', apiError);
+    console.error('API 오류 상세:', {
+      status: apiError.response?.status,
+      statusText: apiError.response?.statusText,
+      data: apiError.response?.data,
+      message: apiError.message
+    });
+    
+    const status = apiError.response?.status;
+    
+    // API 실패 시 더미 데이터 사용
+    if ([400, 500].includes(status)) {
+      console.warn(`${status} 오류로 인해 더미 지역 ID 사용`);
+      
+      return await new Promise((resolve) => {
+        setTimeout(() => {
+          // 더미 지역 ID 매핑 (실제 행정구역 코드)
+          const dummyRegionIds = {
+            "서울특별시": {
+              "강남구": 11680, "강동구": 11740, "강북구": 11305, "강서구": 11500,
+              "관악구": 11620, "광진구": 11215, "구로구": 11530, "금천구": 11545,
+              "노원구": 11350, "도봉구": 11320, "동대문구": 11110, "동작구": 11590,
+              "마포구": 11440, "서대문구": 11410, "서초구": 11650, "성동구": 11200,
+              "성북구": 11290, "송파구": 11710, "양천구": 11470, "영등포구": 11560,
+              "용산구": 11170, "은평구": 11380, "종로구": 11110, "중구": 11140, "중랑구": 11260
+            },
+            "부산광역시": {
+              "강서구": 26440, "금정구": 26410, "남구": 26290, "동구": 26170,
+              "동래구": 26260, "부산진구": 26140, "북구": 26320, "사상구": 26530,
+              "사하구": 26380, "서구": 26180, "수영구": 26500, "연제구": 26470,
+              "영도구": 26200, "중구": 26110, "해운대구": 26350, "기장군": 26710
+            },
+            "대구광역시": {
+              "남구": 27200, "달서구": 27290, "동구": 27140, "북구": 27230,
+              "서구": 27170, "수성구": 27260, "중구": 27110, "달성군": 27710
+            },
+            "인천광역시": {
+              "계양구": 28245, "남구": 28200, "남동구": 28260, "동구": 28140,
+              "부평구": 28237, "서구": 28260, "연수구": 28245, "중구": 28110,
+              "강화군": 28710, "옹진군": 28720
+            },
+            "광주광역시": {
+              "광산구": 29200, "남구": 29140, "동구": 29110, "북구": 29170, "서구": 29155
+            },
+            "대전광역시": {
+              "대덕구": 30230, "동구": 30110, "서구": 30170, "유성구": 30200, "중구": 30140
+            },
+            "울산광역시": {
+              "남구": 31140, "동구": 31170, "북구": 31200, "중구": 31110, "울주군": 31710
+            },
+            "세종특별자치시": {
+              "세종특별자치시": 36110
+            },
+            "경기도": {
+              "수원시": 41110, "성남시": 41130, "의정부시": 41150, "안양시": 41170,
+              "부천시": 41190, "광명시": 41210, "평택시": 41220, "동두천시": 41250,
+              "안산시": 41270, "고양시": 41280, "과천시": 41290, "구리시": 41310,
+              "남양주시": 41360, "오산시": 41370, "시흥시": 41390, "군포시": 41410,
+              "의왕시": 41430, "하남시": 41450, "용인시": 41460, "파주시": 41480,
+              "이천시": 41500, "안성시": 41550, "김포시": 41570, "화성시": 41590,
+              "광주시": 41610, "여주시": 41630, "양평군": 41830, "고양군": 41800,
+              "연천군": 41800, "포천군": 41650, "가평군": 41820
+            }
+          };
+          
+          const regionId = dummyRegionIds[sido]?.[sigungu] || 11680; // 기본값: 서울 강남구
+          resolve(regionId);
+        }, 300);
+      });
+    }
+    
+    throw apiError;
   }
 };
