@@ -216,6 +216,19 @@ const MyHomePage = () => {
   const { userData } = useUser();
   
   console.log('마이페이지 현재 userData:', userData);
+  
+  // 토큰 상태 확인
+  React.useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const currentUser = localStorage.getItem('currentUser');
+    
+    console.log('=== 마이페이지 토큰 상태 ===');
+    console.log('Access Token:', accessToken ? '있음' : '없음');
+    console.log('Refresh Token:', refreshToken ? '있음' : '없음');
+    console.log('Current User:', currentUser ? JSON.parse(currentUser) : '없음');
+    console.log('==========================');
+  }, []);
 
   // 아바타 아이콘 매핑
   const avatarIcons = {
@@ -238,7 +251,7 @@ const MyHomePage = () => {
   const [bird2Position, setBird2Position] = React.useState({ x: 220, y: 101 });
 
   const handleEditProfile = () => {
-    console.log('프로필 편집');
+    navigate('/board');
   };
 
   const handleNotifications = () => {
@@ -246,7 +259,7 @@ const MyHomePage = () => {
   };
 
   const handleChat = () => {
-    console.log('채팅');
+    navigate('/chat');
   };
 
   const handleProfile = () => {
