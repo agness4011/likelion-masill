@@ -36,6 +36,8 @@ import WishlistPage from "./pages/myhome/WishlistPage";
 import NicknameChangePage from "./pages/myhome/NicknameChangePage";
 import SajangPage from "./pages/myhome/SajangPage";
 
+import SelectRegion from "./components/board/SelectRegion";
+import SelectRegionDetail from "./components/board/SelectRegionDetail";
 
 export default function App() {
   return (
@@ -47,7 +49,7 @@ export default function App() {
             <Route index element={<OnboardingPage />} />
             <Route path="/onboarding1" element={<Onboarding1 />} />
             <Route path="/onboarding2" element={<Onboarding2 />} />
-            
+
             {/* 로그인 */}
             <Route
               path="login"
@@ -86,7 +88,12 @@ export default function App() {
             <Route path="search" element={<SearchPage />} />
 
             {/* 게시글 작성 흐름 */}
-            <Route path="board" element={<BoardPage />} />
+            <Route path="board/reigon" element={<SelectRegion />} />
+            <Route
+              path="board/reigon/detail"
+              element={<SelectRegionDetail />}
+            />
+            <Route path="/board" element={<BoardPage />} />
             <Route path="write" element={<WriteBoardPage />} />
             <Route path="detail/:eventId" element={<DetailBoardPage />} />
             
@@ -102,7 +109,10 @@ export default function App() {
             <Route path="myhome" element={<MyHomePage />} />
             <Route path="myhome/my-posts" element={<MyPostsPage />} />
             <Route path="myhome/wishlist" element={<WishlistPage />} />
-            <Route path="myhome/nickname-change" element={<NicknameChangePage />} />
+            <Route
+              path="myhome/nickname-change"
+              element={<NicknameChangePage />}
+            />
             <Route path="myhome/sajang" element={<SajangPage />} />
           </Route>
         </Routes>
