@@ -122,3 +122,29 @@ export const TabButton = styled.button`
     background: ${({ active }) => (active ? "#154EC1" : "#d4ddf7")};
   }
 `;
+
+export const SummaryBtn = styled.button`
+  display: inline-flex;
+  height: 34px;
+  padding: 2px 5px 2px 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border-radius: 24px;
+  border: 1px solid var(--Accent-GD-02, #1b409c);
+`;
+
+export const DetailPart = styled.div`
+  width: 345px;
+  height: 486px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  border: 1px solid var(--Gray-700, #959eb7);
+  background: var(--Gray-100, #f4f7ff);
+`;
+
+export const SummaryIcon = styled.img`
+  width: 24px;
+  height: 24px;
+`;
