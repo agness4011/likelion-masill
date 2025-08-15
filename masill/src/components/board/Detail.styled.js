@@ -97,3 +97,28 @@ export const HeartImg = styled.img`
   flex-shrink: 0;
   aspect-ratio: 1/1;
 `;
+export const TabContainer = styled.div`
+  display: flex;
+  background: #e8eefc;
+  padding: 4px;
+  border-radius: 12px;
+`;
+
+export const TabButton = styled.button`
+  flex: 1;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: 12px;
+  background: ${({ active }) => (active ? "#154EC1" : "transparent")};
+  color: ${({ active }) => (active ? "#fff" : "#7D8597")};
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background: ${({ active }) => (active ? "#154EC1" : "#d4ddf7")};
+  }
+`;

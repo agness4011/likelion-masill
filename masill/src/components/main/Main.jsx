@@ -60,7 +60,6 @@ function SearchBar() {
       />
       <SearchImg src={SearchGlass} alt="서치버튼" onClick={search} />
     </SearchWrapper>
-
   );
 }
 
@@ -170,7 +169,7 @@ function Post() {
           console.log("전체 게시글:", res);
 
           // 실제 데이터 구조에 맞게 접근
-          const content = res?.content || [];
+          const content = res?.data?.content || [];
 
           // 변수 선언과 동시에 사용
           const withHeartFlag = content.map((post) => ({
