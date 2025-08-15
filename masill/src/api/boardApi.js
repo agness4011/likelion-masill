@@ -13,12 +13,51 @@ export const fetchAllBoards = async () => {
   }
 };
 
-// // POST: 추가
-// export const addBoards = async (type, product) => {
-//   console.log("POST 요청:", type); // 요청 확인용
-//   const data = await APIService.public.post(`/${type}`, product);
-//   return data;
-// };
+// POST: 이벤트 추가
+export const addBoard = async (formData) => {
+  console.log("POST 요청: /events");
+  const req = await APIService.private.post(`/events`, formData);
+  return req.data;
+};
+
+// get 지역 정보 받아오기
+export const getRegion = async (sido, sigungu) => {
+  if (!sido || !sigungu) {
+    throw new Error("sido와 sigungu를 모두 전달해야 합니다.");
+  }
+  console.log("getRegion 호출값:", { sido, sigungu });
+  const res = await APIService.public.get(`/regions/id`, {
+    params: { sido, sigungu },
+  });
+  return res.data?.data; // Swagger 응답 구조: data 안에 regionId
+};
+
+// 광역시/도 목록 조회
+export const getSidos = async () => {
+  try {
+    console.log("GET 요청: /regions/sidos");
+    const res = await APIService.public.get(`/regions/sidos`);
+    return res.data?.data; // 실제 데이터 구조에 맞춰 data 사용
+  } catch (error) {
+    console.error("광역지역 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 특정 광역시/도에 속한 시/군/구 목록 조회
+export const getSigungus = async (sido) => {
+  if (!sido) {
+    throw new Error("sido를 전달해야 합니다.");
+  }
+  try {
+    console.log(`GET 요청: /regions/sidos/${sido}`);
+    const res = await APIService.public.get(`/regions/sidos/${sido}`); // ✅ 템플릿 리터럴 사용
+    return res.data?.data; // 실제 데이터 구조에 맞춤
+  } catch (error) {
+    console.error("시/군/구 조회 실패:", error);
+    throw error;
+  }
+};
 
 // // PUT: 전체 수정
 // export const updateBoards = async (type, id, product) => {

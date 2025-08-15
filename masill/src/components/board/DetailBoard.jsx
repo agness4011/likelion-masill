@@ -5,9 +5,14 @@ import Pencil from "../../assets/detail/pencil.png";
 import Button from "../../assets/detail/Button.png";
 import FullHeart from "../../assets/detail/fullheart.png";
 import Heart from "../../assets/detail/heart.png";
+import ChatImg from "../../assets/detail/chat.png";
+import CommentImg from "../../assets/detail/comment.png";
+import ContentsImg from "../../assets/detail/contents.png";
+import GroupImg from "../../assets/detail/group.png";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
+import styled from "styled-components";
 
 import { eventData } from "../../dummy/datas";
 
@@ -22,6 +27,8 @@ import {
   PencilBtn,
   LowHeaderContainer,
   HeartImg,
+  TabContainer,
+  TabButton,
 } from "./Detail.styled";
 
 export default function DetailBoard({ children }) {
@@ -116,6 +123,42 @@ function BodyTop() {
     </div>
   );
 }
+function BodyMiddle({ children }) {
+  return <div>{children}</div>;
+}
+function MiddleWho() {
+  return (
+    <div>
+      <div></div>
+    </div>
+  );
+}
+
+function TabMenu() {
+  const [activeTab, setActiveTab] = useState("내용");
+
+  const tabs = [
+    { name: "내용", icon: ContentsImg },
+    { name: "댓글", icon: CommentImg },
+    { name: "마실 모임", icon: GroupImg },
+  ];
+
+  return (
+    <TabContainer>
+      {tabs.map((tab) => (
+        <TabButton
+          key={tab.name}
+          active={activeTab === tab.name}
+          onClick={() => setActiveTab(tab.name)}
+        >
+          <img src={tab.icon} />
+          <span>{tab.name}</span>
+        </TabButton>
+      ))}
+    </TabContainer>
+  );
+}
+
 function UserChat() {
   return (
     <div>
@@ -198,3 +241,6 @@ DetailBoard.DatalButton = DatalButton;
 DetailBoard.High = Hight;
 DetailBoard.LowHead = LowHead;
 DetailBoard.ShowImage = ShowImage;
+DetailBoard.BodyMiddle = BodyMiddle;
+DetailBoard.MiddleWho = MiddleWho;
+DetailBoard.TabMenu = TabMenu;
