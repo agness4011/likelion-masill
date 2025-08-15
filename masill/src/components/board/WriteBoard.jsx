@@ -1,8 +1,9 @@
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import React, { useState, useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
+import { addBoard } from "../../api/boardApi";
 
 import BoardIcon from "../../assets/write/board.svg";
 import MapIcon from "../../assets/write/map.svg";
@@ -55,6 +56,8 @@ export default function WriteBoard({ children }) {
   return <div>{children}</div>;
 }
 
+function SelectRegion() {}
+
 function Head() {
   const navigate = useNavigate();
   return (
@@ -73,7 +76,7 @@ function SetTitle({ title, setTitle, error, setTouched }) {
     <div>
       <ErrorDiv>
         <TextStyle>제목</TextStyle>
-        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </ErrorDiv>
 
       <InputStyle
@@ -96,7 +99,7 @@ function SetLocation({ location, setLocation, error, setTouched }) {
     <div>
       <ErrorDiv>
         <TextStyle>장소</TextStyle>
-        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </ErrorDiv>
 
       <InputWrapper>
@@ -136,18 +139,18 @@ function SelectCategory({
   const containerRef = useRef(null);
 
   const handleCategoryClick = (cat) => {
-    const newSelection = selectedCategories.includes(cat)
-      ? selectedCategories.filter((c) => c !== cat)
-      : [...selectedCategories, cat];
+    setSelectedCategories((prev) => {
+      const newSelection = prev.includes(cat)
+        ? prev.filter((c) => c !== cat)
+        : [...prev, cat];
 
-    setSelectedCategories(newSelection);
+      // 카테고리가 선택되면 에러 제거
+      if (newSelection.length > 0) {
+        setCategoryError(""); // <-- 부모에서 상태 업데이트
+      }
 
-    // 카테고리 자체 에러만 초기화
-    if (newSelection.length > 0) {
-      setCategoryError("");
-    }
-
-    setTouched(true); // 카테고리 터치 상태만 true
+      return newSelection;
+    });
   };
 
   const scrollByAmount = 120;
@@ -181,7 +184,7 @@ function SelectCategory({
     <Wrapper>
       <ErrorDiv>
         <TextStyle>카테고리</TextStyle>
-        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </ErrorDiv>
 
       <CategoryArea>
@@ -255,8 +258,15 @@ function UploadImg({ images, setImages, error, setTouched }) {
         ))}
       </PreviewRight>
 
-      {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </UploadContainer>
+  );
+}
+function SubmitButton() {
+  return (
+    <div>
+      <SubmitBtn>작성 완료</SubmitBtn>
+    </div>
   );
 }
 function WriteContext({ content, setContent, error, setTouched }) {
@@ -270,7 +280,7 @@ function WriteContext({ content, setContent, error, setTouched }) {
   return (
     <DetailDiv>
       <TextStyle>내용</TextStyle>
-      {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
       <TextArea
         placeholder="내용을 입력하세요..."
         value={content}
@@ -284,6 +294,7 @@ function WriteContext({ content, setContent, error, setTouched }) {
     </DetailDiv>
   );
 }
+
 function EventDateTimePicker({
   startDate,
   setStartDate,
@@ -329,9 +340,9 @@ function EventDateTimePicker({
         <DateDiv>
           <ErrorDiv>
             <TextStyle>시작 날짜</TextStyle>
-            {/* {errors.startDate && (
+            {errors?.startDate && (
               <ErrorMessage>{errors.startDate}</ErrorMessage>
-            )} */}
+            )}
           </ErrorDiv>
           <TimeInput
             style={{ color: startDate ? blackColor : grayColor }}
@@ -344,7 +355,7 @@ function EventDateTimePicker({
         <DateDiv>
           <ErrorDiv>
             <TextStyle>종료 날짜</TextStyle>
-            {/* {errors.endDate && <ErrorMessage>{errors.endDate}</ErrorMessage>} */}
+            {errors?.endDate && <ErrorMessage>{errors.endDate}</ErrorMessage>}
           </ErrorDiv>
           <TimeInput
             style={{ color: endDate ? blackColor : grayColor }}
@@ -367,9 +378,9 @@ function EventDateTimePicker({
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : "시작 시간"}
+              : "시간 선택"}
           </TimeInput>
-          {/* {errors.startTime && <ErrorMessage>{errors.startTime}</ErrorMessage>} */}
+          {errors?.startTime && <ErrorMessage>{errors.startTime}</ErrorMessage>}
 
           <TimeInput
             style={{ color: endTime ? blackColor : grayColor }}
@@ -380,9 +391,9 @@ function EventDateTimePicker({
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : "종료 시간"}
+              : "시간 선택"}
           </TimeInput>
-          {/* {errors.endTime && <ErrorMessage>{errors.endTime}</ErrorMessage>} */}
+          {errors?.endTime && <ErrorMessage>{errors.endTime}</ErrorMessage>}
         </div>
       </div>
 
@@ -397,7 +408,9 @@ function EventDateTimePicker({
                   ? endDate || new Date()
                   : modalConfig.type === "startTime"
                   ? startTime || new Date()
-                  : endTime || new Date()
+                  : modalConfig.type === "endTime"
+                  ? endTime || new Date()
+                  : null
               }
               onChange={handleSelect}
               inline
@@ -417,158 +430,187 @@ function EventDateTimePicker({
     </div>
   );
 }
-function SubmitButton() {
-  return (
-    <div>
-      <SubmitBtn>작성 완료</SubmitBtn>
-    </div>
-  );
-}
 // --- 최종 InputForm ---
-
 function InputForm() {
   const navigate = useNavigate();
 
+  // --- 기존 state ---
   const [title, setTitle] = useState("");
-  const [titleTouched, setTitleTouched] = useState(false);
   const [titleError, setTitleError] = useState("");
-
   const [location, setLocation] = useState("");
-  const [locationTouched, setLocationTouched] = useState(false);
   const [locationError, setLocationError] = useState("");
-
   const [categories, setCategories] = useState([]);
-  const [categoryTouched, setCategoryTouched] = useState(false);
   const [categoryError, setCategoryError] = useState("");
-
   const [images, setImages] = useState([]);
-  const [imageTouched, setImageTouched] = useState(false);
   const [imageError, setImageError] = useState("");
-
   const [content, setContent] = useState("");
-  const [contentTouched, setContentTouched] = useState(false);
   const [contentError, setContentError] = useState("");
-
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [dateErrors, setDateErrors] = useState({});
-
   const [formError, setFormError] = useState("");
 
+  // --- 추가: 지역 선택 state ---
+  const [selectedSido, setSelectedSido] = useState(null);
+  const [selectedSigungu, setSelectedSigungu] = useState(null);
+
+  const CATEGORY_MAP = {
+    "문화•예술": "CULTURE_ART",
+    플리마켓: "FLEA_MARKET",
+    자원봉사: "VOLUNTEER",
+    축제: "FESTIVAL",
+    야외활동: "OUTDOOR",
+    기타: "ETC",
+  };
+
+  // --- 유효성 검사 ---
   const validateForm = () => {
     let valid = true;
 
     if (!title.trim()) {
       setTitleError("제목을 입력해주세요!");
       valid = false;
-    } else {
-      setTitleError("");
-    }
+    } else setTitleError("");
 
     if (!location.trim()) {
       setLocationError("장소를 입력해주세요!");
       valid = false;
-    } else {
-      setLocationError("");
-    }
+    } else setLocationError("");
 
     if (categories.length === 0) {
       setCategoryError("카테고리를 선택해주세요!");
       valid = false;
-    } else {
-      setCategoryError("");
-    }
+    } else setCategoryError("");
 
     if (images.length === 0) {
       setImageError("사진을 추가해주세요!");
       valid = false;
-    } else {
-      setImageError("");
-    }
+    } else setImageError("");
 
     if (!content.trim()) {
       setContentError("내용을 입력해주세요!");
       valid = false;
-    } else {
-      setContentError("");
-    }
+    } else setContentError("");
 
     const newDateErrors = {};
     if (!startDate) newDateErrors.startDate = "시작 날짜를 선택해주세요!";
     if (!endDate) newDateErrors.endDate = "종료 날짜를 선택해주세요!";
     if (!startTime) newDateErrors.startTime = "시작 시간을 선택해주세요!";
     if (!endTime) newDateErrors.endTime = "종료 시간을 선택해주세요!";
-
     setDateErrors(newDateErrors);
+
     if (Object.keys(newDateErrors).length > 0) valid = false;
 
     return valid;
   };
 
-  const handleSubmit = (e) => {
+  // --- handleSubmit ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isValid = validateForm();
+    if (!validateForm()) return;
+    setFormError("");
 
-    if (!isValid) {
-      setFormError("모든 항목을 기입해주세요!");
-      return;
+    try {
+      const regionData = 1;
+      const startAt = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        startTime.getHours(),
+        startTime.getMinutes()
+      );
+      const endAt = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate(),
+        endTime.getHours(),
+        endTime.getMinutes()
+      );
+      if (startAt > endAt) {
+        setFormError("종료 시간은 시작 시간 이후여야 합니다.");
+        return;
+      }
+      const formatDateTimeLocal = (date) => {
+        const pad = (n) => String(n).padStart(2, "0");
+        return (
+          `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+            date.getDate()
+          )}T` +
+          `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+            date.getSeconds()
+          )}`
+        );
+      };
+
+      const formData = new FormData();
+      const payload = {
+        regionId: regionData,
+        eventType: CATEGORY_MAP[categories[0]],
+        title,
+        content,
+        location,
+        startAt: formatDateTimeLocal(startAt),
+        endAt: formatDateTimeLocal(endAt),
+      };
+      console.log("payload:", payload);
+      formData.append(
+        "request", // ⬅️ 서버 @RequestPart 이름과 반드시 동일
+        new Blob([JSON.stringify(payload)], { type: "application/json" })
+      );
+
+      images.forEach((img) => {
+        const fileObj = img.file || img;
+        if (fileObj instanceof File) {
+          formData.append("images", fileObj);
+        }
+      });
+      console.log("FormData 내용:");
+
+      const result = await addBoard(formData);
+      console.log("서버 응답:", result);
+      navigate("/main/event");
+    } catch (error) {
+      console.error("저장 실패:", error);
+      setFormError("서버 저장 중 오류가 발생했습니다.");
     }
-
-    setFormError(""); // 모든 필드가 채워졌다면 에러 메시지 제거
-
-    const formData = {
-      title,
-      location,
-      categories,
-      images,
-      content,
-      startDate,
-      endDate,
-      startTime,
-      endTime,
-    };
-
-    console.log("서버로 전송할 데이터:", formData);
-
-    navigate("/main/event"); // 모든 필드 채워졌을 때 이동
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* 전체 폼 에러 메시지 */}
-
+      {/* 이미지 업로드 */}
       <UploadImg
         images={images}
         setImages={setImages}
         error={imageError}
-        setTouched={setImageTouched}
+        setTouched={() => {}}
       />
-
+      {/* 카테고리 선택 */}
       <SelectCategory
         selectedCategories={categories}
         setSelectedCategories={setCategories}
         error={categoryError}
-        setTouched={setCategoryTouched}
+        setTouched={() => {}}
         setCategoryError={setCategoryError}
       />
-
+      {/* 제목 */}
       <SetTitle
         title={title}
         setTitle={setTitle}
         error={titleError}
-        setTouched={setTitleTouched}
+        setTouched={() => {}}
       />
-
+      {/* 장소 */}
       <SetLocation
         location={location}
         setLocation={setLocation}
         error={locationError}
-        setTouched={setLocationTouched}
+        setTouched={() => {}}
       />
 
+      {/* 날짜/시간 */}
       <EventDateTimePicker
         startDate={startDate}
         setStartDate={setStartDate}
@@ -580,27 +622,24 @@ function InputForm() {
         setEndTime={setEndTime}
         errors={dateErrors}
       />
-
+      {/* 내용 */}
       <WriteContext
         content={content}
         setContent={setContent}
         error={contentError}
-        setTouched={setContentTouched}
+        setTouched={() => {}}
       />
-      {formError && (
-        <ErrorMessage style={{ marginBottom: "16px" }}>
-          {formError}
-        </ErrorMessage>
-      )}
+      {/* 에러 메시지 */}
+      {formError && <ErrorMessage>{formError}</ErrorMessage>}
       <SubmitBtn type="submit">작성 완료</SubmitBtn>
     </form>
   );
 }
-
 WriteBoard.SubmitButton = SubmitButton;
 WriteBoard.EventDateTimePicker = EventDateTimePicker;
 WriteBoard.InputForm = InputForm;
 WriteBoard.SelectCategory = SelectCategory;
+WriteBoard.SelectRegion = SelectRegion;
 WriteBoard.Form = Form;
 WriteBoard.Head = Head;
 WriteBoard.UploadImg = UploadImg;

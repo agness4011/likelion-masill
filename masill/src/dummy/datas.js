@@ -5,7 +5,7 @@ export const eventData = [
     userImage:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD3k3vfx4nwJ3OscbvlaltSvCS8nBuP-KryQ&s",
     title: "음식1",
-    content: null,
+    content: "ddbdjsbdbadablds",
     location: "성북구",
     startAt: "2025-10-18T00:00:00",
     endAt: "2025-10-18T00:00:00",

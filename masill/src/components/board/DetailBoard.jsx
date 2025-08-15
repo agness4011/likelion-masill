@@ -5,11 +5,19 @@ import Pencil from "../../assets/detail/pencil.png";
 import Button from "../../assets/detail/Button.png";
 import FullHeart from "../../assets/detail/fullheart.png";
 import Heart from "../../assets/detail/heart.png";
+import ChatImg from "../../assets/detail/chat.png";
+import CommentImg from "../../assets/detail/comment.png";
+import ContentsImg from "../../assets/detail/contents.png";
+import GroupImg from "../../assets/detail/group.png";
+import SummaryImg from "../../assets/detail/Union.png";
+import CompleteImg from "../../assets/detail/SummaryIcon.png";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
+import styled from "styled-components";
 
 import { eventData } from "../../dummy/datas";
+import { chatDat } from "../../dummy/chat";
 
 import {
   BackBtn,
@@ -22,6 +30,10 @@ import {
   PencilBtn,
   LowHeaderContainer,
   HeartImg,
+  TabContainer,
+  TabButton,
+  SummaryBtn,
+  DetailPart,
 } from "./Detail.styled";
 
 export default function DetailBoard({ children }) {
@@ -116,9 +128,75 @@ function BodyTop() {
     </div>
   );
 }
+function BodyMiddle({ children }) {
+  return <div>{children}</div>;
+}
+function MiddleWho() {
+  return (
+    <div>
+      <div></div>
+    </div>
+  );
+}
+
+function TabMenu() {
+  const [activeTab, setActiveTab] = useState("내용");
+
+  const tabs = [
+    { name: "내용", icon: ContentsImg },
+    { name: "댓글", icon: CommentImg },
+    { name: "마실 모임", icon: GroupImg },
+  ];
+
+  return (
+    <TabContainer>
+      {tabs.map((tab) => (
+        <TabButton
+          key={tab.name}
+          active={activeTab === tab.name}
+          onClick={() => setActiveTab(tab.name)}
+        >
+          <img src={tab.icon} />
+          <span>{tab.name}</span>
+        </TabButton>
+      ))}
+    </TabContainer>
+  );
+}
+function LOwContainer({ children }) {
+  return <div>{children}</div>;
+}
+function DetailContent() {
+  const { eventId } = useParams(); // URL에서 eventId 가져오기
+  const event = eventData.find((e) => e.eventId === Number(eventId));
+
+  const text = event.content;
+
+  const setSummary = () => {
+    // ai 이용
+  };
+
+  if (!event) {
+    return <p>이벤트를 찾을 수 없습니다.</p>;
+  }
+  return (
+    <div>
+      <div>
+        <SummaryBtn>
+          AI 요약하기
+          <img src={SummaryImg} onClick={setSummary} />
+        </SummaryBtn>
+      </div>
+      <DetailPart>{event.content}</DetailPart>
+    </div>
+  );
+}
 function UserChat() {
   return (
     <div>
+      <div>
+        <img src />
+      </div>
       <p></p>
       {/* 닉네입 삽입 */}
       <Link>
@@ -189,6 +267,8 @@ function Group() {
 }
 
 function Comment() {}
+DetailBoard.LOwContainer = LOwContainer;
+DetailBoard.DetailContent = DetailContent;
 DetailBoard.BodyTop = BodyTop;
 DetailBoard.LowBody = LowBody;
 DetailBoard.Low = Low;
@@ -198,3 +278,6 @@ DetailBoard.DatalButton = DatalButton;
 DetailBoard.High = Hight;
 DetailBoard.LowHead = LowHead;
 DetailBoard.ShowImage = ShowImage;
+DetailBoard.BodyMiddle = BodyMiddle;
+DetailBoard.MiddleWho = MiddleWho;
+DetailBoard.TabMenu = TabMenu;

@@ -1,0 +1,42 @@
+export const chatDat = [
+  {
+    commentId: 1,
+    content: "재밌겠다!!",
+    username: "user123",
+    userProfileImageUrl: "https://example.com/profile.jpg",
+    createdAt: "2025-08-15T12:32:15.308Z",
+    replyCommentCount: 5,
+  },
+  {
+    commentId: 2,
+    content: "재밌겠다!!",
+    username: "user123",
+    userProfileImageUrl: "https://example.com/profile.jpg",
+    createdAt: "2025-08-15T12:32:15.308Z",
+    replyCommentCount: 5,
+  },
+  {
+    commentId: 3,
+    content: "재밌겠다!!",
+    username: "user123",
+    userProfileImageUrl: "https://example.com/profile.jpg",
+    createdAt: "2025-08-15T12:32:15.308Z",
+    replyCommentCount: 5,
+  },
+  {
+    commentId: 4,
+    content: "재밌겠다!!",
+    username: "user123",
+    userProfileImageUrl: "https://example.com/profile.jpg",
+    createdAt: "2025-08-15T12:32:15.308Z",
+    replyCommentCount: 5,
+  },
+  {
+    commentId: 6,
+    content: "재밌겠다!!",
+    username: "user123",
+    userProfileImageUrl: "https://example.com/profile.jpg",
+    createdAt: "2025-08-15T12:32:15.308Z",
+    replyCommentCount: 5,
+  },
+];

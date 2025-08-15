@@ -1,9 +1,10 @@
 import axios from "axios";
 
 // API 서버 기본 URL (개발 환경에서는 프록시 사용)
-const BASE_URL = process.env.NODE_ENV === 'development' 
-  ? "/api"  // 프록시 사용
-  : "http://43.202.247.99:8080/api";  // 프로덕션에서는 직접 URL 사용
+const BASE_URL =
+  process.env.NODE_ENV === "development"
+    ? "/api" // 프록시 사용
+    : "http://43.202.247.99:8080/api"; // 프로덕션에서는 직접 URL 사용
 
 // --------------------------------------------------
 // API 인스턴스 설정
@@ -12,11 +13,11 @@ const BASE_URL = process.env.NODE_ENV === 'development'
 // 공용 API 인스턴스 (토큰 불필요)
 const publicAPI = axios.create({
   baseURL: BASE_URL,
-  headers: { 
-    "Content-Type": "application/json"
+  headers: {
+    "Content-Type": "application/json",
   },
   // CORS 문제 해결을 위한 설정
-  withCredentials: false
+  withCredentials: false,
 });
 
 // 인증 API 인스턴스 (토큰 필요)
@@ -36,13 +37,13 @@ const privateAPI = axios.create({
 privateAPI.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
-    console.log('인터셉터 - 토큰:', token);
-    console.log('인터셉터 - 요청 URL:', config.url);
+    console.log("인터셉터 - 토큰:", token);
+    console.log("인터셉터 - 요청 URL:", config.url);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('인터셉터 - Authorization 헤더 추가됨');
+      console.log("인터셉터 - Authorization 헤더 추가됨");
     } else {
-      console.warn('인터셉터 - 토큰이 없음!');
+      console.warn("인터셉터 - 토큰이 없음!");
     }
     return config;
   },
@@ -65,16 +66,15 @@ privateAPI.interceptors.response.use(
       try {
         // (가정) 리프레시 토큰을 사용하여 새로운 액세스 토큰을 받아오는 API 호출
         // 이 로직은 백엔드 구현에 따라 달라집니다.
-        // const newAccessToken = await refreshAccessToken(); 
+        // const newAccessToken = await refreshAccessToken();
         // localStorage.setItem("accessToken", newAccessToken);
         // 새로운 토큰으로 헤더를 업데이트하고 원래 요청을 재시도합니다.
         // originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         // return axios(originalRequest);
-        
+
         // 여기서는 토큰 만료 시 로그인 페이지로 리디렉션하는 예시를 보여줍니다.
         console.warn("액세스 토큰이 만료되었습니다. 다시 로그인해주세요.");
         // window.location.href = "/login"; // 예시
-        
       } catch (refreshError) {
         // 리프레시 토큰도 만료되었거나 갱신 실패 시
         console.error("토큰 갱신 실패:", refreshError);
@@ -99,20 +99,53 @@ export const APIService = {
   // 공용 API 메서드 (토큰 불필요)
   public: {
     get: async (url, config = {}) => publicAPI.get(url, config),
-    post: async (url, data = {}, config = {}) => publicAPI.post(url, data, config),
-    put: async (url, data = {}, config = {}) => publicAPI.put(url, data, config),
+    post: async (url, data = {}, config = {}) =>
+      publicAPI.post(url, data, config),
+    put: async (url, data = {}, config = {}) =>
+      publicAPI.put(url, data, config),
     delete: async (url, config = {}) => publicAPI.delete(url, config),
-    patch: async (url, data = {}, config = {}) => publicAPI.patch(url, data, config),
+    patch: async (url, data = {}, config = {}) =>
+      publicAPI.patch(url, data, config),
   },
 
   // 인증 API 메서드 (토큰 필요)
   private: {
     get: async (url, config = {}) => privateAPI.get(url, config),
-    post: async (url, data = {}, config = {}) => privateAPI.post(url, data, config),
-    put: async (url, data = {}, config = {}) => privateAPI.put(url, data, config),
+    post: async (url, data = {}, config = {}) =>
+      privateAPI.post(url, data, config),
+    put: async (url, data = {}, config = {}) =>
+      privateAPI.put(url, data, config),
     delete: async (url, config = {}) => privateAPI.delete(url, config),
-    patch: async (url, data = {}, config = {}) => privateAPI.patch(url, data, config),
+    patch: async (url, data = {}, config = {}) =>
+      privateAPI.patch(url, data, config),
   },
 };
+const getAccessToken = () => localStorage.getItem("accessToken");
+
+export const multipartAPI = {
+  public: axios.create({
+    baseURL: BASE_URL,
+    withCredentials: false,
+    headers: { "Content-Type": "multipart/form-data" },
+  }),
+
+  private: axios.create({
+    baseURL: BASE_URL,
+    withCredentials: false,
+    headers: { "Content-Type": "multipart/form-data" },
+  }),
+};
+
+// private 요청에 자동으로 토큰 붙이기
+multipartAPI.private.interceptors.request.use(
+  (config) => {
+    const token = getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export { publicAPI, privateAPI };

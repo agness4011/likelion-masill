@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import ArrowLeftIcon from '@assets/logo/main/main-arrowleft.svg';
 import HeartIcon from '@logo/myhome/heart.svg';
 import ChatIcon from '@logo/myhome/chat.svg';
+import Fullheart from '@assets/logo/mainImg/fullheart.png';
+import Heart from '@assets/logo/mainImg/Heart.png';
+import Comment from '@assets/logo/mainImg/commant.png';
+import PromotionIcon from '@logo/myhome/promotion.svg';
+import dayjs from 'dayjs';
+import { fetchAllBoards } from '../../api/boardApi';
+import {
+  BoardTitleH1,
+  BoardLocationP,
+  BoardDateP,
+} from '../../components/main/MainStyles.styled';
 
 const Container = styled.div`
-  min-height: 100vh;
-  background: white;
+  width: 393px;
+  height: 852px;
+  background: #fff;
   padding: 0;
   margin: 0;
+  overflow: hidden;
+  overflow-x: hidden;
 `;
 
 const Header = styled.div`
@@ -21,6 +35,8 @@ const Header = styled.div`
   position: sticky;
   top: 0;
   z-index: 100;
+  height: 60px;
+  box-sizing: border-box;
 `;
 
 const BackButton = styled.button`
@@ -48,148 +64,180 @@ const Title = styled.h1`
 `;
 
 const Content = styled.div`
-  padding: 20px;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: calc(852px - 60px); /* 전체 높이에서 헤더 높이 제외 */
+  box-sizing: border-box;
 `;
 
 const PostCard = styled.div`
-  margin-bottom: 24px;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0 0 20px 0;
+  border-bottom: 1px solid #ddd;
+  margin-top: 13px;
+  cursor: pointer;
+  &:hover {
+    background-color: #fafafa;
+  }
+  width: 380px;
+  margin-bottom: 0;
 `;
 
-const ImageContainer = styled.div`
-  display: flex;
-  gap: 4px;
-  padding: 12px;
+const ImageScrollWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding-bottom: 4px;
+  max-height: 140px;
 `;
 
-const ImageWrapper = styled.div`
-  position: relative;
-  flex: 1;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-`;
-
-const PostImage = styled.img`
+const BoardImage = styled.img`
   width: 100%;
-  height: 100%;
+  height: 140px;
+  border-radius: 6px;
   object-fit: cover;
 `;
 
-
-
-const PostInfo = styled.div`
-  padding: 16px;
+const ContentWrapper = styled.div`
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 11px;
 `;
 
-const ProfileIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #e9ecef;
+const LeftContent = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  
-  &::before {
-    content: '👤';
-    font-size: 16px;
-  }
-`;
-
-const PostDetails = styled.div`
+  align-items: flex-start; /* 로고와 텍스트의 윗줄 맞춤 */
+  gap: 7px;
   flex: 1;
 `;
 
-const PostTitle = styled.h3`
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  line-height: 1.4;
+const TextInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  /* 보드타이틀 */
+  ${BoardTitleH1} {
+    margin: 0;
+  }
+
+  /* 위치와 날짜는 아래로 순서대로 */
+  ${BoardLocationP} {
+    margin: 2px 0 0;
+  }
+
+  ${BoardDateP} {
+    margin: 2px 0 0;
+  }
 `;
 
-const PostLocation = styled.p`
-  margin: 0 0 4px 0;
-  font-size: 14px;
-  color: #666;
-  line-height: 1.3;
-`;
-
-const PostDate = styled.p`
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  color: #666;
-  line-height: 1.3;
-`;
-
-const EngagementMetrics = styled.div`
+const RightContent = styled.div`
+  position: relative; /* 아이콘 고정 기준 */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
-  margin-left: 12px;
+  justify-content: flex-start;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  min-height: 100%; /* 세로 위치 계산 위해 높이 유지 */
 `;
 
-const MetricItem = styled.div`
+const HeartArea = styled.div`
+  position: absolute;
+  top: 0; /* 제목과 같은 높이 */
+  right: 0;
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  color: #666;
+  padding-right: 54px; /* 아이콘 자리 확보 */
+  cursor: pointer;
 `;
 
-const MetricIcon = styled.img`
-  width: 16px;
-  height: 16px;
+const CommentArea = styled.div`
+  position: absolute;
+  top: 30px; /* 위치와 날짜 중간 지점 (수치 조절 가능) */
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding-right: 54px;
+  cursor: pointer;
 `;
 
-const Footer = styled.div`
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  font-size: 14px;
-  border-top: 1px solid #f0f0f0;
+const TextStyle = styled.p`
+  color: var(--Gray-900, #727c94);
+  font-family: Pretendard;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: -0.12px;
+  margin: 0;
+  white-space: nowrap; /* 줄바꿈 방지 */
 `;
 
-// 더미 데이터
-const dummyPosts = [
-  {
-    id: 1,
-    title: "퇘사랑 흑돼지 입점 기념 3+1",
-    location: "서울 성북구 서경로 79 돼사랑",
-    date: "2025. 09. 05. (금) 16:00 ~ 02:00 (익일)",
-    likes: 894,
-    comments: 68,
-    images: [
-      "https://via.placeholder.com/120x120/FF6B35/FFFFFF?text=Restaurant",
-      "https://via.placeholder.com/120x120/FFD700/000000?text=Menu",
-      "https://via.placeholder.com/120x120/FF6B35/FFFFFF?text=Food"
-    ]
-  },
-  {
-    id: 2,
-    title: "성북 청년의 날 행사",
-    location: "서울 성북구청 앞 바람마당 일대",
-    date: "2025. 09. 20. (토) 12:00 ~ 17:00",
-    likes: 1200,
-    comments: 117,
-    images: [
-      "https://via.placeholder.com/120x120/007AFF/FFFFFF?text=City",
-      "https://via.placeholder.com/120x120/FF6B35/FFFFFF?text=Beauty",
-      "https://via.placeholder.com/120x120/28A745/FFFFFF?text=Event"
-    ]
-  }
-];
+const HeartImg = styled.img`
+  position: absolute;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+`;
+
+const CommentImg = styled.img`
+  position: absolute;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+`;
+
+const MemberLogo = styled.img`
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 24px;
+`;
+
+const PromotionContainer = styled.div`
+  margin: 8px 0;
+  margin-left: -140px;
+  text-align: left;
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const PromotionIconImg = styled.img`
+  width: 80%;
+  height: 100px;
+  border-radius: 20px;
+`;
 
 const MyPostsPage = () => {
   const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        const res = await fetchAllBoards();
+        console.log("전체 게시글:", res);
+
+        // 실제 데이터 구조에 맞게 접근
+        const content = res?.data?.content || [];
+        setPosts(content);
+      } catch (err) {
+        console.error("게시물 불러오기 실패", err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   const formatLikes = (likes) => {
     if (likes >= 1000) {
@@ -197,6 +245,46 @@ const MyPostsPage = () => {
     }
     return likes.toString();
   };
+
+  const handlePostClick = (eventId) => {
+    navigate(`/detail/${eventId}`);
+  };
+
+  if (loading) {
+    return (
+      <Container>
+        <Header>
+          <BackButton onClick={() => navigate(-1)}>
+            <BackIcon src={ArrowLeftIcon} alt="뒤로 가기" />
+          </BackButton>
+          <Title>내가 작성한 게시물</Title>
+        </Header>
+        <Content>
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+            로딩 중...
+          </div>
+        </Content>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <Header>
+          <BackButton onClick={() => navigate(-1)}>
+            <BackIcon src={ArrowLeftIcon} alt="뒤로 가기" />
+          </BackButton>
+          <Title>내가 작성한 게시물</Title>
+        </Header>
+        <Content>
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+            게시물을 불러오는 중 오류가 발생했습니다.
+          </div>
+        </Content>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -208,42 +296,74 @@ const MyPostsPage = () => {
       </Header>
 
       <Content>
-        {dummyPosts.map((post) => (
-          <PostCard key={post.id}>
-                         <ImageContainer>
-               {post.images.map((image, index) => (
-                 <ImageWrapper key={index}>
-                   <PostImage src={image} alt={`게시글 이미지 ${index + 1}`} />
-                 </ImageWrapper>
-               ))}
-             </ImageContainer>
-            
-            <PostInfo>
-              <ProfileIcon />
-              <PostDetails>
-                <PostTitle>{post.title}</PostTitle>
-                <PostLocation>{post.location}</PostLocation>
-                <PostDate>{post.date}</PostDate>
-              </PostDetails>
-              
-              <EngagementMetrics>
-                <MetricItem>
-                  <span>{formatLikes(post.likes)}</span>
-                  <MetricIcon src={HeartIcon} alt="좋아요" />
-                </MetricItem>
-                <MetricItem>
-                  <span>{post.comments}</span>
-                  <MetricIcon src={ChatIcon} alt="댓글" />
-                </MetricItem>
-              </EngagementMetrics>
-            </PostInfo>
-          </PostCard>
-        ))}
-      </Content>
+        {posts.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+            아직 작성한 게시물이 없습니다.<br />새로운 게시물을 작성해보세요!
+          </div>
+        ) : (
+          <div style={{ padding: '0 24px 0 16px' }}>
+            {posts.map((post, index) => (
+              <React.Fragment key={post.eventId}>
+                <PostCard onClick={() => handlePostClick(post.eventId)}>
+                  <ImageScrollWrapper>
+                    {Array.isArray(post.images) && post.images.length > 0 ? (
+                      post.images.map((image, idx) => (
+                        <BoardImage
+                          key={idx}
+                          src={image.imageUrl}
+                          alt={`${post.title}-${idx}`}
+                        />
+                      ))
+                    ) : null}
+                  </ImageScrollWrapper>
 
-      <Footer>
-        총 {dummyPosts.length}개
-      </Footer>
+                  <ContentWrapper>
+                    <LeftContent>
+                      <MemberLogo src={post.userImage} alt="회원로고" />
+                      <TextInfo>
+                        <BoardTitleH1>{post.title}</BoardTitleH1>
+                        <BoardLocationP>{post.location}</BoardLocationP>
+                        <BoardDateP>
+                          {`${dayjs(post.startAt).format(
+                            "YYYY.MM.DD.(dd)"
+                          )} ~ ${dayjs(post.endAt).format(
+                            "YYYY.MM.DD.(dd)"
+                          )} ${dayjs(post.startAt).format("HH:mm")}~${dayjs(
+                            post.endAt
+                          ).format("HH:mm")}`}
+                        </BoardDateP>
+                      </TextInfo>
+                    </LeftContent>
+
+                    <RightContent>
+                      <HeartArea>
+                        <TextStyle>{formatLikes(post.favoriteCount)}</TextStyle>
+                        <HeartImg
+                          src={Heart}
+                          alt="하트"
+                          style={{ width: "24px", height: "24px" }}
+                        />
+                      </HeartArea>
+
+                      <CommentArea>
+                        <TextStyle>{post.commentCount}</TextStyle>
+                        <CommentImg src={Comment} alt="댓글" />
+                      </CommentArea>
+                    </RightContent>
+                  </ContentWrapper>
+                  
+                  {/* PromotionIcon을 마지막 게시물이 아닌 경우에만 표시 */}
+                  {index < posts.length - 1 && (
+                    <PromotionContainer>
+                      <PromotionIconImg src={PromotionIcon} alt="프로모션 아이콘" />
+                    </PromotionContainer>
+                  )}
+                </PostCard>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+      </Content>
     </Container>
   );
 };

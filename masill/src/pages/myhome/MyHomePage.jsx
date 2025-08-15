@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
+import { uploadProfileImage } from '../../api/userService';
 import AlarmIcon from '@logo/myhome/alarm.svg';
 import ChatIcon from '@logo/myhome/chat.svg'; 
 import HomeIcon from '@logo/myhome/home.svg';
@@ -93,6 +94,16 @@ const AvatarContainer = styled.div`
   justify-content: center;
   overflow: hidden;
   position: relative;
+`;
+
+const HiddenFileInput = styled.input`
+  display: none;
+  
+  /* 모바일에서 카메라 접근 허용 */
+  &[type="file"] {
+    /* iOS Safari에서 카메라 접근 */
+    -webkit-appearance: none;
+  }
 `;
 
 const PlusButton = styled.button`
@@ -280,6 +291,20 @@ const MyHomePage = () => {
     return avatarIcons[avatarId] || Avatar1Icon;
   };
 
+  // 프로필 이미지 상태
+  const [profileImage, setProfileImage] = React.useState(null);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const fileInputRef = React.useRef(null);
+
+  // 컴포넌트 언마운트 시 미리보기 URL 정리
+  React.useEffect(() => {
+    return () => {
+      if (profileImage && profileImage.startsWith('blob:')) {
+        URL.revokeObjectURL(profileImage);
+      }
+    };
+  }, [profileImage]);
+
   // 새 위치 상태 (개별 관리)
   const [bird1Position, setBird1Position] = React.useState({ x: 160, y: 120 });
   const [bird2Position, setBird2Position] = React.useState({ x: 220, y: 101 });
@@ -318,8 +343,62 @@ const MyHomePage = () => {
 
   const handlePlusButton = () => {
     console.log('Plus 버튼 클릭');
-    // 여기에 원하는 기능을 추가할 수 있습니다
-    // 예: 프로필 편집, 사진 추가 등
+    // 파일 선택 다이얼로그 열기
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 파일 타입 검증
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.');
+      return;
+    }
+
+    // 파일 크기 검증 (5MB 제한)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('파일 크기는 5MB 이하여야 합니다.');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      
+      // 미리보기용 URL 생성
+      const previewUrl = URL.createObjectURL(file);
+      setProfileImage(previewUrl);
+
+      // API 호출
+      const result = await uploadProfileImage(file);
+      console.log('프로필 이미지 업로드 성공:', result);
+      
+      // 성공 메시지 (모바일 친화적)
+      if (window.innerWidth <= 768) {
+        // 모바일에서는 더 간단한 메시지
+        console.log('프로필 이미지가 업로드되었습니다.');
+      } else {
+        alert('프로필 이미지가 성공적으로 업로드되었습니다.');
+      }
+      
+    } catch (error) {
+      console.error('프로필 이미지 업로드 실패:', error);
+      
+      // 모바일 친화적 에러 메시지
+      if (window.innerWidth <= 768) {
+        console.error('업로드에 실패했습니다.');
+      } else {
+        alert('프로필 이미지 업로드에 실패했습니다.');
+      }
+      
+      // 실패 시 미리보기 제거
+      setProfileImage(null);
+    } finally {
+      setIsUploading(false);
+      // 파일 입력 초기화
+      event.target.value = '';
+    }
   };
 
   return (
@@ -351,14 +430,41 @@ const MyHomePage = () => {
       {/* 프로필 섹션 */}
       <ProfileSection>
         <AvatarContainer>
-          <AvatarImage src={getCurrentAvatarIcon()} alt="프로필" />
+          <AvatarImage 
+            src={profileImage || getCurrentAvatarIcon()} 
+            alt="프로필" 
+          />
+          {isUploading && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '12px'
+            }}>
+              업로드 중...
+            </div>
+          )}
         </AvatarContainer>
+        <HiddenFileInput
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileChange}
+        />
         <PlusButton onClick={handlePlusButton}>
           <PlusButtonImage src={Plusbutton} alt="추가" />
         </PlusButton>
         <UserInfo>
           <Username>
-            {userData.username}
+            {userData.nickname || userData.username}
             {userData.isSajangVerified && (
               <SajangIconImage src={SajangIcon} alt="사장님 인증" />
             )}

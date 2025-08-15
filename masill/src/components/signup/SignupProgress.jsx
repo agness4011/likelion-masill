@@ -8,6 +8,7 @@ const steps = [
   '/signup/agree',   // 약관 동의
   '/signup/phone',   // 휴대폰 인증
   '/signup/create',  // 아이디 생성
+  '/signup/region',  // 지역 선택
 ];
 
 const Header = styled.div`

@@ -1,5 +1,5 @@
 // src/api/userService.ts
-import { publicAPI, privateAPI } from './axios';
+import { publicAPI, privateAPI, multipartAPI } from './axios';
 
 // 로그인 API
 // 로그인 API (응답 경로 다양성 대응 + 저장 직후 검증 로그 + 더미는 JWT 금지)
@@ -304,13 +304,17 @@ export const updateNickname = async (nickname) => {
 export const uploadProfileImage = async (imageFile) => {
   try {
     const formData = new FormData();
-    formData.append('profileImage', imageFile);
+    const fileObj = imageFile.file || imageFile;
+    if (fileObj instanceof File) {
+      formData.append("images", fileObj);
+    }
 
-    // FormData일 땐 Content-Type 수동 지정 불필요(자동 boundary 포함)
-    const { data } = await publicAPI.post('/users/me/profile-image', formData);
-    return data;
+    // multipartAPI 사용
+    const res = await multipartAPI.private.post("/users/me/profile-image", formData);
+    return res.data;
   } catch (error) {
-    console.error('프로필 이미지 업로드 API 오류:', error);
+    console.error("프로필 이미지 업로드 에러:", error);
+    console.error("에러 응답:", error.response?.data);
     throw error;
   }
 };
