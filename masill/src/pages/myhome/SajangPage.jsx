@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
-import BirdIcon from '@logo/bird1.svg';
-import ArrowLeftIcon from '@logo/main/main-arrowleft.svg';
-import MasilLogoIcon from '@assets/masill-logo.svg';
+import { verifyBusinessOwner } from '../../api/userService';
+import BirdIcon from '../../assets/logo/bird1.svg';
+import ArrowLeftIcon from '../../assets/logo/main/main-arrowleft.svg';
+import MasilLogoIcon from '../../assets/masill-logo.svg';
 
 const SajangContainer = styled.div`
   min-height: 100vh;
@@ -178,13 +179,14 @@ const SajangPage = () => {
     openingDate: '',
     businessNumber: ''
   });
-  
+
   const [focusedField, setFocusedField] = useState(null);
   const [completedFields, setCompletedFields] = useState({
     name: false,
     openingDate: false,
     businessNumber: false
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleBack = () => {
     navigate('/myhome');
@@ -192,36 +194,25 @@ const SajangPage = () => {
 
   const handleInputChange = (field, value) => {
     let formattedValue = value;
-    
-    // 개업일자 필드에 대한 자동 포맷팅
+
     if (field === 'openingDate') {
-      // 숫자만 추출
       const numbers = value.replace(/[^0-9]/g, '');
-      
-      // 4자리까지 입력된 경우 (년도)
       if (numbers.length <= 4) {
         formattedValue = numbers;
-      }
-      // 6자리까지 입력된 경우 (년도 + 월)
-      else if (numbers.length <= 6) {
-        formattedValue = numbers.slice(0, 4) + ' - ' + numbers.slice(4);
-      }
-      // 8자리까지 입력된 경우 (년도 + 월 + 일)
-      else if (numbers.length <= 8) {
-        formattedValue = numbers.slice(0, 4) + ' - ' + numbers.slice(4, 6) + ' - ' + numbers.slice(6);
-      }
-      // 8자리 초과인 경우 8자리까지만 유지
-      else {
-        formattedValue = numbers.slice(0, 4) + ' - ' + numbers.slice(4, 6) + ' - ' + numbers.slice(6, 8);
+      } else if (numbers.length <= 6) {
+        formattedValue = numbers.slice(0, 4) + '-' + numbers.slice(4);
+      } else if (numbers.length <= 8) {
+        formattedValue = numbers.slice(0, 4) + '-' + numbers.slice(4, 6) + '-' + numbers.slice(6);
+      } else {
+        formattedValue = numbers.slice(0, 4) + '-' + numbers.slice(4, 6) + '-' + numbers.slice(6, 8);
       }
     }
-    
+
     setFormData(prev => ({
       ...prev,
       [field]: formattedValue
     }));
-    
-    // 입력이 있으면 완료 상태로 설정
+
     if (formattedValue.trim()) {
       setCompletedFields(prev => ({
         ...prev,
@@ -230,45 +221,102 @@ const SajangPage = () => {
     }
   };
 
-  const handleInputFocus = (field) => {
-    setFocusedField(field);
-  };
-
-  const handleInputBlur = (field) => {
-    setFocusedField(null);
-  };
-
-  const handleVerify = () => {
-    // 모든 필드가 입력되었는지 확인
-    const allFieldsCompleted = Object.values(completedFields).every(completed => completed);
-    if (allFieldsCompleted) {
-      console.log('사장님 인증 요청:', formData);
-      // 여기에 실제 인증 로직을 추가할 수 있습니다
-      verifySajang();
-      alert('인증 요청이 완료되었습니다.');
-      navigate('/myhome');
+  const handleVerify = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const currentUser = localStorage.getItem('currentUser');
+  
+    console.log('=== 토큰 상태 확인 ===');
+    console.log('Access Token:', accessToken ? accessToken : '없음');
+    console.log('Refresh Token:', refreshToken ? '있음' : '없음');
+    console.log('Current User:', currentUser ? JSON.parse(currentUser) : '없음');
+    console.log('========================');
+  
+    // 모든 필드 확인
+    const allFieldsCompleted = Object.values(completedFields).every((completed) => completed);
+    if (!allFieldsCompleted) {
+      alert('모든 필드를 입력해주세요.');
+      return;
+    }
+  
+    // 입력값 정규화
+    const openingDateDigits = formData.openingDate.replace(/\D/g, ''); // YYYYMMDD
+    const businessNumberDigits = formData.businessNumber.replace(/\D/g, ''); // 10자리
+  
+    // 형식 검증
+    if (!/^\d{8}$/.test(openingDateDigits)) {
+      alert('개업일자를 YYYYMMDD 형식으로 입력하세요.');
+      return;
+    }
+    if (!/^\d{10}$/.test(businessNumberDigits)) {
+      alert('사업자등록번호는 숫자 10자리입니다.');
+      return;
+    }
+  
+    // 더미 토큰 차단(최소한)
+    if (!accessToken || accessToken.startsWith('dummy_')) {
+      alert('실제 로그인 후 이용 가능한 기능입니다.');
+      return;
+    }
+  
+    try {
+      setIsLoading(true);
+  
+      // 서버 스펙에 맞춘 payload (키명/포맷)
+      const payload = {
+        businessName: formData.name.trim(),
+        openingDate: openingDateDigits,       // 하이픈 제거된 YYYYMMDD
+        businessNumber: businessNumberDigits, // 숫자만 10자리
+      };
+  
+      console.log('사업자 인증 요청 payload:', payload);
+  
+      // API 호출
+      const response = await verifyBusinessOwner(payload);
+  
+      if (response?.success || response?.code === 200) {
+        verifySajang();
+        alert('사업자 인증이 완료되었습니다.');
+        navigate('/myhome');
+      } else {
+        alert(response?.message || '인증에 실패했습니다. 다시 시도해주세요.');
+      }
+    } catch (error) {
+      console.error('사업자 인증 오류:', error);
+  
+      let errorMessage = '인증 중 오류가 발생했습니다.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.status === 400) {
+        errorMessage = '입력 정보를 확인해주세요.';
+      } else if (error.response?.status === 401) {
+        errorMessage = '로그인이 필요합니다.';
+      } else if (error.response?.status === 403) {
+        errorMessage = '인증 권한이 없습니다.';
+      } else if (error.response?.status === 409) {
+        errorMessage = '이미 인증된 사업자입니다.';
+      } else if (error.response?.status === 500) {
+        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      }
+  
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
+  
 
   const getInputClassName = (field) => {
-    if (focusedField === field) {
-      return ''; // 활성화 상태 (흰색 배경, 검정 텍스트)
-    } else if (completedFields[field] && focusedField && focusedField !== field) {
-      return 'completed-other-focused'; // 다른 필드가 포커스된 상태에서 완료된 필드 (#ECF1FF 배경, #727C94 텍스트)
-    } else if (completedFields[field]) {
-      return 'completed'; // 완료된 필드 (#ECF1FF 배경, #727C94 텍스트)
-    }
-    return ''; // 기본 상태 (회색 배경, #727C94 텍스트)
+    if (focusedField === field) return '';
+    else if (completedFields[field] && focusedField && focusedField !== field) return 'completed-other-focused';
+    else if (completedFields[field]) return 'completed';
+    return '';
   };
 
-  // 모든 필드가 입력되었는지 확인
   const allFieldsCompleted = Object.values(completedFields).every(completed => completed);
 
   return (
     <SajangContainer>
-      {/* 상태바 */}
-      
-      {/* 헤더 */}
       <Header>
         <BackButton onClick={handleBack}>
           <BackIcon src={ArrowLeftIcon} alt="뒤로가기" />
@@ -276,7 +324,6 @@ const SajangPage = () => {
         <Title>사장님 인증</Title>
       </Header>
 
-      {/* 콘텐츠 */}
       <Content>
         <BirdContainer>
           <BirdImage src={BirdIcon} alt="새" />
@@ -284,53 +331,53 @@ const SajangPage = () => {
 
         <FormSection>
           <SectionTitle>정보 등록</SectionTitle>
-          
-                     <InputGroup>
-             <InputLabel>성명</InputLabel>
-             <InputField
-               type="text"
-               value={formData.name}
-               placeholder="성명을 입력하세요"
-               onChange={(e) => handleInputChange('name', e.target.value)}
-               onFocus={() => handleInputFocus('name')}
-               onBlur={() => handleInputBlur('name')}
-               className={getInputClassName('name')}
-             />
-           </InputGroup>
 
-                       <InputGroup>
-              <InputLabel>개업일자</InputLabel>
-              <InputField
-                type="text"
-                value={formData.openingDate}
-                placeholder="YYYY-MM-DD"
-                onChange={(e) => handleInputChange('openingDate', e.target.value)}
-                onFocus={() => handleInputFocus('openingDate')}
-                onBlur={() => handleInputBlur('openingDate')}
-                className={getInputClassName('openingDate')}
-              />
-            </InputGroup>
+          <InputGroup>
+            <InputLabel>성명</InputLabel>
+            <InputField
+              type="text"
+              value={formData.name}
+              placeholder="성명을 입력하세요"
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              onFocus={() => setFocusedField('name')}
+              onBlur={() => setFocusedField(null)}
+              className={getInputClassName('name')}
+            />
+          </InputGroup>
 
-            <InputGroup>
-              <InputLabel>사업자 등록번호</InputLabel>
-              <InputField
-                type="text"
-                value={formData.businessNumber}
-                placeholder="사업자 등록번호를 입력하세요"
-                onChange={(e) => handleInputChange('businessNumber', e.target.value)}
-                onFocus={() => handleInputFocus('businessNumber')}
-                onBlur={() => handleInputBlur('businessNumber')}
-                className={getInputClassName('businessNumber')}
-              />
-            </InputGroup>
-            
-            <VerifyButton 
-              disabled={!allFieldsCompleted}
-              onClick={handleVerify}
-            >
-              인증하기
-            </VerifyButton>
-         </FormSection>
+          <InputGroup>
+            <InputLabel>개업일자</InputLabel>
+            <InputField
+              type="text"
+              value={formData.openingDate}
+              placeholder="YYYY-MM-DD"
+              onChange={(e) => handleInputChange('openingDate', e.target.value)}
+              onFocus={() => setFocusedField('openingDate')}
+              onBlur={() => setFocusedField(null)}
+              className={getInputClassName('openingDate')}
+            />
+          </InputGroup>
+
+          <InputGroup>
+            <InputLabel>사업자 등록번호</InputLabel>
+            <InputField
+              type="text"
+              value={formData.businessNumber}
+              placeholder="사업자 등록번호를 입력하세요"
+              onChange={(e) => handleInputChange('businessNumber', e.target.value)}
+              onFocus={() => setFocusedField('businessNumber')}
+              onBlur={() => setFocusedField(null)}
+              className={getInputClassName('businessNumber')}
+            />
+          </InputGroup>
+
+          <VerifyButton
+            disabled={!allFieldsCompleted || isLoading}
+            onClick={handleVerify}
+          >
+            {isLoading ? '인증 중...' : '인증하기'}
+          </VerifyButton>
+        </FormSection>
       </Content>
     </SajangContainer>
   );

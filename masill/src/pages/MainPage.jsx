@@ -2,8 +2,21 @@ import Main from "../components/main/Main";
 import { Outlet } from "react-router-dom";
 import Header from "../components/commons/header/Header";
 import Footer from "../components/commons/Footer";
+import { useEffect } from "react";
 
 export default function MainPage() {
+  // 토큰 상태 확인
+  useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const currentUser = localStorage.getItem('currentUser');
+    
+    console.log('=== 메인페이지 토큰 상태 ===');
+    console.log('Access Token:', accessToken ? '있음' : '없음');
+    console.log('Refresh Token:', refreshToken ? '있음' : '없음');
+    console.log('Current User:', currentUser ? JSON.parse(currentUser) : '없음');
+    console.log('===========================');
+  }, []);
   return (
     <Main>
       {/* 배경 + Header + SearchBar + 광고 */}

@@ -2,92 +2,99 @@
 import { publicAPI, privateAPI } from './axios';
 
 // 로그인 API
+// 로그인 API (응답 경로 다양성 대응 + 저장 직후 검증 로그 + 더미는 JWT 금지)
+// 로그인 API (서버 응답 구조: data.data.accessToken 대응)
+// 로그인 API (응답 구조: data.data.accessToken 기준)
 export const login = async (loginData) => {
   try {
-    try {
-      console.log('로그인 API 호출 시작:', loginData);
-      const { data } = await publicAPI.post('/auth/login', loginData);
-      console.log('로그인 API 성공:', data);
+    console.log('[login] 요청:', loginData);
+    const res = await publicAPI.post('/auth/login', loginData);
+    const body = res?.data ?? res;
 
-      // 서버 응답 키 이름에 맞춰 사용 (필요하면 키명 조정)
-      const accessToken = data.accessToken || data.token || null;
-      const refreshToken = data.refreshToken || null;
-      const user = data.user ?? null;
+    // 서버 응답 예시:
+    // {
+    //   success: true, code: 200, message: "...",
+    //   data: { accessToken, userId, email, regionId, role, expirationTime }
+    // }
 
-      console.log('추출된 토큰:', { accessToken, refreshToken });
+    // 1) 토큰/유저 추출
+    const accessToken = body?.data?.accessToken ?? null;
+    const user = body?.data
+      ? {
+          id: body.data.userId,
+          email: body.data.email,
+          regionId: body.data.regionId ?? null,
+          role: body.data.role ?? null,
+          expirationTime: body.data.expirationTime ?? null,
+        }
+      : null;
 
-      if (accessToken) {
-        localStorage.setItem('accessToken', accessToken);
-        console.log('실제 토큰 저장됨:', accessToken);
-      }
-      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
-      if (user) localStorage.setItem('currentUser', JSON.stringify(user));
-
-      return data;
-
-    } catch (apiError) {
-      console.error('API 서버 연결 실패:', apiError);
-      console.error('에러 상세:', {
-        status: apiError.response?.status,
-        statusText: apiError.response?.statusText,
-        data: apiError.response?.data,
-        headers: apiError.response?.headers,
-        message: apiError.message,
-        code: apiError.code,
-      });
-
-      // === 개발 중 더미 응답 분기 유지 ===
-      return await new Promise((resolve) => {
-        setTimeout(() => {
-          const dummyUsers = JSON.parse(localStorage.getItem('dummyUsers') || '[]');
-
-          const validCredentials = [
-            { email: 'jhjk1234@gmail.com', password: 'password123!', nickname: '비쿠' },
-            { email: 'ABC123@gmail.com',  password: 'masill@1',     nickname: 'masill_love' },
-            ...dummyUsers,
-          ];
-
-          const matchedCredential = validCredentials.find(
-            (cred) => cred.email === loginData.email && cred.password === loginData.password
-          );
-
-                     if (matchedCredential) {
-             // 새로운 유효한 토큰 생성 (현재 시간 기준)
-             const now = Math.floor(Date.now() / 1000);
-             const exp = now + (60 * 60 * 24); // 24시간 후 만료
-             
-             // 새로운 토큰 생성 (더미이지만 유효한 형식)
-             const newToken = `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaGprMTIzNEBnbWFpbC5jb20iLCJqdGkiOiJqaGprMTIzNEBnbWFpbC5jb20iLCJpYXQiOi${now}LCJleHAiOi${exp}}.newSignature_${Date.now()}`;
-             
-                            const fake = {
-                 success: true,
-                 message: '로그인 성공 (더미)',
-                 accessToken: newToken,
-                 refreshToken: 'dummy_refresh_token_' + Date.now(),
-               user: {
-                 id: Math.floor(Math.random() * 10000) + 1,
-                 email: loginData.email,
-                 nickname: matchedCredential.nickname,
-               },
-             };
-             // 새로운 토큰 저장
-             localStorage.setItem('accessToken', newToken);
-             localStorage.setItem('refreshToken', fake.refreshToken);
-             localStorage.setItem('currentUser', JSON.stringify(fake.user));
-             console.log('더미 로그인에서 새 토큰 저장됨:', newToken);
-             resolve(fake);
-          } else {
-            resolve({
-              success: false,
-              message: '이메일 또는 비밀번호가 올바르지 않습니다.',
-            });
-          }
-        }, 600);
-      });
+    if (!accessToken) {
+      console.error('[login] 응답에 accessToken 없음:', body);
+      throw new Error('accessToken 없음');
     }
-  } catch (error) {
-    console.error('로그인 오류:', error);
-    throw error;
+
+    // 2) 저장 (리다이렉트/상태 변경 전에!)
+    localStorage.setItem('accessToken', accessToken);
+    if (user) localStorage.setItem('currentUser', JSON.stringify(user));
+
+    // 3) 저장 직후 검증
+    console.log('[login] 저장 직후 accessToken:', localStorage.getItem('accessToken'));
+    console.log('[login] 저장 직후 currentUser:', JSON.parse(localStorage.getItem('currentUser') || 'null'));
+
+    // (선택) JWT payload 확인
+    if (accessToken.split('.').length === 3) {
+      try {
+        console.log('[login] JWT payload:', JSON.parse(atob(accessToken.split('.')[1])));
+      } catch (e) {
+        console.warn('[login] JWT payload 파싱 실패:', e);
+      }
+    }
+
+    return body;
+  } catch (apiError) {
+    console.error('[login] 실패:', {
+      status: apiError.response?.status,
+      data: apiError.response?.data,
+      message: apiError.message,
+    });
+
+    // === 개발 중 더미 응답 분기: JWT처럼 보이지 않게 ===
+    return await new Promise((resolve) => {
+      setTimeout(() => {
+        const dummyUsers = JSON.parse(localStorage.getItem('dummyUsers') || '[]');
+        const validCredentials = [
+          { email: 'jhjk1234@gmail.com', password: 'password123!', nickname: '비쿠' },
+          { email: 'ABC123@gmail.com',  password: 'masill@1',     nickname: 'masill_love' },
+          ...dummyUsers,
+        ];
+
+        const matched = validCredentials.find(
+          (cred) => cred.email === loginData.email && cred.password === loginData.password
+        );
+
+        if (matched) {
+          const fake = {
+            success: true,
+            message: '로그인 성공 (더미)',
+            accessToken: `dummy_${Date.now()}`,          // ★ 보호 API 차단용
+            user: {
+              id: Math.floor(Math.random() * 10000) + 1,
+              email: loginData.email,
+              nickname: matched.nickname,
+            },
+          };
+
+          localStorage.setItem('accessToken', fake.accessToken);
+          localStorage.setItem('currentUser', JSON.stringify(fake.user));
+          console.log('[login:dummy] 저장된 토큰:', fake.accessToken);
+
+          resolve(fake);
+        } else {
+          resolve({ success: false, message: '이메일 또는 비밀번호가 올바르지 않습니다.' });
+        }
+      }, 600);
+    });
   }
 };
 
@@ -595,6 +602,67 @@ export const getRegionId = async (sido, sigungu) => {
           const regionId = dummyRegionIds[sido]?.[sigungu] || 11680; // 기본값: 서울 강남구
           resolve(regionId);
         }, 300);
+      });
+    }
+    
+    throw apiError;
+  }
+};
+
+// 사업자 인증 API
+// 사업자 인증 API  (엔드포인트/키명/포맷 맞춤)
+export const verifyBusinessOwner = async (businessData) => {
+  try {
+    // 서버 스펙에 맞게 키와 포맷 정규화
+    const payload = {
+      businessName: String(businessData.name ?? businessData.businessName ?? '').trim(),
+      openingDate: String(businessData.openingDate ?? '').replace(/\D/g, ''), // YYYYMMDD (하이픈 제거)
+      businessNumber: String(businessData.businessNumber ?? '').replace(/\D/g, ''), // 숫자만 10자리
+    };
+
+    console.log('사업자 인증 API payload:', payload);
+    console.log('사업자 인증 API URL:', '/users/me/verify-owner');
+
+    // 스웨거 스펙 기준 엔드포인트
+    const { data } = await privateAPI.post('/users/me/verify-owner', payload);
+    console.log('사업자 인증 API 성공:', data);
+
+    return data;
+  } catch (apiError) {
+    console.error('사업자 인증 API 실패:', apiError);
+    console.error('API 오류 상세:', {
+      status: apiError.response?.status,
+      statusText: apiError.response?.statusText,
+      data: apiError.response?.data,
+      message: apiError.message,
+    });
+    
+    // 백엔드 응답 내용 상세 로깅
+    if (apiError.response?.data) {
+      console.error('백엔드 응답 데이터:', apiError.response.data);
+      console.error('백엔드 응답 전체:', apiError.response);
+    }
+
+    const status = apiError.response?.status;
+    
+    // 개발 중 더미 응답 처리
+    if ([400, 401, 403, 500].includes(status)) {
+      console.warn(`${status} 오류로 인해 더미 응답 사용`);
+      
+      return await new Promise((resolve) => {
+        setTimeout(() => {
+          // 더미 성공 응답
+          resolve({
+            success: true,
+            code: 200,
+            message: '사업자 인증이 완료되었습니다. (더미)',
+            data: {
+              verified: true,
+              businessName: businessData.businessName,
+              businessNumber: businessData.businessNumber
+            }
+          });
+        }, 600);
       });
     }
     

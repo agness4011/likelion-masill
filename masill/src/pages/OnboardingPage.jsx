@@ -1,41 +1,126 @@
 // src/pages/Onboarding.jsx
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import PixelCanvas from "@/components/commons/PixelCanvas";
+import { gsap } from "gsap";
 import bird from "@logo/bird.svg";
 import arrowright from "@logo/arrowright.png";
 
 export default function OnboardingPage() {
   const nav = useNavigate();
+  const birdRef = useRef(null);
+  const titleRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const arrowRef = useRef(null);
+  const btnAreaRef = useRef(null);
+  const circleTopRef = useRef(null);
+  const circleBottomRef = useRef(null);
+  const bottomGradientRef = useRef(null);
+
+  useEffect(() => {
+    // 페이지 로드 후 약간의 지연을 두고 애니메이션 시작
+    const timer = setTimeout(() => {
+      // 초기 상태 설정 - 모든 요소를 숨김
+      gsap.set([birdRef.current, titleRef.current, indicatorRef.current, arrowRef.current, btnAreaRef.current], {
+        opacity: 0,
+        y: 50
+      });
+
+      gsap.set([circleTopRef.current, circleBottomRef.current, bottomGradientRef.current], {
+        scale: 0,
+        opacity: 0
+      });
+
+      // 새를 화면 밖에서 시작
+      gsap.set(birdRef.current, {
+        x: -300,
+        y: 100,
+        rotation: -15,
+        opacity: 0
+      });
+
+      // 애니메이션 타임라인
+      const tl = gsap.timeline();
+
+      // 배경 요소들 먼저 나타남
+      tl.to([circleTopRef.current, circleBottomRef.current], {
+        scale: 1,
+        opacity: 1,
+        duration: 1.2,
+        ease: "back.out(1.7)",
+        stagger: 0.2
+      })
+      .to(bottomGradientRef.current, {
+        scale: 1,
+        opacity: 1,
+        duration: 1,
+        ease: "power2.out"
+      }, "-=0.8")
+      // 제목 나타남
+      .to(titleRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.4")
+      // 인디케이터와 화살표
+      .to([indicatorRef.current, arrowRef.current], {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.4")
+      // 버튼들 나타남
+      .to(btnAreaRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.2")
+      // 마지막에 새가 날아오는 효과
+      .to(birdRef.current, {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        rotation: 0,
+        duration: 1.5,
+        ease: "power2.out"
+      }, "-=0.4");
+    }, 500); // 0.5초 지연 후 애니메이션 시작
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div>
       <Wrap>
-        <CircleTopRight />
-        <CircleBottomLeft />
-        <BottomGradient />
+        <CircleTopRight ref={circleTopRef} />
+        <CircleBottomLeft ref={circleBottomRef} />
+        <BottomGradient ref={bottomGradientRef} />
 
-        <Bird src={bird} alt="bird" />
+        <Bird ref={birdRef} src={bird} alt="bird" />
 
-        <Title>
+        <Title ref={titleRef}>
           우리 동네 가볍게
           <br />
           마실갈 곳 쏙쏙 골라보기
         </Title>
 
-        <IndicatorWrapper>
+        <IndicatorWrapper ref={indicatorRef}>
           <Dot active />
           <Dot />
           <Dot />
         </IndicatorWrapper>
 
         <ArrowRight
+          ref={arrowRef}
           src={arrowright}
           alt="arrowright"
           onClick={() => nav("/onboarding1")}
         />
 
-        <BtnArea>
+        <BtnArea ref={btnAreaRef}>
           <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
           <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
           <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
