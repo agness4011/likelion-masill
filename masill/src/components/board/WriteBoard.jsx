@@ -88,6 +88,10 @@ function SetTitle({ title, setTitle, error, setTouched }) {
 }
 
 function SetLocation({ location, setLocation, error, setTouched }) {
+  // 선택된 지역 정보 가져오기
+  const selectedRegion = localStorage.getItem('selectedRegion') || '';
+  const selectedDistrict = localStorage.getItem('selectedDistrict') || '';
+  
   return (
     <div>
       <ErrorDiv>
@@ -98,13 +102,23 @@ function SetLocation({ location, setLocation, error, setTouched }) {
       <InputWrapper>
         <InputStyle
           type="text"
-          placeholder="장소 입력"
+          placeholder={`${selectedRegion} ${selectedDistrict} 장소 입력`}
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           onBlur={() => setTouched(true)}
         />
         <MapImg src={MapIcon} />
       </InputWrapper>
+      {selectedRegion && selectedDistrict && (
+        <div style={{ 
+          fontSize: '12px', 
+          color: '#666', 
+          marginTop: '4px',
+          paddingLeft: '4px'
+        }}>
+          선택된 지역: {selectedRegion} {selectedDistrict}
+        </div>
+      )}
     </div>
   );
 }

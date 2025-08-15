@@ -43,7 +43,7 @@ const Left = styled.div`
 function HeadRight() {
   return (
     <Right>
-      <Link to="/board">
+      <Link to="/region">
         <Board src={BoardImg} alt="게시글작성" />
       </Link>
       <Link to="/alarm">

@@ -64,8 +64,6 @@ export default function App() {
               <Route path="agree" element={<SignAgreePage />} />
               <Route path="phone" element={<SignPhonePage />} />
               <Route path="create" element={<SignCreatePage />} />
-              <Route path="region" element={<SignRegionPage />} />
-              <Route path="region-detail" element={<SignRegionDetailPage />} />
               <Route path="complete" element={<SignCompletePage />} />
             </Route>
 
@@ -91,6 +89,10 @@ export default function App() {
             <Route path="board" element={<BoardPage />} />
             <Route path="write" element={<WriteBoardPage />} />
             <Route path="detail/:eventId" element={<DetailBoardPage />} />
+            
+            {/* 지역 선택 흐름 (글쓰기용) */}
+            <Route path="region" element={<SignRegionPage />} />
+            <Route path="region-detail" element={<SignRegionDetailPage />} />
 
             {/* 채팅 */}
             <Route path="chat" element={<ChatPage />} />

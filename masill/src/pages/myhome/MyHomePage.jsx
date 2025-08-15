@@ -18,6 +18,7 @@ import HeartIcon from '@logo/myhome/heart.svg';
 import CheckIcon from '@logo/myhome/check.svg';
 import SajangIcon from '@logo/myhome/sajang.svg';
 import MasilLogoIcon from '@assets/masill-logo1.svg';
+import Plusbutton from '@logo/myhome/plusbutton.svg';
 
 const MyHomeContainer = styled.div`
   min-height: 100vh;
@@ -91,6 +92,39 @@ const AvatarContainer = styled.div`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
+`;
+
+const PlusButton = styled.button`
+  position: absolute;
+  top: 145px;
+  right: 287px;
+  width: 30px;
+  height: 60px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none;
+  z-index: 20;
+  outline: none;
+  
+  &:focus {
+    outline: none;
+  }
+  
+  &:active {
+    outline: none;
+  }
+`;
+
+const PlusButtonImage = styled.img`
+  width: 30px;
+  height: 35px;
 `;
 
 const AvatarImage = styled.img`
@@ -282,6 +316,12 @@ const MyHomePage = () => {
     navigate('/myhome/nickname-change');
   };
 
+  const handlePlusButton = () => {
+    console.log('Plus 버튼 클릭');
+    // 여기에 원하는 기능을 추가할 수 있습니다
+    // 예: 프로필 편집, 사진 추가 등
+  };
+
   return (
     <MyHomeContainer>
       {/* 상태바 */}
@@ -313,6 +353,9 @@ const MyHomePage = () => {
         <AvatarContainer>
           <AvatarImage src={getCurrentAvatarIcon()} alt="프로필" />
         </AvatarContainer>
+        <PlusButton onClick={handlePlusButton}>
+          <PlusButtonImage src={Plusbutton} alt="추가" />
+        </PlusButton>
         <UserInfo>
           <Username>
             {userData.username}
