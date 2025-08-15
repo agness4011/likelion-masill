@@ -11,7 +11,7 @@ import SetLocation from "../../assets/logo/mainImg/set.png";
 
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
-import { fetchAllBoards } from "../../api/boardApi";
+import { fetchAllBoards, eventTypeBoards } from "../../api/boardApi";
 
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -28,8 +28,6 @@ import {
   ToggleOpenDiv,
 } from "./MainStyles.styled";
 import styled from "styled-components";
-
-import { eventData as initialData } from "../../dummy/datas";
 
 export default function Main({ children }) {
   return <MainContainer>{children}</MainContainer>;
@@ -247,14 +245,18 @@ function Post() {
   ("const filteredPosts = posts.filter((post) => post.category === category);");
   const filteredPosts = posts;
 
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
-    if (sortType === "AI 추천순") return a.eventId - b.eventId;
-    if (sortType === "조회수 높은 순") return b.favoriteCount - a.favoriteCount;
-    if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
-    if (sortType === "날짜순")
-      return dayjs(b.startAt).valueOf() - dayjs(a.startAt).valueOf();
-    return 0;
-  });
+  const sortedPosts = [...filteredPosts]
+    // 종료일이 오늘 이후인 게시글만 남기기
+    .filter((post) => dayjs(post.endAt).isAfter(dayjs()))
+    .sort((a, b) => {
+      if (sortType === "AI 추천순") return a.eventId - b.eventId;
+      if (sortType === "조회수 높은 순")
+        return b.favoriteCount - a.favoriteCount;
+      if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
+      if (sortType === "날짜순")
+        return dayjs(b.startAt).valueOf() - dayjs(a.startAt).valueOf();
+      return 0;
+    });
 
   const navigate = useNavigate();
 
@@ -267,6 +269,7 @@ function Post() {
     setIsOpen(false);
   };
   dayjs.locale("ko");
+
   return (
     <BoardContanier>
       <ToggleLoctionDiv>
@@ -297,29 +300,39 @@ function Post() {
 
       <div>
         {sortedPosts.map((item) => {
-          const today = dayjs();
-          const eventDate = dayjs(item.startAt);
-          const diff = eventDate.diff(today, "day");
-          const isClosingSoon = diff >= 0 && diff <= 3;
+          const now = dayjs();
+          const eventEnd = dayjs(item.endAt);
+
+          const diffDays = eventEnd
+            .startOf("day")
+            .diff(now.startOf("day"), "day");
+          const isClosingSoon = diffDays >= 0 && diffDays <= 3;
+
+          let deadline = "";
+          if (diffDays === 0) {
+            deadline = "오늘";
+          } else {
+            deadline = `D-${diffDays}`;
+          }
 
           return (
             <PostWrapper
               key={item.eventId}
               onClick={() => navigate(`/detail/${item.eventId}`)}
             >
-              {isClosingSoon && <ClosingTag>🔥 마감 임박!</ClosingTag>}
-
               <ImageScrollWrapper>
-                {Array.isArray(item.images)
-                  ? item.images.map((img, idx) => (
-                      <BoardImage
-                        key={idx}
-                        src={img.imageUrl}
-                        alt={`${item.title}-${idx}`}
-                      />
-                    ))
-                  : null}
+                {Array.isArray(item.images) &&
+                  item.images.map((img, idx) => (
+                    <BoardImage
+                      key={idx}
+                      src={img.imageUrl}
+                      alt={`${item.title}-${idx}`}
+                    />
+                  ))}
               </ImageScrollWrapper>
+              {isClosingSoon && (
+                <ClosingTag>🔥 {deadline} 마감 임박!</ClosingTag>
+              )}
 
               <ContentWrapper>
                 <LeftContent>
@@ -327,7 +340,6 @@ function Post() {
                   <TextInfo>
                     <BoardTitleH1>{item.title}</BoardTitleH1>
                     <BoardLocationP>{item.location}</BoardLocationP>
-
                     <BoardDateP>
                       {`${dayjs(item.startAt).format(
                         "YYYY.MM.DD.(dd)"
@@ -394,8 +406,15 @@ const PostWrapper = styled.div`
 `;
 
 const ClosingTag = styled.p`
-  color: red;
-  font-weight: bold;
+  overflow: hidden;
+  color: var(--Allert, #ff443e);
+  text-overflow: ellipsis;
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 120%; /* 14.4px */
+  letter-spacing: 0.12px;
   margin-bottom: 6px;
 `;
 
