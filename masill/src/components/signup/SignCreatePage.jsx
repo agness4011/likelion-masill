@@ -334,8 +334,8 @@ export default function SignCreatePage() {
       password: password
     });
     
-    // 지역 선택 페이지로 이동
-    nav("/signup/region");
+    // 회원가입 완료 페이지로 이동
+    nav("/signup/complete");
   };
 
   // 이메일 유효성 검사

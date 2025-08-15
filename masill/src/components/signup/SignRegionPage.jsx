@@ -1,7 +1,7 @@
 // src/pages/SignRegionPage.jsx
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getRegions } from "../../api/userService";
 
 const Container = styled.div`
@@ -118,11 +118,12 @@ const RegionButton = styled.button`
 
 export default function SignRegionPage() {
   const nav = useNavigate();
+  const location = useLocation();
   const [selectedRegion, setSelectedRegion] = useState("");
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  
   // 지역 목록 가져오기
   useEffect(() => {
     const fetchRegions = async () => {
@@ -146,7 +147,7 @@ export default function SignRegionPage() {
     setSelectedRegion(region);
     // 지역 선택 시 바로 다음 페이지로 이동
     localStorage.setItem('selectedRegion', region);
-    nav("/signup/region-detail");
+    nav("/region-detail");
   };
 
   return (
@@ -155,13 +156,13 @@ export default function SignRegionPage() {
         <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
           &#8592;
         </BackBtn>
-        <TitleText>회원가입</TitleText>
+        <TitleText>지역 선택</TitleText>
       </TopBar>
       <ProgressBarWrap>
         <ProgressBar />
       </ProgressBarWrap>
       <ContentSection>
-        <SectionTitle>지역 선택</SectionTitle>
+        <SectionTitle>게시글을 작성할 지역을 선택해주세요</SectionTitle>
         
         {loading ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>
