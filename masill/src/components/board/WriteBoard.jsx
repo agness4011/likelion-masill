@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
-import { addBoard } from "../../api/boardApi";
+import { addBoard, getRegionName } from "../../api/boardApi";
 
 import BoardIcon from "../../assets/write/board.svg";
 import MapIcon from "../../assets/write/map.svg";
@@ -11,6 +11,7 @@ import BackIcon from "../../assets/write/Arrow-Left.svg";
 import ImageIcon from "../../assets/write/image-outline.png";
 import leftBtn from "../../assets/write/Button.png";
 import rightBtn from "../../assets/write/Button.png";
+import Cancle from "../../assets/write/cancle.png";
 
 import {
   BackBtn,
@@ -50,13 +51,14 @@ import {
   ErrorDiv,
   overlayStyle,
   modalStyle,
+  ReigonInput,
+  CancleBtn,
+  Div,
 } from "./WriteBoard.styled";
 
 export default function WriteBoard({ children }) {
   return <div>{children}</div>;
 }
-
-function SelectRegion() {}
 
 function Head() {
   const navigate = useNavigate();
@@ -73,10 +75,10 @@ function Form({ children }) {
 }
 function SetTitle({ title, setTitle, error, setTouched }) {
   return (
-    <div>
+    <Div>
       <ErrorDiv>
         <TextStyle>제목</TextStyle>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
       </ErrorDiv>
 
       <InputStyle
@@ -86,16 +88,33 @@ function SetTitle({ title, setTitle, error, setTouched }) {
         onChange={(e) => setTitle(e.target.value)}
         onBlur={() => setTouched(true)}
       />
+    </Div>
+  );
+}
+function Reigon({ regionName }) {
+  const navigate = useNavigate();
+  return (
+    <div>
+      <ErrorDiv>
+        <TextStyle>지역</TextStyle>
+        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+      </ErrorDiv>
+      <div>
+        <ReigonInput>
+          {regionName}
+          <CancleBtn src={Cancle} onClick={() => navigate("/board/reigon")} />
+        </ReigonInput>
+      </div>
+      <InputWrapper></InputWrapper>
     </div>
   );
 }
-
 function SetLocation({ location, setLocation, error, setTouched }) {
   return (
     <div>
       <ErrorDiv>
-        <TextStyle>장소</TextStyle>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+        <TextStyle>세부 장소</TextStyle>
+        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
       </ErrorDiv>
 
       <InputWrapper>
@@ -106,7 +125,7 @@ function SetLocation({ location, setLocation, error, setTouched }) {
           onChange={(e) => setLocation(e.target.value)}
           onBlur={() => setTouched(true)}
         />
-        <MapImg src={MapIcon} />
+        {/* <MapImg src={MapIcon} /> */}
       </InputWrapper>
     </div>
   );
@@ -116,7 +135,6 @@ function SelectCategory({
   selectedCategories,
   setSelectedCategories,
   error,
-  setTouched,
   setCategoryError,
 }) {
   const categories = ["문화•예술", "야외활동", "플리마켓", "자원봉사", "축제"];
@@ -170,7 +188,7 @@ function SelectCategory({
     <Wrapper>
       <ErrorDiv>
         <TextStyle>카테고리</TextStyle>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
       </ErrorDiv>
 
       <CategoryArea>
@@ -243,8 +261,8 @@ function UploadImg({ images, setImages, error, setTouched }) {
           </PreviewBox>
         ))}
       </PreviewRight>
-
-      {error && <ErrorMessage>{error}</ErrorMessage>}
+      {/* 
+      {error && <ErrorMessage>{error}</ErrorMessage>} */}
     </UploadContainer>
   );
 }
@@ -326,9 +344,9 @@ function EventDateTimePicker({
         <DateDiv>
           <ErrorDiv>
             <TextStyle>시작 날짜</TextStyle>
-            {errors?.startDate && (
+            {/* {errors?.startDate && (
               <ErrorMessage>{errors.startDate}</ErrorMessage>
-            )}
+            )} */}
           </ErrorDiv>
           <TimeInput
             style={{ color: startDate ? blackColor : grayColor }}
@@ -341,7 +359,7 @@ function EventDateTimePicker({
         <DateDiv>
           <ErrorDiv>
             <TextStyle>종료 날짜</TextStyle>
-            {errors?.endDate && <ErrorMessage>{errors.endDate}</ErrorMessage>}
+            {/* {errors?.endDate && <ErrorMessage>{errors.endDate}</ErrorMessage>} */}
           </ErrorDiv>
           <TimeInput
             style={{ color: endDate ? blackColor : grayColor }}
@@ -366,7 +384,7 @@ function EventDateTimePicker({
                 })
               : "시간 선택"}
           </TimeInput>
-          {errors?.startTime && <ErrorMessage>{errors.startTime}</ErrorMessage>}
+          {/* {errors?.startTime && <ErrorMessage>{errors.startTime}</ErrorMessage>} */}
 
           <TimeInput
             style={{ color: endTime ? blackColor : grayColor }}
@@ -379,7 +397,7 @@ function EventDateTimePicker({
                 })
               : "시간 선택"}
           </TimeInput>
-          {errors?.endTime && <ErrorMessage>{errors.endTime}</ErrorMessage>}
+          {/* {errors?.endTime && <ErrorMessage>{errors.endTime}</ErrorMessage>} */}
         </div>
       </div>
 
@@ -437,10 +455,19 @@ function InputForm() {
   const [endTime, setEndTime] = useState(null);
   const [dateErrors, setDateErrors] = useState({});
   const [formError, setFormError] = useState("");
+  const [regionId, setRegionId] = useState(null);
+  const [regionName, setRegionName] = useState(null);
 
-  // --- 추가: 지역 선택 state ---
-  const [selectedSido, setSelectedSido] = useState(null);
-  const [selectedSigungu, setSelectedSigungu] = useState(null);
+  useEffect(() => {
+    const storedId = localStorage.getItem("selectedRegionId");
+    const id = storedId ? parseInt(storedId, 10) : null;
+    if (id) {
+      setRegionId(id);
+      getRegionName(id)
+        .then(setRegionName)
+        .catch((err) => console.error("지역 이름 불러오기 실패:", err));
+    }
+  }, []);
 
   const CATEGORY_MAP = {
     "문화•예술": "CULTURE_ART",
@@ -492,7 +519,6 @@ function InputForm() {
     return valid;
   };
 
-  // --- handleSubmit ---
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -500,7 +526,10 @@ function InputForm() {
     setFormError("");
 
     try {
-      const regionData = 1;
+      const regionFullName = await getRegionName(regionId);
+      console.log(regionFullName);
+
+      // 날짜 검증
       const startAt = new Date(
         startDate.getFullYear(),
         startDate.getMonth(),
@@ -519,21 +548,19 @@ function InputForm() {
         setFormError("종료 시간은 시작 시간 이후여야 합니다.");
         return;
       }
+
       const formatDateTimeLocal = (date) => {
         const pad = (n) => String(n).padStart(2, "0");
-        return (
-          `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-            date.getDate()
-          )}T` +
-          `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
-            date.getSeconds()
-          )}`
-        );
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+          date.getDate()
+        )}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+          date.getSeconds()
+        )}`;
       };
 
       const formData = new FormData();
       const payload = {
-        regionId: regionData,
+        regionId: regionId,
         eventType: CATEGORY_MAP[categories[0]],
         title,
         content,
@@ -541,19 +568,16 @@ function InputForm() {
         startAt: formatDateTimeLocal(startAt),
         endAt: formatDateTimeLocal(endAt),
       };
-      console.log("payload:", payload);
       formData.append(
-        "request", // ⬅️ 서버 @RequestPart 이름과 반드시 동일
+        "request",
         new Blob([JSON.stringify(payload)], { type: "application/json" })
       );
-
       images.forEach((img) => {
         const fileObj = img.file || img;
         if (fileObj instanceof File) {
           formData.append("images", fileObj);
         }
       });
-      console.log("FormData 내용:");
 
       const result = await addBoard(formData);
       console.log("서버 응답:", result);
@@ -587,6 +611,11 @@ function InputForm() {
         setTitle={setTitle}
         error={titleError}
         setTouched={() => {}}
+      />
+      <Reigon
+        regionName={
+          regionName ? `${regionName.sido} ${regionName.sigungu}` : "지역 선택"
+        }
       />
       {/* 장소 */}
       <SetLocation
@@ -625,7 +654,6 @@ WriteBoard.SubmitButton = SubmitButton;
 WriteBoard.EventDateTimePicker = EventDateTimePicker;
 WriteBoard.InputForm = InputForm;
 WriteBoard.SelectCategory = SelectCategory;
-WriteBoard.SelectRegion = SelectRegion;
 WriteBoard.Form = Form;
 WriteBoard.Head = Head;
 WriteBoard.UploadImg = UploadImg;

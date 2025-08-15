@@ -451,3 +451,19 @@ export const modalStyle = {
   padding: "20px",
   borderRadius: "8px",
 };
+export const ReigonInput = styled.div`
+  display: inline-flex;
+  padding: 10px 15px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 18px;
+  border: 1px solid var(--Gray-700, #959eb7);
+  background: var(--Gray-100, #f4f7ff);
+  margin-left: 24px;
+`;
+export const CancleBtn = styled.img`
+  width: 18px;
+  height: 18px;
+`;
+export const Div = styled.div``;
