@@ -1,8 +1,8 @@
-import { Outlet, useLocation } from "react-router-dom";
+import React from "react";
+import { Outlet } from "react-router-dom";
 import PixelCanvas from "../components/commons/PixelCanvas";
 
 export default function RootLayout() {
-
   return (
     <PixelCanvas
       w={393}

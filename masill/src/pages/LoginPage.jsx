@@ -267,49 +267,51 @@ export default function LoginPage() {
       alert("이메일과 비밀번호를 입력해주세요.");
       return;
     }
-
-    console.log("로그인 버튼 클릭됨");
-    console.log("입력된 이메일:", email);
-    console.log("입력된 비밀번호:", password);
+    if (isLoading) return;
 
     setIsLoading(true);
-    
+
     try {
-      const loginData = {
-        email: email,
-        password: password
-      };
-      
-      console.log("로그인 시도:", loginData);
-      
-      const response = await login(loginData);
-      console.log("로그인 응답:", response);
-      
-      if (response.success) {
-        console.log("로그인 성공!");
-        // 로그인 성공 시 토큰 저장
-        if (response.accessToken) {
-          localStorage.setItem('accessToken', response.accessToken);
-          console.log("Access Token 저장됨");
+      const loginData = { email, password };
+      console.log("[LoginPage] 로그인 시도:", loginData);
+
+      const response = await login(loginData); // userService가 토큰 저장함
+      console.log("[LoginPage] 로그인 응답:", response);
+
+      if (response?.success) {
+        // (보강) 백엔드 스펙 경로만 사용해 재저장 — 잘못된 키로 덮어쓰지 않기!
+        const at = response?.data?.accessToken;
+        if (at) {
+          localStorage.setItem("accessToken", at);
         }
-        if (response.refreshToken) {
-          localStorage.setItem('refreshToken', response.refreshToken);
-          console.log("Refresh Token 저장됨");
+
+        // 닉네임 갱신은 유지 (여러 경로 시도)
+        const nick =
+          response?.data?.nickname ??
+          response?.data?.user?.nickname ??
+          JSON.parse(localStorage.getItem("currentUser") || "null")?.nickname ??
+          null;
+
+        if (nick) {
+          localStorage.setItem("nickname", nick);
+          updateNickname(nick);
+          console.log("[LoginPage] 닉네임 저장/갱신:", nick);
         }
-        if (response.user?.nickname) {
-          localStorage.setItem('nickname', response.user.nickname);
-          updateNickname(response.user.nickname);
-          console.log("닉네임 저장됨:", response.user.nickname);
-        }
-        
+
+        // 최종 토큰 확인 로그
+        console.log(
+          "[LoginPage] 최종 accessToken:",
+          localStorage.getItem("accessToken")
+        );
+
         alert("로그인 성공!");
         nav("/main");
       } else {
-        console.log("로그인 실패:", response.message);
-        alert(response.message || "로그인에 실패했습니다.");
+        console.log("[LoginPage] 로그인 실패:", response?.message);
+        alert(response?.message || "로그인에 실패했습니다.");
       }
     } catch (error) {
-      console.error("로그인 오류:", error);
+      console.error("[LoginPage] 로그인 오류:", error);
       alert("로그인 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
@@ -322,10 +324,8 @@ export default function LoginPage() {
 
   return (
     <Container>
-      {/* 배경 원 2개 */}
       <CircleTopRight />
       <BottomGradient />
-      
 
       <TopBar>
         <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
@@ -365,9 +365,7 @@ export default function LoginPage() {
         </InputSection>
 
         <FormSection>
-          <LoginButton 
-            onClick={handleLogin}
-          >
+          <LoginButton onClick={handleLogin}>
             {isLoading ? "로그인 중..." : "로그인"}
           </LoginButton>
 
@@ -389,8 +387,6 @@ export default function LoginPage() {
         <SignupText>아직 회원이 아니신가요?</SignupText>
         <SignupLink onClick={handleSignup}>회원가입</SignupLink>
       </SignupSection>
-     
     </Container>
-    
   );
 }

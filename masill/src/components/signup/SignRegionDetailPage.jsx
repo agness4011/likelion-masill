@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import ArrowLeft from "@logo/bluearrowleft.svg";
 import ArrowRight from "@logo/bluearrowright.svg";
+import { getDistricts, getRegionId } from "../../api/userService";
 
 const Container = styled.div`
   width: 100%;
@@ -191,8 +192,30 @@ export default function SignRegionDetailPage() {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedRegion] = useState(localStorage.getItem('selectedRegion') || "서울특별시");
+  const [districts, setDistricts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const districts = districtData[selectedRegion] || seoulDistricts;
+  // 구/군 목록 가져오기
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        setLoading(true);
+        const districtData = await getDistricts(selectedRegion);
+        console.log('가져온 구/군 데이터:', districtData);
+        setDistricts(districtData);
+      } catch (error) {
+        console.error('구/군 데이터 가져오기 실패:', error);
+        setError('구/군 정보를 불러오는데 실패했습니다.');
+        // 에러 시 더미 데이터 사용
+        setDistricts(districtData[selectedRegion] || seoulDistricts);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDistricts();
+  }, [selectedRegion]);
   const itemsPerPage = Math.ceil(districts.length / 2); // 2페이지로 정확히 나누기
   const totalPages = 2; // 고정 2페이지
   const currentDistricts = districts.slice(
@@ -200,8 +223,36 @@ export default function SignRegionDetailPage() {
     (currentPage + 1) * itemsPerPage
   );
 
-  const handleDistrictSelect = (district) => {
+  const handleDistrictSelect = async (district) => {
+    console.log('구/군 선택됨:', district);
     setSelectedDistrict(district);
+    
+    // 선택된 구/군을 즉시 저장
+    localStorage.setItem('selectedDistrict', district);
+    
+    try {
+      // 지역 ID 조회
+      console.log('지역 ID 조회 시작:', { selectedRegion, district });
+      const regionId = await getRegionId(selectedRegion, district);
+      console.log('조회된 지역 ID:', regionId);
+      
+      // 지역 ID도 저장
+      localStorage.setItem('selectedRegionId', regionId);
+      
+      // 1초 후 자동으로 다음 페이지로 이동
+      setTimeout(() => {
+        console.log('선택된 구/군으로 이동:', district, '지역 ID:', regionId);
+        nav("/signup/complete");
+      }, 1000);
+      
+    } catch (error) {
+      console.error('지역 ID 조회 실패:', error);
+      // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
+      setTimeout(() => {
+        console.log('지역 ID 조회 실패, 기본값으로 이동:', district);
+        nav("/signup/complete");
+      }, 1000);
+    }
   };
 
   const handleNext = () => {
@@ -209,19 +260,10 @@ export default function SignRegionDetailPage() {
       // 선택된 구/군을 저장하고 회원가입 완료 페이지로 이동
       localStorage.setItem('selectedDistrict', selectedDistrict);
       nav("/signup/complete");
+    } else {
+      alert("구/군을 선택해주세요.");
     }
   };
-
-  // 구/군 선택 시 자동으로 다음 페이지로 이동
-  useEffect(() => {
-    if (selectedDistrict) {
-      const timer = setTimeout(() => {
-        handleNext();
-      }, 500); // 0.5초 후 자동 이동
-      
-      return () => clearTimeout(timer);
-    }
-  }, [selectedDistrict]);
 
   const handlePrevPage = () => {
     if (currentPage > 0) {
@@ -249,18 +291,33 @@ export default function SignRegionDetailPage() {
       <ContentSection>
         <SectionTitle>지역 선택</SectionTitle>
         
-        <RegionGrid>
-          {currentDistricts.map((district) => (
-            <RegionButton
-              key={district}
-              selected={selectedDistrict === district}
-              onClick={() => district && handleDistrictSelect(district)}
-              style={{ visibility: district ? 'visible' : 'hidden' }}
-            >
-              {district}
-            </RegionButton>
-          ))}
-        </RegionGrid>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            구/군 정보를 불러오는 중...
+          </div>
+        ) : error ? (
+          <div style={{ textAlign: 'center', padding: '20px', color: 'red' }}>
+            {error}
+          </div>
+        ) : (
+          <RegionGrid>
+            {currentDistricts.map((district) => (
+              <RegionButton
+                key={district}
+                selected={selectedDistrict === district}
+                onClick={() => {
+                  if (district && district.trim() !== '') {
+                    console.log('구/군 버튼 클릭:', district);
+                    handleDistrictSelect(district);
+                  }
+                }}
+                style={{ visibility: district && district.trim() !== '' ? 'visible' : 'hidden' }}
+              >
+                {district}
+              </RegionButton>
+            ))}
+          </RegionGrid>
+        )}
 
         {currentPage > 0 && (
           <ArrowLeftBtn onClick={handlePrevPage}>
