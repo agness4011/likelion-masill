@@ -58,20 +58,20 @@ function HigherContainer({ children }) {
 function SearchBar() {
   const [text, setText] = useState("");
   const navigate = useNavigate();
-  
+
   const handleSearchClick = () => {
     // 검색 페이지로 이동하면서 검색어 전달
-    navigate('/search', { state: { searchQuery: text } });
+    navigate("/search", { state: { searchQuery: text } });
   };
 
   const handleInputClick = () => {
     // 입력창 클릭 시에도 검색 페이지로 이동
-    navigate('/search', { state: { searchQuery: text } });
+    navigate("/search", { state: { searchQuery: text } });
   };
 
   const handleKeyPress = (e) => {
     // 엔터키 입력 시 검색 페이지로 이동
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearchClick();
     }
   };
@@ -87,11 +87,11 @@ function SearchBar() {
         placeholder="가게 행사하는.. 차리점..."
         readOnly
       />
-      <SearchImg 
-        src={SearchGlass} 
-        alt="서치버튼" 
+      <SearchImg
+        src={SearchGlass}
+        alt="서치버튼"
         onClick={handleSearchClick}
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: "pointer" }}
       />
     </SearchWrapper>
   );
@@ -233,25 +233,24 @@ function Post() {
           const res = await fetchAllBoards(regionId); // regionId 쿼리 포함
           const allPosts = res?.data?.content || [];
 
-          content = allPosts.filter(
-            (post) => dayjs(post.endAt).endOf("day").isSameOrAfter(today) // 오늘 포함 이후
+          content = allPosts.filter((post) =>
+            dayjs(post.endAt).endOf("day").isSameOrAfter(today)
           );
         } else if (category === "event") {
           // 오늘 포함 이벤트
-          const res = await fetchAllBoards(regionId); // regionId 쿼리 포함
+          const res = await fetchAllBoards(regionId);
           const allPosts = res?.data?.content || [];
 
           content = allPosts.filter((post) => {
             const start = dayjs(post.startAt).startOf("day");
             const end = dayjs(post.endAt).endOf("day");
 
-
             return start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today);
           });
         } else {
           // 특정 카테고리 + 종료일 필터
           const eventType = CATEGORY_MAP[category];
-          const res = await eventTypeBoards(eventType, regionId); // regionId 쿼리 포함
+          const res = await eventTypeBoards(eventType, regionId);
           const allPosts = res?.data?.content || [];
 
           content = allPosts.filter((post) =>
@@ -259,16 +258,20 @@ function Post() {
           );
         }
 
-        setPosts(content.map((post) => ({ ...post, isHeartClicked: false })));
+        // ✅ 서버에서 내려주는 favorite 값 반영
+        setPosts(
+          content.map((post) => ({
+            ...post,
+            isHeartClicked: post.liked ?? false, // liked 값 반영
+          }))
+        );
       } catch (err) {
         console.error("게시물 불러오기 실패", err);
       }
     };
 
     loadPosts();
-
   }, [category, regionId]);
-
 
   const filteredPosts = posts;
 
@@ -291,7 +294,27 @@ function Post() {
     setIsOpen(false);
   };
   // Heart 클릭 함수
-  const clickHeart = async (eventId, isCurrentlyClicked) => {};
+  const clickHeart = async (eventId) => {
+    try {
+      const res = await privateAPI.post(`/events/${eventId}/favorites`);
+      const { favoriteCount, favorite } = res.data.data;
+
+      // posts 상태 업데이트
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.eventId === eventId
+            ? {
+                ...post,
+                isHeartClicked: favorite, // 서버 값 반영
+                favoriteCount: favoriteCount,
+              }
+            : post
+        )
+      );
+    } catch (error) {
+      console.error("clickHeart 에러:", error);
+    }
+  };
 
   return (
     <BoardContanier>
@@ -381,7 +404,7 @@ function Post() {
                     <HeartArea
                       onClick={(e) => {
                         e.stopPropagation();
-                        // clickHeart(item.eventId, item.isHeartClicked);
+                        clickHeart(item.eventId); // 상태 업데이트는 clickHeart 안에서 처리
                       }}
                     >
                       <TextStyle>{item.favoriteCount}</TextStyle>

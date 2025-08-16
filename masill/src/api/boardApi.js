@@ -1,5 +1,24 @@
 import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 
+export const detailImg = async (eventId) => {
+  try {
+    const res = await privateAPI.get(`/events/${eventId}`);
+    return res.data; // 실제 이벤트 데이터 반환
+  } catch (error) {
+    console.error("이벤트 이미지 조회 실패", error);
+    throw error;
+  }
+};
+
+export const detailBoard = async (eventId) => {
+  try {
+    const res = await privateAPI.get(`/events/${eventId}`);
+    return res.data.data; // 실제 이벤트 데이터 반환
+  } catch (error) {
+    console.error("이벤트 조회 실패", error);
+    throw error;
+  }
+};
 // GET: 게시글 목록
 export const fetchAllBoards = async (
   regionId,
@@ -12,7 +31,7 @@ export const fetchAllBoards = async (
     console.log(
       `GET 요청: /events/all?regionId=${regionId}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
     );
-    const res = await APIService.public.get(`/events/all`, {
+    const res = await privateAPI.get(`/events/all`, {
       params: { regionId, page, size, sortBy, sortDir },
     });
     return res.data; // res.data 안에 content 배열이 있는지 확인
