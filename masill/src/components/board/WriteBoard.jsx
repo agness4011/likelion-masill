@@ -137,23 +137,31 @@ function SelectCategory({
   error,
   setCategoryError,
 }) {
-  const categories = ["문화•예술", "야외활동", "플리마켓", "자원봉사", "축제"];
+  const categories = [
+    "문화•예술",
+    "야외활동",
+    "플리마켓",
+    "가게행사",
+    "자원봉사",
+    "축제",
+    "교육",
+    "기타",
+  ];
   const [showLeftBtn, setShowLeftBtn] = useState(false);
   const [showRightBtn, setShowRightBtn] = useState(true);
   const containerRef = useRef(null);
 
   const handleCategoryClick = (cat) => {
     setSelectedCategories((prev) => {
-      const newSelection = prev.includes(cat)
-        ? prev.filter((c) => c !== cat)
-        : [...prev, cat];
-
-      // 카테고리가 선택되면 에러 제거
-      if (newSelection.length > 0) {
-        setCategoryError(""); // <-- 부모에서 상태 업데이트
+      // 이미 선택된 카테고리를 클릭하면 선택 해제
+      if (prev.includes(cat)) {
+        setCategoryError(""); // 에러 제거
+        return [];
       }
 
-      return newSelection;
+      // 선택한 카테고리만 남기고 나머지는 해제
+      setCategoryError(""); // 에러 제거
+      return [cat];
     });
   };
 
@@ -284,7 +292,7 @@ function WriteContext({ content, setContent, error, setTouched }) {
   return (
     <DetailDiv>
       <TextStyle>내용</TextStyle>
-      {error && <ErrorMessage>{error}</ErrorMessage>}
+      {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
       <TextArea
         placeholder="내용을 입력하세요..."
         value={content}
@@ -474,8 +482,11 @@ function InputForm() {
     플리마켓: "FLEA_MARKET",
     자원봉사: "VOLUNTEER",
     축제: "FESTIVAL",
-    야외활동: "OUTDOOR",
+    야외활동: "OUTDOOR_ACTIVITY",
+    교육: "EDUCATION",
     기타: "ETC",
+
+    가게행사: "STORE_EVENT",
   };
 
   // --- 유효성 검사 ---
@@ -515,6 +526,12 @@ function InputForm() {
     setDateErrors(newDateErrors);
 
     if (Object.keys(newDateErrors).length > 0) valid = false;
+
+    if (!valid) {
+      setFormError("모든 항목을 기입해주세요!");
+    } else {
+      setFormError("");
+    }
 
     return valid;
   };
@@ -645,7 +662,10 @@ function InputForm() {
         setTouched={() => {}}
       />
       {/* 에러 메시지 */}
-      {formError && <ErrorMessage>{formError}</ErrorMessage>}
+      <ErrorDiv>
+        {formError && <ErrorMessage>{formError}</ErrorMessage>}
+      </ErrorDiv>
+
       <SubmitBtn type="submit">작성 완료</SubmitBtn>
     </form>
   );

@@ -115,10 +115,10 @@ export const BoardDateP = styled.p`
   overflow-wrap: break-word; /* 길면 줄바꿈 */
 `;
 export const ToggleLoctionDiv = styled.div`
-  margin: 0 0 1px 10px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 160px;
+  cursor: pointer;
 `;
 export const ToggleP = styled.p`
   cursor: pointer;
