@@ -261,8 +261,25 @@ function Post() {
     setIsOpen(false);
   };
   // Heart 클릭 함수
-  const clickHeart = async (eventId, isCurrentlyClicked) => {};
+  const clickHeart = async (eventId) => {
+    try {
+      const res = await privateAPI.get(`/events/${eventId}/favorites`);
+      const { favoriteCount, favorite } = res.data.data;
 
+      // posts 상태 업데이트
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.eventId === eventId
+            ? { ...post, isHeartClicked: favorite, favoriteCount }
+            : post
+        )
+      );
+    } catch (error) {
+      console.error("clickHeart 에러:", error);
+    }
+  };
+
+  let isHeartClicked = false;
   return (
     <BoardContanier>
       <ToggleLoctionDiv>
@@ -351,7 +368,7 @@ function Post() {
                     <HeartArea
                       onClick={(e) => {
                         e.stopPropagation();
-                        // clickHeart(item.eventId, item.isHeartClicked);
+                        clickHeart(item.eventId); // 상태 업데이트는 clickHeart 안에서 처리
                       }}
                     >
                       <TextStyle>{item.favoriteCount}</TextStyle>
