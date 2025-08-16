@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ArrowLeft from "@logo/bluearrowleft.svg";
 import ArrowRight from "@logo/bluearrowright.svg";
 import { getDistricts, getRegionId } from "../../api/userService";
@@ -189,12 +189,15 @@ const districtData = {
 
 export default function SignRegionDetailPage() {
   const nav = useNavigate();
+  const location = useLocation();
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedRegion] = useState(localStorage.getItem('selectedRegion') || "서울특별시");
   const [districts, setDistricts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+
 
   // 구/군 목록 가져오기
   useEffect(() => {
@@ -239,27 +242,27 @@ export default function SignRegionDetailPage() {
       // 지역 ID도 저장
       localStorage.setItem('selectedRegionId', regionId);
       
-      // 1초 후 자동으로 다음 페이지로 이동
-      setTimeout(() => {
-        console.log('선택된 구/군으로 이동:', district, '지역 ID:', regionId);
-        nav("/signup/complete");
-      }, 1000);
+             // 1초 후 자동으로 다음 페이지로 이동
+       setTimeout(() => {
+         console.log('선택된 구/군으로 이동:', district, '지역 ID:', regionId);
+         nav("/board");
+       }, 1000);
       
     } catch (error) {
       console.error('지역 ID 조회 실패:', error);
-      // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
-      setTimeout(() => {
-        console.log('지역 ID 조회 실패, 기본값으로 이동:', district);
-        nav("/signup/complete");
-      }, 1000);
+             // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
+       setTimeout(() => {
+         console.log('지역 ID 조회 실패, 기본값으로 이동:', district);
+         nav("/board");
+       }, 1000);
     }
   };
 
   const handleNext = () => {
     if (selectedDistrict) {
-      // 선택된 구/군을 저장하고 회원가입 완료 페이지로 이동
+      // 선택된 구/군을 저장하고 다음 페이지로 이동
       localStorage.setItem('selectedDistrict', selectedDistrict);
-      nav("/signup/complete");
+      nav("/board");
     } else {
       alert("구/군을 선택해주세요.");
     }
@@ -283,13 +286,13 @@ export default function SignRegionDetailPage() {
         <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
           &#8592;
         </BackBtn>
-        <TitleText>회원가입</TitleText>
+        <TitleText>지역 선택</TitleText>
       </TopBar>
       <ProgressBarWrap>
         <ProgressBar />
       </ProgressBarWrap>
       <ContentSection>
-        <SectionTitle>지역 선택</SectionTitle>
+        <SectionTitle>상세 지역을 선택해주세요</SectionTitle>
         
         {loading ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>

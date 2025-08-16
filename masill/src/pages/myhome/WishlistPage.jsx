@@ -1,15 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import ArrowLeftIcon from '@assets/logo/main/main-arrowleft.svg';
 import HeartIcon from '@logo/myhome/heart.svg';
 import ChatIcon from '@logo/myhome/chat.svg';
+import Fullheart from '@assets/logo/mainImg/fullheart.png';
+import Heart from '@assets/logo/mainImg/Heart.png';
+import Comment from '@assets/logo/mainImg/commant.png';
+import PromotionIcon from '@logo/myhome/promotion.svg';
+import dayjs from 'dayjs';
+import {
+  BoardTitleH1,
+  BoardLocationP,
+  BoardDateP,
+} from '../../components/main/MainStyles.styled';
 
 const Container = styled.div`
-  min-height: 100vh;
-  background: #f8f9fa;
+  width: 393px;
+  height: 852px;
+  background: #fff;
   padding: 0;
   margin: 0;
+  overflow: hidden;
+  overflow-x: hidden;
 `;
 
 const Header = styled.div`
@@ -21,6 +34,8 @@ const Header = styled.div`
   position: sticky;
   top: 0;
   z-index: 100;
+  height: 60px;
+  box-sizing: border-box;
 `;
 
 const BackButton = styled.button`
@@ -48,151 +63,196 @@ const Title = styled.h1`
 `;
 
 const Content = styled.div`
-  padding: 20px;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: calc(852px - 60px); /* 전체 높이에서 헤더 높이 제외 */
+  box-sizing: border-box;
 `;
 
 const PostCard = styled.div`
-  margin-bottom: 16px;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0 0 5px 0;
+  border-bottom: 1px solid #ddd;
+  margin-top: 13px;
+  cursor: pointer;
+  &:hover {
+    background-color: #fafafa;
+  }
+  width: 380px;
+  margin-bottom: 0;
 `;
 
-const ImageContainer = styled.div`
-  display: flex;
-  gap: 4px;
-  padding: 12px;
-`;
+const ImageScrollWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding-bottom: 4px;
+  max-height: 140px;
+  overflow-y: auto;
 
-const ImageWrapper = styled.div`
-  position: relative;
-  flex: 1;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #e9ecef;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const PostImage = styled.div`
-  width: 100%;
-  height: 100%;
-  background: #e9ecef;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999;
-  font-size: 12px;
-`;
-
-const PostInfo = styled.div`
-  padding: 16px;
-  display: flex;
-  gap: 12px;
-`;
-
-const ProfileIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #e9ecef;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  
-  &::before {
-    content: '👤';
-    font-size: 16px;
+  /* 스크롤바 스타일 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
   }
 `;
 
-const PostDetails = styled.div`
+const BoardImage = styled.img`
+  width: 100%;
+  height: 140px;
+  border-radius: 6px;
+  object-fit: cover;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 11px;
+`;
+
+const LeftContent = styled.div`
+  display: flex;
+  align-items: flex-start; /* 로고와 텍스트의 윗줄 맞춤 */
+  gap: 7px;
   flex: 1;
 `;
 
-const PostTitle = styled.h3`
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  line-height: 1.4;
+const TextInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  /* 보드타이틀 */
+  ${BoardTitleH1} {
+    margin: 0;
+  }
+
+  /* 위치와 날짜는 아래로 순서대로 */
+  ${BoardLocationP} {
+    margin: 2px 0 0;
+  }
+
+  ${BoardDateP} {
+    margin: 2px 0 0;
+  }
 `;
 
-const PostLocation = styled.p`
-  margin: 0 0 4px 0;
-  font-size: 14px;
-  color: #666;
-  line-height: 1.3;
-`;
-
-const PostDate = styled.p`
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  color: #666;
-  line-height: 1.3;
-`;
-
-const EngagementMetrics = styled.div`
+const RightContent = styled.div`
+  position: relative; /* 아이콘 고정 기준 */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
-  margin-left: 12px;
+  justify-content: flex-start;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  right: 50px;
+  min-height: 100%; /* 세로 위치 계산 위해 높이 유지 */
 `;
 
-const MetricItem = styled.div`
+const HeartArea = styled.div`
+  position: absolute;
+  top: 0; /* 제목과 같은 높이 */
+  right: 0;
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  color: #666;
+  padding-right: 28px; /* 아이콘 자리 확보 */
+  cursor: pointer;
 `;
 
-const MetricIcon = styled.img`
-  width: 16px;
-  height: 16px;
+const CommentArea = styled.div`
+  position: absolute;
+  top: 30px; /* 위치와 날짜 중간 지점 (수치 조절 가능) */
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding-right: 28px;
+  cursor: pointer;
 `;
 
-// 더미 데이터
-const dummyWishlist = [
-  {
-    id: 1,
-    title: "퇘사랑 흑돼지 입점 기념 3+1",
-    location: "서울 성북구 서경로 79 퇘사랑",
-    date: "2025. 09. 05. (금) 16:00 ~ 02:00 (익일)",
-    likes: 894,
-    comments: 68
-  },
-  {
-    id: 2,
-    title: "성북 청년의 날 행사",
-    location: "서울 성북구청 앞 바람마당 일대",
-    date: "2025. 09. 20. (토) 12:00 ~ 17:00",
-    likes: 1200,
-    comments: 117
-  },
-  {
-    id: 3,
-    title: "오동공원 물놀이터",
-    location: "서울 성북구 하월곡동 228-4",
-    date: "2025. 07. 12. (토)~2025. 08. 31. (일) 10:00...",
-    likes: 671,
-    comments: 81
-  }
-];
+const TextStyle = styled.p`
+  color: var(--Gray-900, #727c94);
+  font-family: Pretendard;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: -0.12px;
+  margin: 0;
+  white-space: nowrap; /* 줄바꿈 방지 */
+`;
+
+const HeartImg = styled.img`
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+`;
+
+const CommentImg = styled.img`
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+`;
+
+const MemberLogo = styled.img`
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 24px;
+`;
+
+const PromotionContainer = styled.div`
+  margin: 12px 0;
+  margin-left: -160px;
+  text-align: left;
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const PromotionIconImg = styled.img`
+  width: 80%;
+  height: 100px;
+  border-radius: 20px;
+ 
+`;
+
+// 더미 데이터 제거 - 실제 좋아요한 게시물을 사용
 
 const WishlistPage = () => {
   const navigate = useNavigate();
+  const [likedPosts, setLikedPosts] = useState([]);
+
+  // localStorage에서 좋아요한 게시물 가져오기
+  useEffect(() => {
+    const savedLikedPosts = localStorage.getItem('likedPosts');
+    if (savedLikedPosts) {
+      setLikedPosts(JSON.parse(savedLikedPosts));
+    }
+  }, []);
 
   const formatLikes = (likes) => {
     if (likes >= 1000) {
       return `${(likes / 1000).toFixed(1)}K`;
     }
     return likes.toString();
+  };
+
+  const handlePostClick = (eventId) => {
+    navigate(`/detail/${eventId}`);
+  };
+
+  const handleRemoveFromWishlist = (eventId, e) => {
+    e.stopPropagation();
+    const updatedLikedPosts = likedPosts.filter(post => post.eventId !== eventId);
+    setLikedPosts(updatedLikedPosts);
+    localStorage.setItem('likedPosts', JSON.stringify(updatedLikedPosts));
   };
 
   return (
@@ -205,41 +265,82 @@ const WishlistPage = () => {
       </Header>
 
       <Content>
-        {dummyWishlist.map((post) => (
-          <PostCard key={post.id}>
-            <ImageContainer>
-              <ImageWrapper>
-                <PostImage>이미지 1</PostImage>
-              </ImageWrapper>
-              <ImageWrapper>
-                <PostImage>이미지 2</PostImage>
-              </ImageWrapper>
-              <ImageWrapper>
-                <PostImage>이미지 3</PostImage>
-              </ImageWrapper>
-            </ImageContainer>
-            
-            <PostInfo>
-              <ProfileIcon />
-              <PostDetails>
-                <PostTitle>{post.title}</PostTitle>
-                <PostLocation>{post.location}</PostLocation>
-                <PostDate>{post.date}</PostDate>
-              </PostDetails>
-              
-              <EngagementMetrics>
-                <MetricItem>
-                  <span>{formatLikes(post.likes)}</span>
-                  <MetricIcon src={HeartIcon} alt="좋아요" />
-                </MetricItem>
-                <MetricItem>
-                  <span>{post.comments}</span>
-                  <MetricIcon src={ChatIcon} alt="댓글" />
-                </MetricItem>
-              </EngagementMetrics>
-            </PostInfo>
-          </PostCard>
-        ))}
+        {likedPosts.length === 0 ? (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '60px 20px',
+            color: '#666',
+            fontSize: '16px'
+          }}>
+            아직 좋아요한 게시물이 없습니다.
+            <br />
+            메인페이지에서 관심 있는 게시물에 하트를 눌러보세요!
+          </div>
+        ) : (
+          <div style={{ padding: '0 24px 0 24px' }}>
+            {likedPosts.map((post, index) => (
+              <React.Fragment key={post.eventId}>
+                <PostCard onClick={() => handlePostClick(post.eventId)}>
+                  <ImageScrollWrapper>
+                    {Array.isArray(post.images) && post.images.length > 0 ? (
+                      post.images.map((img, idx) => (
+                        <BoardImage
+                          key={idx}
+                          src={img.imageUrl}
+                          alt={`${post.title}-${idx}`}
+                        />
+                      ))
+                    ) : null}
+                  </ImageScrollWrapper>
+
+                  <ContentWrapper>
+                    <LeftContent>
+                      <MemberLogo src={post.userImage} alt="회원로고" />
+                      <TextInfo>
+                        <BoardTitleH1>{post.title}</BoardTitleH1>
+                        <BoardLocationP>{post.location}</BoardLocationP>
+                        <BoardDateP>
+                          {`${dayjs(post.startAt).format(
+                            "YYYY.MM.DD.(dd)"
+                          )} ~ ${dayjs(post.endAt).format(
+                            "YYYY.MM.DD.(dd)"
+                          )} ${dayjs(post.startAt).format("HH:mm")}~${dayjs(
+                            post.endAt
+                          ).format("HH:mm")}`}
+                        </BoardDateP>
+                      </TextInfo>
+                    </LeftContent>
+
+                    <RightContent>
+                      <HeartArea
+                        onClick={(e) => handleRemoveFromWishlist(post.eventId, e)}
+                      >
+                        <TextStyle>{post.favoriteCount}</TextStyle>
+                        <HeartImg
+                          src={Fullheart}
+                          alt="하트"
+                          style={{ width: "24px", height: "24px" }}
+                        />
+                      </HeartArea>
+
+                      <CommentArea>
+                        <TextStyle>{post.commentCount}</TextStyle>
+                        <CommentImg src={Comment} alt="댓글" />
+                      </CommentArea>
+                    </RightContent>
+                  </ContentWrapper>
+                  
+                  {/* PromotionIcon을 마지막 게시물이 아닌 경우에만 표시 */}
+                  {index < likedPosts.length - 1 && (
+                    <PromotionContainer>
+                      <PromotionIconImg src={PromotionIcon} alt="프로모션 아이콘" />
+                    </PromotionContainer>
+                  )}
+                </PostCard>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
       </Content>
     </Container>
   );

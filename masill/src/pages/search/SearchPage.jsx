@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ArrowLeftIcon from '@assets/logo/main/main-arrowleft.svg';
 import BirdIcon from '@logo/bird.svg';
 import SearchIcon from '@logo/search/searchicon.svg';
@@ -241,8 +241,16 @@ const recentSearches = [
 
 const SearchPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [searches, setSearches] = useState(recentSearches);
+
+  // MainPage에서 전달받은 검색어 처리
+  useEffect(() => {
+    if (location.state?.searchQuery) {
+      setSearchTerm(location.state.searchQuery);
+    }
+  }, [location.state]);
 
   const handleDeleteSearch = (index) => {
     setSearches(prev => prev.filter((_, i) => i !== index));

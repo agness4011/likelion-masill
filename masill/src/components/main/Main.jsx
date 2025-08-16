@@ -41,7 +41,9 @@ import styled from "styled-components";
 export default function Main({ children }) {
   return <MainContainer>{children}</MainContainer>;
 }
-const MainContainer = styled.div``;
+const MainContainer = styled.div`
+  overflow-x: hidden;
+`;
 // 배경 이미지
 function HigherContainer({ children }) {
   return (
@@ -55,7 +57,24 @@ function HigherContainer({ children }) {
 // 검색창
 function SearchBar() {
   const [text, setText] = useState("");
-  const search = () => setText("");
+  const navigate = useNavigate();
+  
+  const handleSearchClick = () => {
+    // 검색 페이지로 이동하면서 검색어 전달
+    navigate('/search', { state: { searchQuery: text } });
+  };
+
+  const handleInputClick = () => {
+    // 입력창 클릭 시에도 검색 페이지로 이동
+    navigate('/search', { state: { searchQuery: text } });
+  };
+
+  const handleKeyPress = (e) => {
+    // 엔터키 입력 시 검색 페이지로 이동
+    if (e.key === 'Enter') {
+      handleSearchClick();
+    }
+  };
 
   return (
     <SearchWrapper>
@@ -63,9 +82,17 @@ function SearchBar() {
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyPress={handleKeyPress}
+        onClick={handleInputClick}
         placeholder="가게 행사하는.. 차리점..."
+        readOnly
       />
-      <SearchImg src={SearchGlass} alt="서치버튼" onClick={search} />
+      <SearchImg 
+        src={SearchGlass} 
+        alt="서치버튼" 
+        onClick={handleSearchClick}
+        style={{ cursor: 'pointer' }}
+      />
     </SearchWrapper>
   );
 }
@@ -218,6 +245,7 @@ function Post() {
             const start = dayjs(post.startAt).startOf("day");
             const end = dayjs(post.endAt).endOf("day");
 
+
             return start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today);
           });
         } else {
@@ -238,7 +266,9 @@ function Post() {
     };
 
     loadPosts();
+
   }, [category, regionId]);
+
 
   const filteredPosts = posts;
 
