@@ -242,19 +242,19 @@ export default function SignRegionDetailPage() {
       // 지역 ID도 저장
       localStorage.setItem('selectedRegionId', regionId);
       
-             // 1초 후 자동으로 다음 페이지로 이동
-       setTimeout(() => {
-         console.log('선택된 구/군으로 이동:', district, '지역 ID:', regionId);
-         nav("/board");
-       }, 1000);
+                           // 1초 후 자동으로 다음 페이지로 이동
+        setTimeout(() => {
+          console.log('선택된 구/군으로 이동:', district, '지역 ID:', regionId);
+          nav("/signup/complete");
+        }, 1000);
       
     } catch (error) {
       console.error('지역 ID 조회 실패:', error);
-             // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
-       setTimeout(() => {
-         console.log('지역 ID 조회 실패, 기본값으로 이동:', district);
-         nav("/board");
-       }, 1000);
+                           // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
+        setTimeout(() => {
+          console.log('지역 ID 조회 실패, 기본값으로 이동:', district);
+          nav("/signup/complete");
+        }, 1000);
     }
   };
 

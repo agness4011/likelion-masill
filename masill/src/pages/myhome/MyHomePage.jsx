@@ -258,7 +258,7 @@ const BirdImage = styled.img`
 
 const MyHomePage = () => {
   const navigate = useNavigate();
-  const { userData } = useUser();
+  const { userData, updateProfileImage } = useUser();
   
   console.log('마이페이지 현재 userData:', userData);
   
@@ -296,14 +296,21 @@ const MyHomePage = () => {
   const [isUploading, setIsUploading] = React.useState(false);
   const fileInputRef = React.useRef(null);
 
-  // 컴포넌트 언마운트 시 미리보기 URL 정리
+  // 페이지 로드 시 UserContext에서 프로필 이미지 불러오기
   React.useEffect(() => {
-    return () => {
-      if (profileImage && profileImage.startsWith('blob:')) {
-        URL.revokeObjectURL(profileImage);
-      }
-    };
-  }, [profileImage]);
+    if (userData.profileImage) {
+      setProfileImage(userData.profileImage);
+    }
+  }, [userData.profileImage]);
+
+  // 컴포넌트 언마운트 시 blob URL 정리 (더 이상 필요하지 않음)
+  // React.useEffect(() => {
+  //   return () => {
+  //     if (profileImage && profileImage.startsWith('blob:')) {
+  //       URL.revokeObjectURL(profileImage);
+  //     }
+  //   };
+  // }, [profileImage]);
 
   // 새 위치 상태 (개별 관리)
   const [bird1Position, setBird1Position] = React.useState({ x: 160, y: 120 });
@@ -366,13 +373,40 @@ const MyHomePage = () => {
     try {
       setIsUploading(true);
       
-      // 미리보기용 URL 생성
-      const previewUrl = URL.createObjectURL(file);
-      setProfileImage(previewUrl);
-
-      // API 호출
+            // API 호출
       const result = await uploadProfileImage(file);
       console.log('프로필 이미지 업로드 성공:', result);
+      
+      // 업로드 성공 시 localStorage에 이미지 URL 저장
+      if (result && result.success) {
+        const imageUrl = result.data?.imageUrl;
+        if (imageUrl) {
+          localStorage.setItem('userProfileImage', imageUrl);
+          setProfileImage(imageUrl);
+          // UserContext 업데이트
+          updateProfileImage(imageUrl);
+        } else {
+          // API에서 URL을 반환하지 않는 경우, 파일을 base64로 변환하여 저장
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64Image = e.target.result;
+            localStorage.setItem('userProfileImage', base64Image);
+            setProfileImage(base64Image);
+            updateProfileImage(base64Image);
+          };
+          reader.readAsDataURL(file);
+        }
+      } else {
+        // API 실패 시에도 base64로 저장하여 임시 사용
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64Image = e.target.result;
+          localStorage.setItem('userProfileImage', base64Image);
+          setProfileImage(base64Image);
+          updateProfileImage(base64Image);
+        };
+        reader.readAsDataURL(file);
+      }
       
       // 성공 메시지 (모바일 친화적)
       if (window.innerWidth <= 768) {

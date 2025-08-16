@@ -603,7 +603,7 @@ export const getRegionId = async (sido, sigungu) => {
             }
           };
           
-          const regionId = dummyRegionIds[sido]?.[sigungu] || 11680; // 기본값: 서울 강남구
+          const regionId = dummyRegionIds[sido]?.[sigungu] || 141; // 기본값: 141
           resolve(regionId);
         }, 300);
       });

@@ -16,7 +16,8 @@ export const UserProvider = ({ children }) => {
     nickname: localStorage.getItem('nickname') || "masill_love1",
     email: "user@example.com",
     isSajangVerified: false,
-    avatarId: null
+    avatarId: null,
+    profileImage: localStorage.getItem('userProfileImage') || null
   });
 
   // 사용자 초기화 시 랜덤 아바타 할당 및 닉네임 로드
@@ -50,7 +51,7 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
-  // localStorage 변경 감지
+  // localStorage 변경 감지 및 커스텀 이벤트 감지
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'nickname' && e.newValue) {
@@ -60,10 +61,28 @@ export const UserProvider = ({ children }) => {
           nickname: e.newValue
         }));
       }
+      if (e.key === 'userProfileImage') {
+        setUserData(prev => ({
+          ...prev,
+          profileImage: e.newValue
+        }));
+      }
+    };
+
+    const handleProfileImageUpdate = (e) => {
+      setUserData(prev => ({
+        ...prev,
+        profileImage: e.detail.imageUrl
+      }));
     };
 
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('profileImageUpdated', handleProfileImageUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('profileImageUpdated', handleProfileImageUpdate);
+    };
   }, []);
 
   const updateNickname = (newNickname) => {
@@ -92,11 +111,25 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
+  const updateProfileImage = (imageUrl) => {
+    localStorage.setItem('userProfileImage', imageUrl);
+    setUserData(prev => ({
+      ...prev,
+      profileImage: imageUrl
+    }));
+    
+    // 같은 탭에서도 즉시 업데이트되도록 커스텀 이벤트 발생
+    window.dispatchEvent(new CustomEvent('profileImageUpdated', { 
+      detail: { imageUrl } 
+    }));
+  };
+
   const value = {
     userData,
     updateNickname,
     verifySajang,
-    updateAvatar
+    updateAvatar,
+    updateProfileImage
   };
 
   return (

@@ -68,6 +68,8 @@ export default function App() {
               <Route path="agree" element={<SignAgreePage />} />
               <Route path="phone" element={<SignPhonePage />} />
               <Route path="create" element={<SignCreatePage />} />
+              <Route path="region" element={<SignRegionPage />} />
+              <Route path="region-detail" element={<SignRegionDetailPage />} />
               <Route path="complete" element={<SignCompletePage />} />
             </Route>
 
