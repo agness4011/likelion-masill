@@ -420,7 +420,7 @@ export const ErrorMessage = styled.p`
   margin-top: 4px;
   color: var(--Allert, #ff443e);
   font-family: Pretendard;
-  font-size: 11px;
+  font-size: 15px;
   font-style: normal;
   font-weight: 400;
   line-height: 140%; /* 15.4px */
@@ -432,6 +432,7 @@ export const ErrorDiv = styled.div`
   align-items: center;
   gap: 6px;
   margin-top: 5px;
+  text-align: center;
 `;
 export const overlayStyle = {
   position: "fixed",

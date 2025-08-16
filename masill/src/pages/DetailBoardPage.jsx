@@ -15,9 +15,9 @@ export default function DetailBoardPage() {
               <DetailBoard.MiddleWho />
               <DetailBoard.TabMenu />
             </DetailBoard.BodyMiddle>
-            <DetailBoard.LOwContainer>
+            <DetailBoard.LowCopoments>
               <DetailBoard.DetailContent />
-            </DetailBoard.LOwContainer>
+            </DetailBoard.LowCopoments>
           </DetailBoard.LowBody>
         </DetailBoard.Low>
       </div>

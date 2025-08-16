@@ -1,35 +1,64 @@
 import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 
-// GET: 게시글 목록
-export const fetchAllBoards = async () => {
+export const detailImg = async (eventId) => {
   try {
-    console.log("GET 요청: /events/all");
-    const res = await APIService.public.get(`/events/all`);
-    return res.data;
+    const res = await privateAPI.get(`/events/${eventId}`);
+    return res.data; // 실제 이벤트 데이터 반환
+  } catch (error) {
+    console.error("이벤트 이미지 조회 실패", error);
+    throw error;
+  }
+};
+
+export const detailBoard = async (eventId) => {
+  try {
+    const res = await privateAPI.get(`/events/${eventId}`);
+    return res.data.data; // 실제 이벤트 데이터 반환
+  } catch (error) {
+    console.error("이벤트 조회 실패", error);
+    throw error;
+  }
+};
+// GET: 게시글 목록
+export const fetchAllBoards = async (
+  regionId,
+  page = 1,
+  size = 20,
+  sortBy = "createdAt",
+  sortDir = "desc"
+) => {
+  try {
+    console.log(
+      `GET 요청: /events/all?regionId=${regionId}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
+    );
+    const res = await privateAPI.get(`/events/all`, {
+      params: { regionId, page, size, sortBy, sortDir },
+    });
+    return res.data; // res.data 안에 content 배열이 있는지 확인
   } catch (error) {
     console.error("게시물 불러오기 실패:", error);
     throw error;
   }
 };
 
-export const eventTypeBoards = async (
-  regionId,
-  eventType,
-  page = 1,
-  size = 20
-) => {
+// boardApi.js
+export const eventTypeBoards = async (eventType, regionId) => {
   try {
     console.log("GET 요청: /events/eventType/list");
-    const res = await APIService.public.get(`/events/eventType/list`, {
-      params: {
-        regionId, // 지역 ID
-        eventType, // 이벤트 타입 (예: FLEA_MARKET)
-        page, // 페이지 번호
-        size, // 페이지 크기
-        sortBy: "createdAt", // 정렬 기준
-        sortDir: "desc", // 내림차순
-      },
+
+    const params = {
+      regionId,
+      eventType, // ENUM 값 직접 받음
+      page: 1,
+      size: 20,
+      sortBy: "createdAt",
+      sortDir: "desc",
+    };
+
+    const res = await privateAPI.get(`/events/eventType/list`, {
+      params,
     });
+
     return res.data;
   } catch (error) {
     console.error("게시물 불러오기 실패:", error);
@@ -57,6 +86,7 @@ export const addBoard = async (formData) => {
     throw error;
   }
 };
+
 // 지역 API
 export const getRegions = async () => {
   try {
@@ -615,13 +645,17 @@ export const getRegionName = async (regionId) => {
   }
 };
 
-export const eventBoards = async (eventType) => {
+export const getMyRegionName = async (regionId) => {
   try {
-    console.log("GET 요청: /events/eventType/list");
-    const res = await APIService.public.get(`/events/eventType/list`);
-    return res.data;
+    const response = await privateAPI.get(`/regions/${regionId}`, {
+      params: { regionId },
+      headers: { Accept: "application/json" },
+    });
+
+    // sigungu만 반환
+    return response.data.data.sigungu;
   } catch (error) {
-    console.error("이벤트 게시물 불러오기 실패:", error);
-    throw error;
+    console.error("지역 정보 조회 실패:", error);
+    return null;
   }
 };

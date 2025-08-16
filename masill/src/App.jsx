@@ -38,6 +38,8 @@ import SajangPage from "./pages/myhome/SajangPage";
 
 import SelectRegion from "./components/board/SelectRegion";
 import SelectRegionDetail from "./components/board/SelectRegionDetail";
+import ChangeRegion from "./components/main/ChangeRegion";
+import ChangeRegionDetail from "./components/main/ChangeRegionDetail";
 
 export default function App() {
   return (
@@ -66,6 +68,8 @@ export default function App() {
               <Route path="agree" element={<SignAgreePage />} />
               <Route path="phone" element={<SignPhonePage />} />
               <Route path="create" element={<SignCreatePage />} />
+              <Route path="region" element={<SignRegionPage />} />
+              <Route path="region-detail" element={<SignRegionDetailPage />} />
               <Route path="complete" element={<SignCompletePage />} />
             </Route>
 
@@ -83,6 +87,11 @@ export default function App() {
                 />
               ))}
             </Route>
+            <Route path="changeRegion" element={<ChangeRegion />} />
+            <Route
+              path="changeRegion/detail"
+              element={<ChangeRegionDetail />}
+            />
 
             {/* 검색 */}
             <Route path="search" element={<SearchPage />} />

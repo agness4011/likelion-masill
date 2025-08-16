@@ -173,11 +173,11 @@ export default function SignCompletePage() {
         } catch (error) {
           console.error('지역 ID 조회 실패:', error);
           // 지역 ID 조회 실패 시 기본값 사용
-          regionId = 11680; // 서울 강남구 기본값
+          regionId = 141; // 기본값 141
         }
       } else {
         console.warn('지역 정보가 없습니다. 기본값을 사용합니다.');
-        regionId = 11680; // 서울 강남구 기본값
+        regionId = 141; // 기본값 141
       }
       
       // 회원가입 데이터 준비 - 지역 ID와 지역명 모두 포함
