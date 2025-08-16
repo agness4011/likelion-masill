@@ -38,6 +38,8 @@ import SajangPage from "./pages/myhome/SajangPage";
 
 import SelectRegion from "./components/board/SelectRegion";
 import SelectRegionDetail from "./components/board/SelectRegionDetail";
+import ChangeRegion from "./components/main/ChangeRegion";
+import ChangeRegionDetail from "./components/main/ChangeRegionDetail";
 
 export default function App() {
   return (
@@ -83,6 +85,11 @@ export default function App() {
                 />
               ))}
             </Route>
+            <Route path="changeRegion" element={<ChangeRegion />} />
+            <Route
+              path="changeRegion/detail"
+              element={<ChangeRegionDetail />}
+            />
 
             {/* 검색 */}
             <Route path="search" element={<SearchPage />} />

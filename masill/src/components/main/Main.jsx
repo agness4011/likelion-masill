@@ -10,8 +10,17 @@ import Recommand from "../../assets/logo/mainImg/recommand.png";
 import SetLocation from "../../assets/logo/mainImg/set.png";
 
 import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+
 import "dayjs/locale/ko";
-import { fetchAllBoards, eventTypeBoards } from "../../api/boardApi";
+import {
+  fetchAllBoards,
+  eventTypeBoards,
+  getMyRegionName,
+} from "../../api/boardApi";
+
+import { privateAPI } from "../../api/axios";
 
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -147,6 +156,17 @@ function CategoryItem({
   const navigate = useNavigate();
   const isActive = activeCategory === path;
 
+  const handleClick = () => {
+    if (isActive) {
+      // 이미 선택된 카테고리면 전체 목록(/main)으로 이동
+      navigate("/main");
+      setActiveCategory(""); // 선택 상태 초기화
+    } else {
+      navigate(`/main/${path}`);
+      setActiveCategory(path);
+    }
+  };
+
   return (
     <CategoryBtn
       style={{
@@ -154,10 +174,7 @@ function CategoryItem({
         border: isActive ? "1px solid var(--Blur-gary-400, #CDDBFF)" : "none",
         color: isActive ? "#000" : "var(--Gray-900, #727C94)",
       }}
-      onClick={() => {
-        navigate(`/main/${path}`); // 경로 이동
-        setActiveCategory(path); // 필요시 상태 업데이트 (경로 기반이라 생략 가능)
-      }}
+      onClick={handleClick}
     >
       {categoryTitle}
     </CategoryBtn>
@@ -172,6 +189,9 @@ function PostContent({ children }) {
   return <PostContainer>{children}</PostContainer>;
 }
 const PostContainer = styled.div``;
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
+dayjs.locale("ko");
 
 // 게시글 목록
 function Post() {
@@ -182,103 +202,104 @@ function Post() {
       : location.pathname.replace("/main/", "");
 
   const [sortType, setSortType] = useState("AI 추천순");
-  const [posts, setPosts] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [myRegion, setMyRegion] = useState("");
+  const regionId = localStorage.getItem("selectedRegionId");
+
+  const CATEGORY_MAP = {
+    market: "FLEA_MARKET",
+    art: "CULTURE_ART",
+    outdoor: "OUTDOOR_ACTIVITY",
+    volunteer: "VOLUNTEER",
+    festivity: "FESTIVAL",
+    shop: "STORE_EVENT",
+    education: "EDUCATION",
+    etc: "ETC",
+  };
 
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        let res;
+        const regionName = await getMyRegionName(regionId);
+        setMyRegion(regionName);
+
+        let content = [];
+        const today = dayjs().startOf("day");
+        const endOfToday = dayjs().endOf("day");
+
         if (!category) {
-          res = await fetchAllBoards();
-          console.log("전체 게시글:", res);
+          // 전체 게시글 + 종료일 필터
+          const res = await fetchAllBoards(regionId); // regionId 쿼리 포함
+          const allPosts = res?.data?.content || [];
 
-          // 실제 데이터 구조에 맞게 접근
-          const content = res?.data?.content || [];
+          content = allPosts.filter(
+            (post) => dayjs(post.endAt).endOf("day").isSameOrAfter(today) // 오늘 포함 이후
+          );
+        } else if (category === "event") {
+          // 오늘 포함 이벤트
+          const res = await fetchAllBoards(regionId); // regionId 쿼리 포함
+          const allPosts = res?.data?.content || [];
 
-          // localStorage에서 좋아요 상태 복원
-          const savedLikedPosts = localStorage.getItem('likedPosts');
-          const likedPosts = savedLikedPosts ? JSON.parse(savedLikedPosts) : [];
-          const likedPostIds = likedPosts.map(post => post.eventId);
+          content = allPosts.filter((post) => {
+            const start = dayjs(post.startAt).startOf("day");
+            const end = dayjs(post.endAt).endOf("day");
 
-          // 변수 선언과 동시에 사용
-          const withHeartFlag = content.map((post) => ({
-            ...post,
-            isHeartClicked: likedPostIds.includes(post.eventId),
-          }));
 
-          setPosts(withHeartFlag);
+            return start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today);
+          });
         } else {
-          // 카테고리별 API 준비되면 적용
-          // res = await fetchBoardsByCategory(category);
+          // 특정 카테고리 + 종료일 필터
+          const eventType = CATEGORY_MAP[category];
+          const res = await eventTypeBoards(eventType, regionId); // regionId 쿼리 포함
+          const allPosts = res?.data?.content || [];
+
+          content = allPosts.filter((post) =>
+            dayjs(post.endAt).endOf("day").isSameOrAfter(today)
+          );
         }
+
+        setPosts(content.map((post) => ({ ...post, isHeartClicked: false })));
       } catch (err) {
         console.error("게시물 불러오기 실패", err);
       }
     };
 
     loadPosts();
-  }, [category]);
 
-  const clickHeart = (eventId) => {
-    setPosts((prev) => {
-      const updatedPosts = prev.map((post) =>
-        post.eventId === eventId
-          ? {
-              ...post,
-              isHeartClicked: !post.isHeartClicked,
-              favoriteCount: !post.isHeartClicked
-                ? post.favoriteCount + 1
-                : post.favoriteCount - 1,
-            }
-          : post
-      );
+  }, [category, regionId]);
 
-      // localStorage에 좋아요한 게시물 저장/제거
-      const likedPosts = updatedPosts.filter(post => post.isHeartClicked);
-      localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
 
-      return updatedPosts;
-    });
-  };
-
-  ("const filteredPosts = posts.filter((post) => post.category === category);");
   const filteredPosts = posts;
 
-  const sortedPosts = [...filteredPosts]
-    // 종료일이 오늘 이후인 게시글만 남기기
-    .filter((post) => dayjs(post.endAt).isAfter(dayjs()))
-    .sort((a, b) => {
-      if (sortType === "AI 추천순") return a.eventId - b.eventId;
-      if (sortType === "조회수 높은 순")
-        return b.favoriteCount - a.favoriteCount;
-      if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
-      if (sortType === "날짜순")
-        return dayjs(b.startAt).valueOf() - dayjs(a.startAt).valueOf();
-      return 0;
-    });
+  // 정렬
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
+    if (sortType === "AI 추천순") return a.eventId - b.eventId;
+    if (sortType === "조회수 높은 순") return b.viewCount - a.viewCount;
+    if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
+    if (sortType === "날짜순")
+      return dayjs(b.startAt).valueOf() - dayjs(a.startAt).valueOf();
+    return 0;
+  });
 
   const navigate = useNavigate();
-
   const options = ["AI 추천순", "조회수 높은 순", "인기순", "날짜순"];
 
   const toggleOpen = () => setIsOpen((prev) => !prev);
-
   const handleSelect = (type) => {
     setSortType(type);
     setIsOpen(false);
   };
-  dayjs.locale("ko");
+  // Heart 클릭 함수
+  const clickHeart = async (eventId, isCurrentlyClicked) => {};
 
   return (
     <BoardContanier>
       <ToggleLoctionDiv>
-        <LocationDiv>
+        <LocationDiv onClick={() => navigate("/changeRegion")}>
           <LocationImg src={SetLocation} />
-          <LocationP>지역 이름</LocationP>
+          <LocationP>우리 마을 {myRegion}</LocationP>
         </LocationDiv>
-
-        <div style={{ flexGrow: 1, minWidth: "154px" }}></div>
 
         <div style={{ position: "relative", width: 220 }}>
           <ToggleOpenDiv onClick={toggleOpen}>
@@ -299,87 +320,100 @@ function Post() {
       </ToggleLoctionDiv>
 
       <div>
-        {sortedPosts.map((item) => {
-          const now = dayjs();
-          const eventEnd = dayjs(item.endAt);
+        {sortedPosts.length === 0 ? (
+          <NoPostsMessage>여러분의 게시글을 공유해보세요</NoPostsMessage>
+        ) : (
+          sortedPosts.map((item) => {
+            const now = dayjs();
+            const eventEnd = dayjs(item.endAt);
 
-          const diffDays = eventEnd
-            .startOf("day")
-            .diff(now.startOf("day"), "day");
-          const isClosingSoon = diffDays >= 0 && diffDays <= 3;
+            const diffDays = eventEnd
+              .startOf("day")
+              .diff(now.startOf("day"), "day");
+            const isClosingSoon = diffDays >= 0 && diffDays <= 3;
 
-          let deadline = "";
-          if (diffDays === 0) {
-            deadline = "오늘";
-          } else {
-            deadline = `D-${diffDays}`;
-          }
+            let deadline = "";
+            if (diffDays === 0) {
+              deadline = "오늘";
+            } else {
+              deadline = `D-${diffDays}`;
+            }
 
-          return (
-            <PostWrapper
-              key={item.eventId}
-              onClick={() => navigate(`/detail/${item.eventId}`)}
-            >
-              <ImageScrollWrapper>
-                {Array.isArray(item.images) &&
-                  item.images.map((img, idx) => (
-                    <BoardImage
-                      key={idx}
-                      src={img.imageUrl}
-                      alt={`${item.title}-${idx}`}
-                    />
-                  ))}
-              </ImageScrollWrapper>
-              {isClosingSoon && (
-                <ClosingTag>🔥 {deadline} 마감 임박!</ClosingTag>
-              )}
+            return (
+              <PostWrapper
+                key={item.eventId}
+                onClick={() => navigate(`/detail/${item.eventId}`)}
+              >
+                <ImageScrollWrapper>
+                  {Array.isArray(item.images) &&
+                    item.images.map((img, idx) => (
+                      <BoardImage
+                        key={idx}
+                        src={img.imageUrl}
+                        alt={`${item.title}-${idx}`}
+                      />
+                    ))}
+                </ImageScrollWrapper>
 
-              <ContentWrapper>
-                <LeftContent>
-                  <MemberLogo src={item.userImage} alt="회원로고" />
-                  <TextInfo>
-                    <BoardTitleH1>{item.title}</BoardTitleH1>
-                    <BoardLocationP>{item.location}</BoardLocationP>
-                    <BoardDateP>
-                      {`${dayjs(item.startAt).format(
-                        "YYYY.MM.DD.(dd)"
-                      )} ~ ${dayjs(item.endAt).format(
-                        "YYYY.MM.DD.(dd)"
-                      )} ${dayjs(item.startAt).format("HH:mm")}~${dayjs(
-                        item.endAt
-                      ).format("HH:mm")}`}
-                    </BoardDateP>
-                  </TextInfo>
-                </LeftContent>
+                {isClosingSoon && (
+                  <ClosingTag>🔥 {deadline} 마감 임박!</ClosingTag>
+                )}
 
-                <RightContent>
-                  <HeartArea
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      clickHeart(item.eventId);
-                    }}
-                  >
-                    <TextStyle>{item.favoriteCount}</TextStyle>
-                    <HeartImg
-                      src={item.isHeartClicked ? Fullheart : Heart}
-                      alt="하트"
-                      style={{ width: "24px", height: "24px" }}
-                    />
-                  </HeartArea>
+                <ContentWrapper>
+                  <LeftContent>
+                    <MemberLogo src={item.userImage} alt="회원로고" />
+                    <TextInfo>
+                      <BoardTitleH1>{item.title}</BoardTitleH1>
+                      <BoardLocationP>{item.location}</BoardLocationP>
+                      <BoardDateP>
+                        {`${dayjs(item.startAt).format(
+                          "YYYY.MM.DD.(dd)"
+                        )} ~ ${dayjs(item.endAt).format(
+                          "YYYY.MM.DD.(dd)"
+                        )} ${dayjs(item.startAt).format("HH:mm")}~${dayjs(
+                          item.endAt
+                        ).format("HH:mm")}`}
+                      </BoardDateP>
+                    </TextInfo>
+                  </LeftContent>
 
-                  <CommentArea>
-                    <TextStyle>{item.commentCount}</TextStyle>
-                    <CommentImg src={Comment} alt="댓글" />
-                  </CommentArea>
-                </RightContent>
-              </ContentWrapper>
-            </PostWrapper>
-          );
-        })}
+                  <RightContent>
+                    <HeartArea
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // clickHeart(item.eventId, item.isHeartClicked);
+                      }}
+                    >
+                      <TextStyle>{item.favoriteCount}</TextStyle>
+                      <HeartImg
+                        src={item.isHeartClicked ? Fullheart : Heart}
+                        alt="하트"
+                        style={{ width: "24px", height: "24px" }}
+                      />
+                    </HeartArea>
+
+                    <CommentArea>
+                      <TextStyle>{item.commentCount}</TextStyle>
+                      <CommentImg src={Comment} alt="댓글" />
+                    </CommentArea>
+                  </RightContent>
+                </ContentWrapper>
+              </PostWrapper>
+            );
+          })
+        )}
       </div>
     </BoardContanier>
   );
 }
+
+// 스타일링
+const NoPostsMessage = styled.p`
+  text-align: center;
+  margin: 50px 0;
+  font-size: 16px;
+  color: #727c94;
+`;
 
 function MoveInterest() {
   return (
