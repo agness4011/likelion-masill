@@ -41,6 +41,69 @@ export const fetchAllBoards = async (
   }
 };
 
+// GET: 모든 게시글 (검색용)
+export const fetchAllBoardsForSearch = async (
+  page = 1,
+  size = 100,
+  sortBy = "createdAt",
+  sortDir = "desc"
+) => {
+  try {
+    console.log(
+      `GET 요청: /events/all/search?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
+    );
+    const res = await privateAPI.get(`/events/all/search`, {
+      params: { page, size, sortBy, sortDir },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("전체 게시물 불러오기 실패:", error);
+    throw error;
+  }
+};
+
+// GET: 내가 작성한 게시글 목록
+export const fetchMyPosts = async (
+  page = 1,
+  size = 20,
+  sortBy = "createdAt",
+  sortDir = "desc"
+) => {
+  try {
+    console.log(
+      `GET 요청: /users/me/posts?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
+    );
+    const res = await privateAPI.get(`/users/me/posts`, {
+      params: { page, size, sortBy, sortDir },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("내가 작성한 게시물 불러오기 실패:", error);
+    throw error;
+  }
+};
+
+// GET: 내가 관심있는 게시글 목록
+export const fetchMyFavorites = async (
+  page = 1,
+  size = 20,
+  sortBy = "createdAt",
+  sortDir = "desc"
+) => {
+  try {
+    console.log(
+      `GET 요청: /users/me/favorites?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
+    );
+    const res = await privateAPI.get(`/users/me/favorites`, {
+      params: { page, size, sortBy, sortDir },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("관심있는 게시물 불러오기 실패:", error);
+    throw error;
+  }
+};
+
 // boardApi.js
 export const eventTypeBoards = async (eventType, regionId) => {
   try {

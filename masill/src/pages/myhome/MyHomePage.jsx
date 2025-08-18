@@ -329,11 +329,12 @@ const MyHomePage = () => {
   };
 
   const handleProfile = () => {
-    console.log('프로필');
+    console.log('메인화면으로 이동');
+    navigate('/main');
   };
 
   const handleViewPosts = () => {
-    navigate('/myhome/my-posts');
+            navigate('/myhome/my-posts');
   };
 
   const handleViewWishlist = () => {
@@ -456,7 +457,7 @@ const MyHomePage = () => {
             <IconImage src={ChatIcon} alt="채팅" />
           </IconButton>
           <IconButton onClick={handleProfile}>
-            <IconImage src={HomeIcon} alt="프로필" />
+            <IconImage src={HomeIcon} alt="홈" />
           </IconButton>
         </ActionIcons>
       </Header>

@@ -205,6 +205,9 @@ function Post() {
   const [isOpen, setIsOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [myRegion, setMyRegion] = useState("");
+  const [searchResults, setSearchResults] = useState(null); // 검색 결과 상태 추가
+  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태 추가
+  const [isSearchActive, setIsSearchActive] = useState(false); // 검색 활성화 상태 추가
   const regionId = localStorage.getItem("selectedRegionId");
 
   const CATEGORY_MAP = {
@@ -217,6 +220,22 @@ function Post() {
     education: "EDUCATION",
     etc: "ETC",
   };
+
+  // 검색 결과가 전달되었는지 확인
+  useEffect(() => {
+    if (location.state?.searchResults) {
+      setSearchResults(location.state.searchResults);
+      setSearchTerm(location.state.searchTerm || "");
+      setIsSearchActive(true); // 검색 활성화
+    } else {
+      setSearchResults(null);
+      setSearchTerm("");
+      setIsSearchActive(false); // 검색 비활성화
+    }
+    
+    // 게시글 작성 완료 후 새로고침 신호는 더 이상 사용하지 않음
+    // window.location.reload()를 사용하여 페이지 전체를 새로고침
+  }, [location.state]);
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -270,13 +289,22 @@ function Post() {
       }
     };
 
-    loadPosts();
-  }, [category, regionId]);
+    // 검색 결과가 없을 때만 게시글을 로드
+    if (!searchResults) {
+      loadPosts();
+    }
+  }, [category, regionId, searchResults]);
 
-  const filteredPosts = posts;
+  // 검색 결과가 있으면 검색 결과를, 없으면 일반 게시글을 표시
+  const displayPosts = searchResults || posts;
+
+  // 디버깅용 로그
+  console.log('검색 결과:', searchResults);
+  console.log('일반 게시글:', posts);
+  console.log('표시할 게시글:', displayPosts);
 
   // 정렬
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
+  const sortedPosts = [...displayPosts].sort((a, b) => {
     if (sortType === "AI 추천순") return a.eventId - b.eventId;
     if (sortType === "조회수 높은 순") return b.viewCount - a.viewCount;
     if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
@@ -293,6 +321,22 @@ function Post() {
     setSortType(type);
     setIsOpen(false);
   };
+
+  // 지역 정보 클릭 시 검색 초기화 또는 지역 변경
+  const handleRegionClick = () => {
+    if (isSearchActive) {
+      // 검색이 활성화된 상태면 검색 초기화
+      setSearchResults(null);
+      setSearchTerm("");
+      setIsSearchActive(false);
+      // 검색 초기화 후 원래 메인화면으로 이동
+      navigate("/main", { replace: true });
+    } else {
+      // 검색이 비활성화된 상태면 지역 변경 페이지로 이동
+      navigate("/changeRegion");
+    }
+  };
+
   // Heart 클릭 함수
   const clickHeart = async (eventId) => {
     try {
@@ -311,6 +355,21 @@ function Post() {
             : post
         )
       );
+
+      // 검색 결과가 있을 때도 업데이트
+      if (searchResults) {
+        setSearchResults((prevResults) =>
+          prevResults.map((post) =>
+            post.eventId === eventId
+              ? {
+                  ...post,
+                  isHeartClicked: favorite,
+                  favoriteCount: favoriteCount,
+                }
+              : post
+          )
+        );
+      }
     } catch (error) {
       console.error("clickHeart 에러:", error);
     }
@@ -319,7 +378,7 @@ function Post() {
   return (
     <BoardContanier>
       <ToggleLoctionDiv>
-        <LocationDiv onClick={() => navigate("/changeRegion")}>
+        <LocationDiv onClick={handleRegionClick}>
           <LocationImg src={SetLocation} />
           <LocationP>우리 마을 {myRegion}</LocationP>
         </LocationDiv>
@@ -342,9 +401,30 @@ function Post() {
         </div>
       </ToggleLoctionDiv>
 
+      {/* 검색 결과 표시 */}
+      {searchResults && (
+        <SearchResultHeader>
+          <SearchResultText>"{searchTerm}" 검색 결과 {searchResults.length}개</SearchResultText>
+          <ClearSearchButton onClick={() => {
+            setSearchResults(null);
+            setSearchTerm("");
+            setIsSearchActive(false); // 검색 활성화 상태 비활성화
+            // 검색 초기화 후 원래 메인화면으로 이동
+            navigate("/main", { replace: true });
+          }}>
+            검색 초기화
+          </ClearSearchButton>
+        </SearchResultHeader>
+      )}
+
       <div>
         {sortedPosts.length === 0 ? (
-          <NoPostsMessage>여러분의 게시글을 공유해보세요</NoPostsMessage>
+          <NoPostsMessage>
+            {searchTerm.trim() 
+              ? `${searchTerm}에 대한 검색결과가 없습니다.`
+              : "여러분의 게시글을 공유해보세요"
+            }
+          </NoPostsMessage>
         ) : (
           sortedPosts.map((item) => {
             const now = dayjs();
@@ -436,6 +516,38 @@ const NoPostsMessage = styled.p`
   margin: 50px 0;
   font-size: 16px;
   color: #727c94;
+`;
+
+const SearchResultHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+`;
+
+const SearchResultText = styled.h3`
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+`;
+
+const ClearSearchButton = styled.button`
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #e9ecef;
+    color: #333;
+  }
 `;
 
 function MoveInterest() {
