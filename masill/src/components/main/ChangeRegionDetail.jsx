@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ArrowLeft from "@logo/bluearrowleft.svg";
 import ArrowRight from "@logo/bluearrowright.svg";
 import { getDistricts, getRegionId } from "../../api/userService";
+import { changeRegion } from "../../api/boardApi";
 
 const Container = styled.div`
   width: 100%;
@@ -271,22 +272,47 @@ export default function ChangeRegionDetail() {
     localStorage.setItem("selectedDistrict", district);
 
     try {
-      // 지역 ID 조회
       console.log("지역 ID 조회 시작:", { selectedRegion, district });
       const regionId = await getRegionId(selectedRegion, district);
       console.log("조회된 지역 ID:", regionId);
 
-      // 지역 ID도 저장
-      localStorage.setItem("selectedRegionId", regionId);
+      // currentUser 가져오기
+      let currentUser = null;
+      const raw = localStorage.getItem("currentUser");
+      if (raw) {
+        try {
+          currentUser = JSON.parse(raw);
 
-      // 1초 후 자동으로 다음 페이지로 이동
+          // 서버에 regionId 업데이트
+          const res = await changeRegion(regionId);
+          const updatedRegionId = res.data.regionId;
+
+          // localStorage에도 반영
+          currentUser.regionId = updatedRegionId;
+          localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        } catch (e) {
+          console.warn("[region] currentUser 파싱 실패, 재설정 시도", e);
+        }
+      } else {
+        // currentUser가 없을 경우 대비
+        const res = await changeRegion(regionId);
+        const updatedRegionId = res.data.regionId;
+
+        localStorage.setItem(
+          "currentUser",
+          JSON.stringify({ regionId: updatedRegionId })
+        );
+      }
+
+      // 1초 후 자동 이동
       setTimeout(() => {
         console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
         nav(-2);
       }, 1000);
     } catch (error) {
       console.error("지역 ID 조회 실패:", error);
-      // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
+
+      // 실패해도 이동
       setTimeout(() => {
         console.log("지역 ID 조회 실패, 기본값으로 이동:", district);
         nav(-2);

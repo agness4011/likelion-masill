@@ -205,8 +205,10 @@ function Post() {
   const [isOpen, setIsOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [myRegion, setMyRegion] = useState("");
-  const regionId = localStorage.getItem("selectedRegionId");
 
+  const regionId = JSON.parse(localStorage.getItem("currentUser"))?.regionId;
+  console.log("currentUser///////////", localStorage.getItem("currentUser"));
+  console.log("regionId//////////////////////////", regionId);
   const CATEGORY_MAP = {
     market: "FLEA_MARKET",
     art: "CULTURE_ART",
@@ -452,10 +454,10 @@ const BoardContanier = styled.div`
   margin-left: 24px;
 `;
 const PostWrapper = styled.div`
-  padding: 0 0 20px 0;
-  border-bottom: 1px solid #ddd;
+  padding: 0 0 8px 0;
   margin-top: 13px;
   cursor: pointer;
+  border-top: 2px solid var(--Gray-500, #c1cae0);
   &:hover {
     background-color: #fafafa;
   }
@@ -480,6 +482,7 @@ const ImageScrollWrapper = styled.div`
   overflow-x: auto;
   gap: 8px;
   padding-bottom: 4px;
+  margin-top: 20px;
 
   /* 스크롤바 스타일 (선택) */
   &::-webkit-scrollbar {

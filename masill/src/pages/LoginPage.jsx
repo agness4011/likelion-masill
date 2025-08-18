@@ -148,7 +148,7 @@ const InputField = styled.input`
   }
 
   &:focus {
-    border-bottom-color: #1B409C;
+    border-bottom-color: #1b409c;
   }
 `;
 
@@ -159,19 +159,19 @@ const LoginButton = styled.button`
   font-size: 18px;
   font-weight: 700;
   border: none;
-  background: #C1CAE0;
-  color: #727C94;
+  background: #c1cae0;
+  color: #727c94;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-bottom: 32px;
 
   &:hover {
-    background: #1B409C;
+    background: #1b409c;
     color: #fff;
   }
 
   &:active {
-    background: #1B409C;
+    background: #1b409c;
     color: #fff;
   }
 `;
@@ -199,7 +199,7 @@ const SocialDivider = styled.div`
     background: #fff;
     padding: 0 16px;
     font-size: 14px;
-    color: #727C94;
+    color: #727c94;
   }
 `;
 
@@ -244,12 +244,12 @@ const SignupSection = styled.div`
 
 const SignupText = styled.span`
   font-size: 14px;
-  color: #727C94;
+  color: #727c94;
 `;
 
 const SignupLink = styled.span`
   font-size: 14px;
-  color: #1B409C;
+  color: #1b409c;
   text-decoration: underline;
   cursor: pointer;
   margin-left: 5px;

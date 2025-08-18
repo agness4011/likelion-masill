@@ -320,10 +320,7 @@ export const SummaryImgSize = styled.img`
   width: 24px;
   height: 24px;
 `;
-export const DetailDiv = styled.div`
-  margin-left: 24px;
-  margin-top: 8px;
-`;
+export const DetailDiv = styled.div``;
 
 export const SummaryIcon = styled.img`
   width: 24px;
@@ -355,4 +352,382 @@ export const DetailText = styled.div`
   letter-spacing: 0.32px;
   white-space: pre-wrap; /* 줄바꿈 유지 */
   word-break: break-word; /* 긴 단어 줄바꿈 */
+`;
+
+export const KeyboardInput = styled.input`
+  display: flex;
+  padding: 6.294px 7px 6.294px 23px;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1 0 0;
+  border-radius: 31.471px;
+  background: #f4f7ff;
+  text-align: center;
+  /* 16 MID */
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
+  border: none;
+
+  color: black;
+  ::placeholder {
+    color: var(--Gray-900, #727c94);
+  }
+`;
+export const KeyboardDiv = styled.div`
+  display: flex;
+  padding: 8px 16.785px;
+  align-items: flex-start;
+  gap: 10.49px;
+  background: #fff;
+`;
+export const KeyboardBtn = styled.img`
+  width: 40.78px;
+  height: 40.78px;
+  cursor: pointer;
+`;
+export const CommentUserImg = styled.img`
+  width: 51px;
+  height: 51px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  cursor: pointer;
+`;
+export const CommentUserName = styled.p`
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  color: var(--Dark-Text, #060d1d);
+  text-overflow: ellipsis;
+  /* SUB BIG BOLD */
+  font-family: Pretendard;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 140%; /* 19.6px */
+  letter-spacing: 0.28px;
+`;
+export const CommentContent = styled.p`
+  display: -webkit-box;
+  max-width: 254px;
+  min-height: 30px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--Dark-Text, #060d1d);
+  text-overflow: ellipsis;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 16.8px */
+  margin: 0;
+`;
+export const CommentWriteTime = styled.span`
+  color: var(--Gray-700, #959eb7);
+  /* SUB MID */
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%; /* 14.4px */
+  letter-spacing: 0.12px;
+`;
+export const AdditionReply = styled.p`
+  color: var(--Gray-700, #959eb7);
+  /* SUB BOLD */
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%; /* 14.4px */
+  letter-spacing: 0.12px;
+  cursor: pointer;
+  margin: 0;
+`;
+export const ShowReply = styled.div`
+  color: var(--Gray-700, #959eb7);
+  /* SUB BOLD */
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%; /* 14.4px */
+  letter-spacing: 0.12px;
+  margin: 0;
+
+  cursor: pointer;
+  display: flex; /* 텍스트와 아이콘을 가로 배치 */
+  align-items: center; /* 세로 중앙 정렬 */
+`;
+export const ReplyKeyboard = styled.input`
+  display: flex;
+  padding: 6.294px 7px 6.294px 23px;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1 0 0;
+  border-radius: 31.471px;
+  background: #f4f7ff;
+  text-align: center;
+  /* 16 MID */
+  font-family: Pretendard;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
+  border: none;
+
+  color: black;
+  ::placeholder {
+    color: var(--Gray-900, #727c94);
+  }
+`;
+export const ReplyKeyboardDiv = styled.div`
+  display: flex;
+  padding: 8px 16.785px;
+  align-items: flex-start;
+  gap: 5.49px;
+  background: #fff;
+  max-width: 330px;
+`;
+export const ReplyKeyboardBtn = styled.img`
+  width: 20.78px;
+  height: 20.78px;
+  cursor: pointer;
+`;
+export const ModalBackground = styled.div`
+  background: rgba(114, 124, 148, 0.8);
+  position: absolute; /* 부모(DetailBoard) 기준 */
+  top: 0;
+  left: 0;
+  width: 100%; /* 부모 전체 */
+  height: 100%; /* 부모 전체 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100; /* 다른 요소 위로 */
+`;
+
+export const ModalTitle = styled.p`
+  color: var(--, #1b409c);
+  /* SUB BIGEST */
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
+`;
+export const ModalContainer = styled.div`
+  width: 393px;
+  height: 297px;
+  border-radius: 18px 18px 0 0;
+  background: var(--BG, #fbfcff);
+  text-align: center;
+  z-index: 20;
+`;
+export const ModalProfile = styled.img`
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+`;
+export const ProfileP = styled.p`
+  color: var(--Gray-900, #727c94);
+  /* SUB MID */
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%; /* 14.4px */
+  letter-spacing: 0.12px;
+`;
+export const ProfileNickName = styled.p`
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  color: var(--Dark-Text, #060d1d);
+  text-overflow: ellipsis;
+  font-family: Pretendard;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 110%; /* 24.2px */
+  letter-spacing: 0.44px;
+`;
+export const Close = styled.button`
+  display: flex;
+  width: 168px;
+  height: 50px;
+  padding: 12px 18px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  background: var(--Blur-gary-400, #cddbff);
+  color: var(--Gray-900, #727c94);
+  /* Button 01 */
+  font-family: Pretendard;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%; /* 25.2px */
+  letter-spacing: 0.36px;
+`;
+
+export const GoChat = styled.button`
+  display: flex;
+  width: 168px;
+  height: 50px;
+  padding: 12px 18px;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  background: var(--Primary, #1b409c);
+  color: #fff;
+
+  /* Button 01 */
+  font-family: Pretendard;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%; /* 25.2px */
+  letter-spacing: 0.36px;
+`;
+export const GoChatImg = styled.img`
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+`;
+
+export const GroupEventID = styled.p`
+  overflow: hidden;
+  color: var(--Gray-900, #727c94);
+  text-overflow: ellipsis;
+  font-family: Pretendard;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 12px */
+  letter-spacing: -0.1px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+`;
+export const GroupTitle = styled.p`
+  overflow: hidden;
+  color: var(--Dark-Text, #060d1d);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* SUB BIGEST */
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
+
+  display: -webkit-box;
+  max-width: 160px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+`;
+
+export const MakeGroupBtn = styled.button`
+  display: flex; /* 텍스트와 아이콘을 가로 배치 */
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center; /* 필요하면 가운데 정렬 */
+  width: 120px;
+  height: 34px;
+  padding: 2px 12px 2px 13px;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border-radius: 24px;
+  border: 1px solid var(--PrimaryColor, #1b409c);
+  color: var(--Dark-Text, #060d1d);
+  /* SUB BIG BOLD */
+  font-family: Pretendard;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 140%; /* 19.6px */
+  letter-spacing: 0.28px;
+  cursor: pointer;
+`;
+
+export const MakeGroupImg = styled.img`
+  width: 18.417px;
+  height: 17px;
+  flex-shrink: 0;
+`;
+
+export const GroupHeart = styled.img`
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+`;
+
+export const GroupSummary = styled.p`
+  display: -webkit-box;
+  max-width: 225px;
+  min-height: 30px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--Gray-900, #727c94);
+  text-overflow: ellipsis;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%; /* 16.8px */
+`;
+export const GroupMainImage = styled.img`
+  width: 106px;
+  height: 106px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: url(<path-to-image>) lightgray 50% / cover no-repeat;
+`;
+export const GroupComponent = styled.div`
+  cursor: pointer;
+  border-bottom: 0.5px solid var(--Gray-500, #c1cae0);
+  border-top: 0.5px solid var(--Gray-500, #c1cae0);
+`;
+export const GroupCommentImg = styled.img`
+  display: flex;
+  width: 15.583px;
+  height: 15.583px;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+`;
+export const GroupCommentNum = styled.p`
+  color: var(--Gray-900, #727c94);
+  text-align: right;
+  /* SUB Text 01 */
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 14.4px */
+  letter-spacing: -0.12px;
+`;
+export const LowWrapper = styled.div`
+  margin-left: 24px;
+  margin-top: 10px;
 `;
