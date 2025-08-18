@@ -205,12 +205,10 @@ function Post() {
   const [isOpen, setIsOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [myRegion, setMyRegion] = useState("");
-  
+
   const [searchResults, setSearchResults] = useState(null); // 검색 결과 상태 추가
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태 추가
   const [isSearchActive, setIsSearchActive] = useState(false); // 검색 활성화 상태 추가
-  const regionId = localStorage.getItem("selectedRegionId");
-
 
   const regionId = JSON.parse(localStorage.getItem("currentUser"))?.regionId;
   console.log("currentUser///////////", localStorage.getItem("currentUser"));
@@ -237,7 +235,7 @@ function Post() {
       setSearchTerm("");
       setIsSearchActive(false); // 검색 비활성화
     }
-    
+
     // 게시글 작성 완료 후 새로고침 신호는 더 이상 사용하지 않음
     // window.location.reload()를 사용하여 페이지 전체를 새로고침
   }, [location.state]);
@@ -304,9 +302,9 @@ function Post() {
   const displayPosts = searchResults || posts;
 
   // 디버깅용 로그
-  console.log('검색 결과:', searchResults);
-  console.log('일반 게시글:', posts);
-  console.log('표시할 게시글:', displayPosts);
+  console.log("검색 결과:", searchResults);
+  console.log("일반 게시글:", posts);
+  console.log("표시할 게시글:", displayPosts);
 
   // 정렬
   const sortedPosts = [...displayPosts].sort((a, b) => {
@@ -409,14 +407,18 @@ function Post() {
       {/* 검색 결과 표시 */}
       {searchResults && (
         <SearchResultHeader>
-          <SearchResultText>"{searchTerm}" 검색 결과 {searchResults.length}개</SearchResultText>
-          <ClearSearchButton onClick={() => {
-            setSearchResults(null);
-            setSearchTerm("");
-            setIsSearchActive(false); // 검색 활성화 상태 비활성화
-            // 검색 초기화 후 원래 메인화면으로 이동
-            navigate("/main", { replace: true });
-          }}>
+          <SearchResultText>
+            "{searchTerm}" 검색 결과 {searchResults.length}개
+          </SearchResultText>
+          <ClearSearchButton
+            onClick={() => {
+              setSearchResults(null);
+              setSearchTerm("");
+              setIsSearchActive(false); // 검색 활성화 상태 비활성화
+              // 검색 초기화 후 원래 메인화면으로 이동
+              navigate("/main", { replace: true });
+            }}
+          >
             검색 초기화
           </ClearSearchButton>
         </SearchResultHeader>
@@ -425,10 +427,9 @@ function Post() {
       <div>
         {sortedPosts.length === 0 ? (
           <NoPostsMessage>
-            {searchTerm.trim() 
+            {searchTerm.trim()
               ? `${searchTerm}에 대한 검색결과가 없습니다.`
-              : "여러분의 게시글을 공유해보세요"
-            }
+              : "여러분의 게시글을 공유해보세요"}
           </NoPostsMessage>
         ) : (
           sortedPosts.map((item) => {
@@ -548,7 +549,7 @@ const ClearSearchButton = styled.button`
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
-  
+
   &:hover {
     background: #e9ecef;
     color: #333;
