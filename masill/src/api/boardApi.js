@@ -2,6 +2,57 @@ import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 
 /* --- API 호출 --- */
 
+export const smallGroupDetail = async (eventId, clubId) => {
+  try {
+    const res = await publicAPI.get(`/events/${eventId}/clubs/${clubId}`);
+    return res.data.data; // data 전체 반환
+  } catch (error) {
+    console.error("소모임 상세 조회 실패", error);
+    throw error;
+  }
+};
+
+export const smallGroupDetailImg = async (eventId, clubId) => {
+  try {
+    const res = await privateAPI.get(`/events/${eventId}/clubs/${clubId}`);
+    return res.data.data; // data 전체 반환
+  } catch (error) {
+    console.error("이벤트 이미지 조회 실패", error);
+    throw error;
+  }
+};
+
+export const smallFavorite = async (eventId, clubId) => {
+  try {
+    const res = await privateAPI.post(
+      `/events/${eventId}/clubs/${clubId}/favorites`
+    );
+    return res.data.data; // 서버에서 내려주는 favorite, favoriteCount 포함
+  } catch (error) {
+    console.error("좋아요 요청 실패", error);
+    throw error;
+  }
+};
+
+export const fetchSmallGroup = async (
+  eventId,
+  page = 1,
+  size = 20,
+  sortBy = "createdAt",
+  sortDir = "desc"
+) => {
+  try {
+    console.log(`GET 요청: /events/${eventId}/clubs/all`);
+    const res = await privateAPI.get(`/events/${eventId}/clubs/all`, {
+      params: { eventId, page, size, sortBy, sortDir },
+    });
+    return res.data; // res.data 안에 content 배열이 있는지 확인
+  } catch (error) {
+    console.error("게시물 불러오기 실패:", error);
+    throw error;
+  }
+};
+
 export const addReply = async (eventId, commentId, content) => {
   try {
     const res = await privateAPI.post(

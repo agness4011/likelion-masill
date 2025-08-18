@@ -311,10 +311,10 @@ function Post() {
   // 정렬
   const sortedPosts = [...displayPosts].sort((a, b) => {
     if (sortType === "AI 추천순") return a.eventId - b.eventId;
-    if (sortType === "조회수 높은 순") return b.viewCount - a.viewCount;
+    if (sortType === "댓글순") return b.commentCount - a.commentCount;
     if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
     if (sortType === "날짜순")
-      return dayjs(b.startAt).valueOf() - dayjs(a.startAt).valueOf();
+      return dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf();
     return 0;
   });
 

@@ -6,6 +6,7 @@ export default function DetailBoardPage() {
 
   return (
     <DetailBoard style={{ position: "relative" }}>
+      <div id="modal-root" style={{ position: "absolute", inset: 0 }}></div>
       <div style={{ position: "relative" }}>
         <DetailBoard.High>
           <DetailBoard.ShowImage />

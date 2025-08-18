@@ -24,12 +24,9 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import styled from "styled-components";
-
-import { eventData } from "../../dummy/datas";
-import { chatDat } from "../../dummy/chat";
 import {
-  detailBoard,
-  detailImg,
+  smallGroupDetail,
+  smallGroupDetailImg,
   commentBoards,
   addComment,
   showReplies,
@@ -111,7 +108,7 @@ import {
   ModalMain,
 } from "./Detail.styled";
 
-export default function DetailBoard({ children }) {
+export default function SmallGroup({ children }) {
   return <div>{children}</div>;
 }
 
@@ -120,7 +117,7 @@ function Hight({ children }) {
 }
 
 function ShowImage() {
-  const { eventId } = useParams();
+  const { eventId, clubId } = useParams();
   const [event, setEvent] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -128,7 +125,7 @@ function ShowImage() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await detailImg(eventId);
+        const res = await smallGroupDetailImg(eventId, clubId);
         setEvent(res.data); // API 데이터 중 data만 가져오기
       } catch (error) {
         console.error("이벤트 조회 실패", error);
@@ -137,7 +134,7 @@ function ShowImage() {
       }
     };
     fetchEvent();
-  }, [eventId]);
+  }, [eventId, clubId]);
 
   if (loading) return <p>로딩 중...</p>;
   if (!event) return <p>이벤트를 찾을 수 없습니다.</p>;
@@ -192,19 +189,18 @@ function LowBody({ children }) {
   return <div>{children}</div>;
 }
 function BodyTop() {
-  const { eventId } = useParams(); // URL에서 eventId 가져오기
+  const { eventId, clubId } = useParams(); // URL에서 eventId 가져오기
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const data = await detailBoard(eventId); // API 호출
+        const data = await smallGroupDetail(eventId, clubId);
+        // API 호출
         setEvent(data); // API에서 받아온 이벤트 데이터 저장
         console.log("title", data.title);
-        console.log("eventType", data.eventType);
-        console.log("location", data.location);
-        console.log("favoriteCount", data.favoriteCount);
+        console.log("eventType", data.content);
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -212,7 +208,7 @@ function BodyTop() {
       }
     };
     fetchEvent();
-  }, [eventId]);
+  }, [eventId, clubId]);
 
   if (loading) return <p>로딩 중...</p>;
   if (!event) return <p>이벤트를 찾을 수 없습니다.</p>;
@@ -325,7 +321,6 @@ function TabMenu({ activeTab, setActiveTab }) {
   const tabs = [
     { name: "내용", icon: ContentsImg, activeIcon: OnContentsImg },
     { name: "댓글", icon: CommentImg, activeIcon: OnCommentImg },
-    { name: "마실 모임", icon: GroupImg, activeIcon: OnGroupImg },
   ];
 
   return (
@@ -730,139 +725,16 @@ function ChatModal({ user, onClose }) {
   );
 }
 
-function Group() {
-  const { eventId } = useParams();
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [eventTitle, setEventTitle] = useState("");
-  const navigate = useNavigate(); // navigate 추가
-
-  useEffect(() => {
-    const loadGroups = async () => {
-      try {
-        const res = await fetchSmallGroup(eventId);
-        if (res?.data?.content) {
-          setGroups(res.data.content);
-        } else {
-          setGroups([]);
-        }
-      } catch (error) {
-        console.error("소모임 불러오기 실패:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchEvent = async () => {
-      try {
-        const data = await detailBoard(eventId);
-        setEventTitle(data.title);
-      } catch (error) {
-        console.error("이벤트 title 조회 실패", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvent();
-    loadGroups();
-  }, [eventId]);
-
-  const clickHeart = async (e, clubId) => {
-    e.stopPropagation(); // 부모 클릭 전파 방지
-    try {
-      const res = await smallFavorite(eventId, clubId);
-      setGroups((prevGroups) =>
-        prevGroups.map((group) =>
-          group.clubId === clubId
-            ? {
-                ...group,
-                liked: res.favorite,
-                favoriteCount: res.favoriteCount,
-              }
-            : group
-        )
-      );
-    } catch (error) {
-      console.error("좋아요 실패:", error);
-    }
-  };
-
-  return (
-    <div>
-      <MakeGroupBtn onClick={() => navigate("/writeSmallGroup")}>
-        모임 만들기
-        <MakeGroupImg src={GroupImg} />
-      </MakeGroupBtn>
-
-      <div>
-        {loading ? (
-          <p>소모임을 불러오는 중...</p>
-        ) : groups.length > 0 ? (
-          groups.map((group) => (
-            <GroupComponent
-              key={group.clubId}
-              onClick={() =>
-                navigate(`/detail/${eventId}/clubId/${group.clubId}`)
-              }
-            >
-              <GroupMainImage src={group.coverImage} alt="cover" />
-              <GroupRight>
-                {/* 상단 영역 */}
-                <GroupTopRow>
-                  <GroupUserAndText>
-                    <GroupUserImg src={group.userImage} alt="user" />
-                    <GroupTextBox>
-                      <GroupEventID>{eventTitle}</GroupEventID>
-                      <GroupTitle>{group.title}</GroupTitle>
-                    </GroupTextBox>
-                  </GroupUserAndText>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    <GroupHeart
-                      src={group.liked ? FullHeart : Heart}
-                      alt="heart"
-                      onClick={(e) => clickHeart(e, group.clubId)}
-                      style={{ cursor: "pointer" }}
-                    />
-                    <span>{group.favoriteCount}</span>
-                  </div>
-                </GroupTopRow>
-
-                {/* 중단 영역 */}
-                <GroupSummary>{group.content}</GroupSummary>
-
-                {/* 하단 영역 */}
-                <GroupBottomRow>
-                  <GroupCommentImg src={CommentImg} alt="comment" />
-                  <GroupCommentNum>{group.commentCount}</GroupCommentNum>
-                </GroupBottomRow>
-              </GroupRight>
-            </GroupComponent>
-          ))
-        ) : (
-          <p>아직 등록된 소모임이 없습니다.</p>
-        )}
-      </div>
-    </div>
-  );
-}
-DetailBoard.ChatModal = ChatModal;
-DetailBoard.LowCopoments = LowCopoments;
-DetailBoard.DetailContent = DetailContent;
-DetailBoard.BodyTop = BodyTop;
-DetailBoard.LowBody = LowBody;
-DetailBoard.Low = Low;
-DetailBoard.UserChat = UserChat;
-DetailBoard.High = Hight;
-DetailBoard.LowHead = LowHead;
-DetailBoard.ShowImage = ShowImage;
-DetailBoard.BodyMiddle = BodyMiddle;
-DetailBoard.MiddleWho = MiddleWho;
-DetailBoard.TabMenu = TabMenu;
-DetailBoard.Group = Group;
+SmallGroup.ChatModal = ChatModal;
+SmallGroup.LowCopoments = LowCopoments;
+SmallGroup.DetailContent = DetailContent;
+SmallGroup.BodyTop = BodyTop;
+SmallGroup.LowBody = LowBody;
+SmallGroup.Low = Low;
+SmallGroup.UserChat = UserChat;
+SmallGroup.High = Hight;
+SmallGroup.LowHead = LowHead;
+SmallGroup.ShowImage = ShowImage;
+SmallGroup.BodyMiddle = BodyMiddle;
+SmallGroup.MiddleWho = MiddleWho;
+SmallGroup.TabMenu = TabMenu;

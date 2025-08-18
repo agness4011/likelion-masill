@@ -502,15 +502,15 @@ export const ReplyKeyboardBtn = styled.img`
 `;
 export const ModalBackground = styled.div`
   background: rgba(114, 124, 148, 0.8);
-  position: absolute; /* 부모(DetailBoard) 기준 */
+  position: absolute; /* 이제 body가 아니라 modal-root 기준 */
   top: 0;
   left: 0;
-  width: 100%; /* 부모 전체 */
-  height: 100%; /* 부모 전체 */
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100; /* 다른 요소 위로 */
+  z-index: 100;
 `;
 
 export const ModalTitle = styled.p`
@@ -524,12 +524,22 @@ export const ModalTitle = styled.p`
   letter-spacing: 0.32px;
 `;
 export const ModalContainer = styled.div`
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%); /* 가운데 정렬 */
   width: 393px;
   height: 297px;
   border-radius: 18px 18px 0 0;
   background: var(--BG, #fbfcff);
   text-align: center;
   z-index: 20;
+`;
+export const BorderLine = styled.div`
+  border-bottom: 1px solid var(--Gray-500, #c1cae0);
+`;
+export const ModalMain = styled.div`
+  margin-top: 20px;
 `;
 export const ModalProfile = styled.img`
   width: 90px;
@@ -561,6 +571,7 @@ export const ProfileNickName = styled.p`
   font-weight: 600;
   line-height: 110%; /* 24.2px */
   letter-spacing: 0.44px;
+  margin: 0px;
 `;
 export const Close = styled.button`
   display: flex;
@@ -609,6 +620,13 @@ export const GoChatImg = styled.img`
   height: 24px;
   flex-shrink: 0;
 `;
+export const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px; /* 버튼 사이 간격 */
+  margin-top: 16px;
+`;
 
 export const GroupEventID = styled.p`
   overflow: hidden;
@@ -623,6 +641,7 @@ export const GroupEventID = styled.p`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  margin: 0;
 `;
 export const GroupTitle = styled.p`
   overflow: hidden;
@@ -641,6 +660,7 @@ export const GroupTitle = styled.p`
   max-width: 160px;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  margin: 0;
 `;
 
 export const MakeGroupBtn = styled.button`
@@ -678,34 +698,8 @@ export const GroupHeart = styled.img`
   height: 22px;
   flex-shrink: 0;
   aspect-ratio: 1/1;
-`;
-
-export const GroupSummary = styled.p`
-  display: -webkit-box;
-  max-width: 225px;
-  min-height: 30px;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  color: var(--Gray-900, #727c94);
-  text-overflow: ellipsis;
-  font-family: Pretendard;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 120%; /* 16.8px */
-`;
-export const GroupMainImage = styled.img`
-  width: 106px;
-  height: 106px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  background: url(<path-to-image>) lightgray 50% / cover no-repeat;
-`;
-export const GroupComponent = styled.div`
+  margin-left: 14px;
   cursor: pointer;
-  border-bottom: 0.5px solid var(--Gray-500, #c1cae0);
-  border-top: 0.5px solid var(--Gray-500, #c1cae0);
 `;
 export const GroupCommentImg = styled.img`
   display: flex;
@@ -726,6 +720,78 @@ export const GroupCommentNum = styled.p`
   font-weight: 400;
   line-height: 120%; /* 14.4px */
   letter-spacing: -0.12px;
+  margin: 0;
+`;
+export const GroupUserImg = styled.img`
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+`;
+export const GroupComponent = styled.div`
+  display: flex; /* 메인이미지 왼쪽, 나머지 오른쪽 */
+  gap: 12px;
+  padding: 12px 0;
+  cursor: pointer;
+  border-bottom: 0.5px solid var(--Gray-500, #c1cae0);
+  border-top: 0.5px solid var(--Gray-500, #c1cae0);
+`;
+
+export const GroupMainImage = styled.img`
+  width: 106px;
+  height: 106px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  object-fit: cover;
+`;
+
+export const GroupRight = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1; /* 오른쪽 공간 꽉 채우기 */
+`;
+
+/* 상단: 유저 이미지 + (이벤트id/제목) + 하트 */
+export const GroupTopRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽: 유저+텍스트 / 오른쪽: 하트 */
+`;
+
+export const GroupUserAndText = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const GroupTextBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+export const GroupSummary = styled.p`
+  margin-top: 6px;
+  margin-bottom: 6px;
+  display: -webkit-box;
+  max-width: 225px;
+  min-height: 30px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--Gray-900, #727c94);
+  text-overflow: ellipsis;
+  font-family: Pretendard;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%;
+`;
+
+export const GroupBottomRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px; /* 댓글 이미지와 숫자 간격 */
 `;
 export const LowWrapper = styled.div`
   margin-left: 24px;
