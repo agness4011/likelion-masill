@@ -9,7 +9,7 @@ import Heart from '@assets/logo/mainImg/Heart.png';
 import Comment from '@assets/logo/mainImg/commant.png';
 import PromotionIcon from '@logo/myhome/promotion.svg';
 import dayjs from 'dayjs';
-import { fetchAllBoards } from '../../api/boardApi';
+import { fetchMyPosts } from '../../api/boardApi';
 import {
   BoardTitleH1,
   BoardLocationP,
@@ -222,14 +222,19 @@ const MyPostsPage = () => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const res = await fetchAllBoards();
-        console.log("전체 게시글:", res);
+        const res = await fetchMyPosts();
+        console.log("내가 작성한 게시글:", res);
+        console.log("내가 작성한 게시글 데이터 구조:", JSON.stringify(res, null, 2));
 
         // 실제 데이터 구조에 맞게 접근
         const content = res?.data?.content || [];
+        console.log("내가 작성한 게시글 content:", content);
+        if (content.length > 0) {
+          console.log("첫 번째 게시글 구조:", content[0]);
+        }
         setPosts(content);
       } catch (err) {
-        console.error("게시물 불러오기 실패", err);
+        console.error("내가 작성한 게시물 불러오기 실패", err);
         setError(err);
       } finally {
         setLoading(false);
@@ -246,8 +251,14 @@ const MyPostsPage = () => {
     return likes.toString();
   };
 
-  const handlePostClick = (eventId) => {
-    navigate(`/detail/${eventId}`);
+  const handlePostClick = (post) => {
+    // eventId 또는 postId 중 존재하는 것을 사용
+    const id = post.eventId || post.postId || post.id;
+    if (id) {
+      navigate(`/detail/${id}`);
+    } else {
+      console.error('게시글 ID를 찾을 수 없습니다:', post);
+    }
   };
 
   if (loading) {
@@ -304,7 +315,7 @@ const MyPostsPage = () => {
           <div style={{ padding: '0 24px 0 16px' }}>
             {posts.map((post, index) => (
               <React.Fragment key={post.eventId}>
-                <PostCard onClick={() => handlePostClick(post.eventId)}>
+                <PostCard onClick={() => handlePostClick(post)}>
                   <ImageScrollWrapper>
                     {Array.isArray(post.images) && post.images.length > 0 ? (
                       post.images.map((image, idx) => (

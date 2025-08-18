@@ -5,13 +5,20 @@ import ArrowLeftIcon from '@assets/logo/main/main-arrowleft.svg';
 import BirdIcon from '@logo/bird.svg';
 import SearchIcon from '@logo/search/searchicon.svg';
 import SearchArrowRight from '@logo/search/search-arrowright.svg';
+import { fetchAllBoards, fetchAllBoardsForSearch } from '../../api/boardApi';
+import dayjs from 'dayjs';
+import Fullheart from '@logo/mainImg/fullheart.png';
+import Heart from '@logo/mainImg/Heart.png';
+import Comment from '@logo/mainImg/commant.png';
+import SetLocation from '@logo/mainImg/set.png';
+import Recommand from '@logo/mainImg/recommand.png';
 
 const Container = styled.div`
-  height: 100vh;
+  height: 100%;
   background: white;
   padding: 0;
   margin: 0;
-  overflow: hidden; /* 스크롤 방지 */
+  overflow-y: scroll; /* 스크롤 방지 */
   display: flex;
   flex-direction: column;
 `;
@@ -172,12 +179,12 @@ const RecommendationSection = styled.div`
 
 const BirdContainer = styled.div`
   position: absolute;
-  left: 40px;
+  left: 34px;
   bottom: -50px;
   z-index: 1;
 `;
 
-const BirdImage = styled.img`
+const RecommendationBirdImage = styled.img`
   width: 125px;
   height: 250px;
   margin-left: -55px;
@@ -187,7 +194,7 @@ const BirdImage = styled.img`
 const RecommendationBubbles = styled.div`
   position: absolute;
   right: 120px;
-  left: 100px;
+  left: 85px;
   bottom: 50px;
   display: flex;
   flex-direction: column;
@@ -231,19 +238,253 @@ const ArrowIcon = styled.img`
   height: 16px;
 `;
 
-// 더미 데이터
-const recentSearches = [
-  "성북 청년의 날 행사",
-  "세계음식축제",
-  "이마트24 서경대점",
-  "수유리 우동집"
-];
+const SearchResultsContainer = styled.div`
+  margin-top: 20px;
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const SearchKeywordDisplay = styled.div`
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #666;
+  border-left: 4px solid #007AFF;
+`;
+
+const SearchKeywordText = styled.span`
+  font-weight: bold;
+  color: #007bff;
+`;
+
+const NoResultsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  text-align: center;
+`;
+
+const NoResultsMessage = styled.div`
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 40px;
+  line-height: 1.5;
+`;
+
+const BirdsContainer = styled.div`
+  position: relative;
+  width: 200px;
+  height: 150px;
+  margin-bottom: 40px;
+`;
+
+const NoResultsBirdImage = styled.img`
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  
+  &:first-child {
+    top: 0;
+    left: 20px;
+  }
+  
+  &:last-child {
+    bottom: 0;
+    right: 20px;
+    transform: rotate(-15deg);
+  }
+`;
+
+// 메인화면과 동일한 게시글 스타일
+const PostWrapper = styled.div`
+  padding: 0 0 20px 0;
+  border-bottom: 1px solid #ddd;
+  margin-top: 13px;
+  cursor: pointer;
+  &:hover {
+    background-color: #fafafa;
+  }
+  width: 380px;
+`;
+
+const ImageScrollWrapper = styled.div`
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  padding-bottom: 4px;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+`;
+
+const BoardImage = styled.img`
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  gap: 4px;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 12px;
+`;
+
+const LeftContent = styled.div`
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+`;
+
+const MemberLogo = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+`;
+
+const TextInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const BoardTitleH1 = styled.h1`
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const BoardLocationP = styled.p`
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #666;
+`;
+
+const BoardDateP = styled.p`
+  margin: 0;
+  font-size: 12px;
+  color: #999;
+`;
+
+const RightContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+`;
+
+const HeartArea = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+`;
+
+const CommentArea = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const TextStyle = styled.span`
+  font-size: 12px;
+  color: #666;
+`;
+
+const HeartImg = styled.img`
+  width: 24px;
+  height: 24px;
+`;
+
+const CommentImg = styled.img`
+  width: 20px;
+  height: 20px;
+`;
+
+// 더미 데이터 제거
+// const recentSearches = [
+//   "성북 청년의 날 행사",
+//   "세계음식축제",
+//   "이마트24 서경대점",
+//   "수유리 우동집"
+// ];
 
 const SearchPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
-  const [searches, setSearches] = useState(recentSearches);
+  const [searches, setSearches] = useState([]); // 빈 배열로 시작
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [allPosts, setAllPosts] = useState([]); // 실제 API 데이터
+
+  // localStorage에서 검색 기록 불러오기
+  useEffect(() => {
+    const savedSearches = localStorage.getItem('recentSearches');
+    if (savedSearches) {
+      try {
+        setSearches(JSON.parse(savedSearches));
+      } catch (error) {
+        console.error('검색 기록 불러오기 실패:', error);
+        setSearches([]);
+      }
+    }
+  }, []);
+
+  // API에서 모든 게시글 데이터 가져오기
+  useEffect(() => {
+    const loadAllPosts = async () => {
+      try {
+        // 사용자의 현재 지역 ID 가져오기
+        const currentRegionId = localStorage.getItem('selectedRegionId');
+        console.log('현재 지역 ID:', currentRegionId);
+        
+        // 현재 지역의 게시글을 더 많이 가져오기 (size를 100으로 증가)
+        const res = await fetchAllBoards(currentRegionId, 1, 100);
+        const posts = res?.data?.content || [];
+        console.log('로드된 게시글 데이터:', posts);
+        console.log('게시글 개수:', posts.length);
+        
+        // 각 게시글의 구조 확인
+        if (posts.length > 0) {
+          console.log('첫 번째 게시글 구조:', posts[0]);
+        }
+        
+        setAllPosts(posts);
+      } catch (error) {
+        console.error('게시글 데이터 로드 실패:', error);
+        setAllPosts([]);
+      }
+    };
+
+    loadAllPosts();
+  }, []);
+
+  // 검색 기록을 localStorage에 저장하는 함수
+  const saveSearchesToStorage = (newSearches) => {
+    try {
+      localStorage.setItem('recentSearches', JSON.stringify(newSearches));
+    } catch (error) {
+      console.error('검색 기록 저장 실패:', error);
+    }
+  };
 
   // MainPage에서 전달받은 검색어 처리
   useEffect(() => {
@@ -252,24 +493,118 @@ const SearchPage = () => {
     }
   }, [location.state]);
 
+  // 검색 함수
+  const performSearch = (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      // If query is empty, still navigate to main to clear previous search
+      navigate('/main', { 
+        state: { 
+          searchResults: [],
+          searchTerm: '' 
+        } 
+      });
+      return;
+    }
+
+    setIsSearching(true);
+    
+    console.log('검색 시작:', query);
+    console.log('검색할 데이터:', allPosts);
+    console.log('데이터 개수:', allPosts.length);
+    
+    // 실제 API 데이터에서 검색
+    const searchQuery = query.toLowerCase();
+    const results = allPosts.filter(post => {
+      const title = (post.title || '').toLowerCase();
+      const location = (post.location || '').toLowerCase();
+      const detailLocation = (post.detailLocation || '').toLowerCase();
+      const content = (post.content || '').toLowerCase();
+      
+      const titleMatch = title.includes(searchQuery);
+      const locationMatch = location.includes(searchQuery);
+      const detailLocationMatch = detailLocation.includes(searchQuery);
+      const contentMatch = content.includes(searchQuery);
+      
+      const isMatch = titleMatch || locationMatch || detailLocationMatch || contentMatch;
+      
+      if (isMatch) {
+        console.log('매칭된 게시글:', {
+          title: post.title,
+          location: post.location,
+          detailLocation: post.detailLocation,
+          content: post.content?.substring(0, 50) + '...'
+        });
+      }
+      
+      return isMatch;
+    });
+    
+    console.log('검색 결과 개수:', results.length);
+    console.log('검색 결과:', results);
+    
+    setSearchResults(results);
+    setIsSearching(false);
+    
+    // 검색어를 최근 검색에 추가
+    if (query.trim()) {
+      setSearches(prev => {
+        const newSearches = [query.trim(), ...prev.filter(search => search !== query.trim())];
+        const finalSearches = newSearches.slice(0, 10);
+        saveSearchesToStorage(finalSearches);
+        return finalSearches;
+      });
+    }
+
+    // 검색 결과가 있으면 바로 메인화면으로 이동
+    if (results.length > 0) {
+      navigate('/main', { 
+        state: { 
+          searchResults: results,
+          searchTerm: query 
+        } 
+      });
+    } else {
+      // 검색 결과가 없어도 메인화면으로 이동 (빈 결과 표시)
+      navigate('/main', { 
+        state: { 
+          searchResults: [],
+          searchTerm: query 
+        } 
+      });
+    }
+  };
+
   const handleDeleteSearch = (index) => {
-    setSearches(prev => prev.filter((_, i) => i !== index));
+    const newSearches = searches.filter((_, i) => i !== index);
+    setSearches(newSearches);
+    saveSearchesToStorage(newSearches);
   };
 
   const handleDeleteAll = () => {
     setSearches([]);
+    saveSearchesToStorage([]);
   };
 
   const handleSearch = (e) => {
     if (e.key === 'Enter' && searchTerm.trim()) {
-      // 검색 실행 로직
-      console.log('검색:', searchTerm);
+      performSearch(searchTerm);
+    }
+  };
+
+  const handleSearchIconClick = () => {
+    if (searchTerm.trim()) {
+      performSearch(searchTerm);
     }
   };
 
   const handleRecommendation = () => {
-    // masill_bird 채팅방으로 이동
     navigate('/chat/7');
+  };
+
+  const handleResultClick = (eventId) => {
+    navigate(`/detail/${eventId}`);
   };
 
   return (
@@ -287,44 +622,175 @@ const SearchPage = () => {
             onKeyDown={handleSearch}
           />
           <SearchIconWrapper>
-            <SearchIconImage src={SearchIcon} alt="검색" />
+            <SearchIconImage 
+              src={SearchIcon} 
+              alt="검색" 
+              onClick={handleSearchIconClick}
+              style={{ cursor: 'pointer' }}
+            />
           </SearchIconWrapper>
         </SearchContainer>
       </Header>
 
       <Content>
-        <RecentSearches>
-          <SectionHeader>
-            <SectionTitle>최근 검색</SectionTitle>
-            <DeleteAllButton onClick={handleDeleteAll}>
-              전체 삭제
-            </DeleteAllButton>
-          </SectionHeader>
-          
-          {searches.map((search, index) => (
-            <SearchItem key={index}>
-              <SearchTerm>{search}</SearchTerm>
-              <DeleteButton onClick={() => handleDeleteSearch(index)}>
-                ✕
-              </DeleteButton>
-            </SearchItem>
-          ))}
-        </RecentSearches>
+        {isSearching ? (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#666' }}>
+            검색 중...
+          </div>
+        ) : (
+          <>
+            {/* 최근 검색 섹션 */}
+            <RecentSearches>
+              <SectionHeader>
+                <SectionTitle>최근 검색</SectionTitle>
+                <DeleteAllButton onClick={handleDeleteAll}>
+                  전체 삭제
+                </DeleteAllButton>
+              </SectionHeader>
+              
+              {searches.map((search, index) => (
+                <SearchItem key={index}>
+                  <SearchTerm 
+                    onClick={() => {
+                      setSearchTerm(search);
+                      // 최근 검색어 클릭 시 바로 검색 실행
+                      const searchQuery = search.toLowerCase();
+                      const results = allPosts.filter(post => {
+                        const title = (post.title || '').toLowerCase();
+                        const location = (post.location || '').toLowerCase();
+                        const detailLocation = (post.detailLocation || '').toLowerCase();
+                        const content = (post.content || '').toLowerCase();
+                        
+                        return title.includes(searchQuery) || 
+                               location.includes(searchQuery) || 
+                               detailLocation.includes(searchQuery) ||
+                               content.includes(searchQuery);
+                      });
+                      
+                      if (results.length > 0) {
+                        navigate('/main', { 
+                          state: { 
+                            searchResults: results,
+                            searchTerm: search 
+                          } 
+                        });
+                      } else {
+                        navigate('/main', { 
+                          state: { 
+                            searchResults: [],
+                            searchTerm: search 
+                          } 
+                        });
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {search}
+                  </SearchTerm>
+                  <DeleteButton onClick={() => handleDeleteSearch(index)}>
+                    ✕
+                  </DeleteButton>
+                </SearchItem>
+              ))}
+            </RecentSearches>
 
-        <RecommendationSection>
-          <BirdContainer>
-            <BirdImage src={BirdIcon} alt="마실새" />
-          </BirdContainer>
-          <RecommendationBubbles>
-            <Bubble variant="primary">
-              masill_love님의 취향에 꼭 맞춘 마실코스를 추천해드릴까요?
-            </Bubble>
-            <Bubble variant="secondary" onClick={handleRecommendation}>
-              masill_bird에게 추천받기
-              <ArrowIcon src={SearchArrowRight} alt="화살표" />
-            </Bubble>
-          </RecommendationBubbles>
-        </RecommendationSection>
+            {/* 검색 결과 섹션 */}
+            {searchResults.length > 0 && (
+              <SearchResultsContainer>
+                <SearchKeywordDisplay>
+                  <SearchKeywordText>"{searchTerm}"</SearchKeywordText> 검색 결과 {searchResults.length}개
+                </SearchKeywordDisplay>
+                
+                {searchResults.map((result) => (
+                  <PostWrapper
+                    key={result.eventId}
+                    onClick={() => handleResultClick(result.eventId)}
+                  >
+                    <ImageScrollWrapper>
+                      {Array.isArray(result.images) &&
+                        result.images.map((img, idx) => (
+                          <BoardImage
+                            key={idx}
+                            src={img.imageUrl}
+                            alt={`${result.title}-${idx}`}
+                          />
+                        ))}
+                    </ImageScrollWrapper>
+
+                    <ContentWrapper>
+                      <LeftContent>
+                        <MemberLogo src={result.userImage} alt="회원로고" />
+                        <TextInfo>
+                          <BoardTitleH1>{result.title}</BoardTitleH1>
+                          <BoardLocationP>{result.location}</BoardLocationP>
+                          <BoardDateP>
+                            {`${dayjs(result.startAt).format(
+                              "YYYY.MM.DD.(dd)"
+                            )} ~ ${dayjs(result.endAt).format(
+                              "YYYY.MM.DD.(dd)"
+                            )} ${dayjs(result.startAt).format("HH:mm")}~${dayjs(
+                              result.endAt
+                            ).format("HH:mm")}`}
+                          </BoardDateP>
+                        </TextInfo>
+                      </LeftContent>
+
+                      <RightContent>
+                        <HeartArea
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <TextStyle>{result.favoriteCount}</TextStyle>
+                          <HeartImg
+                            src={result.isHeartClicked ? Fullheart : Heart}
+                            alt="하트"
+                          />
+                        </HeartArea>
+
+                        <CommentArea>
+                          <TextStyle>{result.commentCount}</TextStyle>
+                          <CommentImg src={Comment} alt="댓글" />
+                        </CommentArea>
+                      </RightContent>
+                    </ContentWrapper>
+                  </PostWrapper>
+                ))}
+              </SearchResultsContainer>
+            )}
+
+            {/* 검색 결과가 없을 때 메시지 */}
+            {searchTerm.trim() && searchResults.length === 0 && !isSearching && (
+              <NoResultsContainer>
+                <NoResultsMessage>
+                  {searchTerm}에 대한 검색결과가 없습니다.
+                </NoResultsMessage>
+                <BirdsContainer>
+                  <NoResultsBirdImage src={BirdIcon} alt="새1" />
+                  <NoResultsBirdImage src={BirdIcon} alt="새2" />
+                </BirdsContainer>
+              </NoResultsContainer>
+            )}
+
+            {/* 추천 섹션 */}
+            {!searchTerm.trim() && (
+              <RecommendationSection>
+                <BirdContainer>
+                  <RecommendationBirdImage src={BirdIcon} alt="마실새" />
+                </BirdContainer>
+                <RecommendationBubbles>
+                  <Bubble variant="primary">
+                    masill_love님의 취향에 꼭 맞춘 마실코스를 추천해드릴까요?
+                  </Bubble>
+                  <Bubble variant="secondary" onClick={handleRecommendation}>
+                    masill_bird에게 추천받기
+                    <ArrowIcon src={SearchArrowRight} alt="화살표" />
+                  </Bubble>
+                </RecommendationBubbles>
+              </RecommendationSection>
+            )}
+          </>
+        )}
       </Content>
     </Container>
   );

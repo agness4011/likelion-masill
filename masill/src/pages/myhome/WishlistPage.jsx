@@ -9,6 +9,7 @@ import Heart from '@assets/logo/mainImg/Heart.png';
 import Comment from '@assets/logo/mainImg/commant.png';
 import PromotionIcon from '@logo/myhome/promotion.svg';
 import dayjs from 'dayjs';
+import { fetchMyFavorites } from '../../api/boardApi';
 import {
   BoardTitleH1,
   BoardLocationP,
@@ -228,13 +229,34 @@ const PromotionIconImg = styled.img`
 const WishlistPage = () => {
   const navigate = useNavigate();
   const [likedPosts, setLikedPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // localStorage에서 좋아요한 게시물 가져오기
+  // API에서 관심있는 게시글 가져오기
   useEffect(() => {
-    const savedLikedPosts = localStorage.getItem('likedPosts');
-    if (savedLikedPosts) {
-      setLikedPosts(JSON.parse(savedLikedPosts));
-    }
+    const fetchFavorites = async () => {
+      try {
+        setLoading(true);
+        const res = await fetchMyFavorites();
+        console.log("관심있는 게시글:", res);
+        console.log("관심있는 게시글 데이터 구조:", JSON.stringify(res, null, 2));
+
+        // 실제 데이터 구조에 맞게 접근
+        const content = res?.data?.content || [];
+        console.log("관심있는 게시글 content:", content);
+        if (content.length > 0) {
+          console.log("첫 번째 관심 게시글 구조:", content[0]);
+        }
+        setLikedPosts(content);
+      } catch (err) {
+        console.error("관심있는 게시물 불러오기 실패", err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFavorites();
   }, []);
 
   const formatLikes = (likes) => {
@@ -244,16 +266,57 @@ const WishlistPage = () => {
     return likes.toString();
   };
 
-  const handlePostClick = (eventId) => {
-    navigate(`/detail/${eventId}`);
+  const handlePostClick = (post) => {
+    // eventId 또는 postId 중 존재하는 것을 사용
+    const id = post.eventId || post.postId || post.id;
+    if (id) {
+      navigate(`/detail/${id}`);
+    } else {
+      console.error('게시글 ID를 찾을 수 없습니다:', post);
+    }
   };
 
-  const handleRemoveFromWishlist = (eventId, e) => {
+  const handleRemoveFromWishlist = (postId, e) => {
     e.stopPropagation();
-    const updatedLikedPosts = likedPosts.filter(post => post.eventId !== eventId);
-    setLikedPosts(updatedLikedPosts);
-    localStorage.setItem('likedPosts', JSON.stringify(updatedLikedPosts));
+    // TODO: API를 통해 관심 목록에서 제거하는 로직 추가
+    console.log('관심 목록에서 제거:', postId);
   };
+
+  if (loading) {
+    return (
+      <Container>
+        <Header>
+          <BackButton onClick={() => navigate(-1)}>
+            <BackIcon src={ArrowLeftIcon} alt="뒤로 가기" />
+          </BackButton>
+          <Title>관심 목록</Title>
+        </Header>
+        <Content>
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+            로딩 중...
+          </div>
+        </Content>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <Header>
+          <BackButton onClick={() => navigate(-1)}>
+            <BackIcon src={ArrowLeftIcon} alt="뒤로 가기" />
+          </BackButton>
+          <Title>관심 목록</Title>
+        </Header>
+        <Content>
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+            관심 목록을 불러오는 중 오류가 발생했습니다.
+          </div>
+        </Content>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -272,15 +335,15 @@ const WishlistPage = () => {
             color: '#666',
             fontSize: '16px'
           }}>
-            아직 좋아요한 게시물이 없습니다.
+            아직 관심있는 게시물이 없습니다.
             <br />
             메인페이지에서 관심 있는 게시물에 하트를 눌러보세요!
           </div>
         ) : (
           <div style={{ padding: '0 24px 0 24px' }}>
             {likedPosts.map((post, index) => (
-              <React.Fragment key={post.eventId}>
-                <PostCard onClick={() => handlePostClick(post.eventId)}>
+              <React.Fragment key={post.postId}>
+                <PostCard onClick={() => handlePostClick(post)}>
                   <ImageScrollWrapper>
                     {Array.isArray(post.images) && post.images.length > 0 ? (
                       post.images.map((img, idx) => (
@@ -313,7 +376,7 @@ const WishlistPage = () => {
 
                     <RightContent>
                       <HeartArea
-                        onClick={(e) => handleRemoveFromWishlist(post.eventId, e)}
+                        onClick={(e) => handleRemoveFromWishlist(post.postId, e)}
                       >
                         <TextStyle>{post.favoriteCount}</TextStyle>
                         <HeartImg
