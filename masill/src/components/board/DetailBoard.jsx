@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import BackImg from "../../assets/detail/Arrow-Left.svg";
 import Pencil from "../../assets/detail/pencil.png";
 import Button from "../../assets/detail/Button.png";
@@ -13,15 +12,29 @@ import OnCommentImg from "../../assets/detail/oncomment.png";
 import OnContentsImg from "../../assets/detail/onContents.png";
 import SummaryImg from "../../assets/detail/summary.png";
 import OnSummaryImg from "../../assets/detail/onsummary.png";
+import KeyboardButton from "../../assets/detail/keyboard.png";
+import Aply from "../../assets/detail/aply.png";
+import GoChatRoom from "../../assets/detail/gochatroom.svg";
 
+import { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
+import ReactDOM from "react-dom";
+import React from "react";
+import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import styled from "styled-components";
 
 import { eventData } from "../../dummy/datas";
 import { chatDat } from "../../dummy/chat";
-import { detailBoard, detailImg } from "../../api/boardApi";
+import {
+  detailBoard,
+  detailImg,
+  commentBoards,
+  addComment,
+  showReplies,
+  addReply,
+} from "../../api/boardApi";
 import { privateAPI } from "../../api/axios";
 
 import {
@@ -53,6 +66,38 @@ import {
   SummaryImgSize,
   DetailDiv,
   DetailText,
+  KeyboardInput,
+  KeyboardDiv,
+  KeyboardBtn,
+  ReplyKeyboard,
+  ReplyKeyboardDiv,
+  ReplyKeyboardBtn,
+  CommentUserImg,
+  CommentUserName,
+  CommentContent,
+  CommentWriteTime,
+  AdditionReply,
+  ShowReply,
+  MakeGroupBtn,
+  MakeGroupImg,
+  GroupEventID,
+  GroupTitle,
+  GroupHeart,
+  GroupSummary,
+  GroupMainImage,
+  GroupComponent,
+  GroupCommentImg,
+  GroupCommentNum,
+  LowWrapper,
+  ModalContainer,
+  ModalTitle,
+  ModalBackground,
+  ModalProfile,
+  ProfileP,
+  ProfileNickName,
+  Close,
+  GoChat,
+  GoChatImg,
 } from "./Detail.styled";
 
 export default function DetailBoard({ children }) {
@@ -265,9 +310,7 @@ function MiddleWho() {
   );
 }
 
-function TabMenu() {
-  const [activeTab, setActiveTab] = useState("내용");
-
+function TabMenu({ activeTab, setActiveTab }) {
   const tabs = [
     { name: "내용", icon: ContentsImg, activeIcon: OnContentsImg },
     { name: "댓글", icon: CommentImg, activeIcon: OnCommentImg },
@@ -285,7 +328,7 @@ function TabMenu() {
           <img
             src={activeTab === tab.name ? tab.activeIcon : tab.icon}
             alt={tab.name}
-            style={{ width: "24px", height: "24px" }} // 필요 시 아이콘 크기 조절
+            style={{ width: "24px", height: "24px" }}
           />
           <span>{tab.name}</span>
         </TabButton>
@@ -293,9 +336,11 @@ function TabMenu() {
     </TabContainer>
   );
 }
+
 function LowCopoments({ children }) {
-  return <div>{children}</div>;
+  return <LowWrapper>{children}</LowWrapper>;
 }
+
 function DetailContent() {
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
@@ -346,94 +391,345 @@ function DetailContent() {
     </DetailDiv>
   );
 }
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(relativeTime);
 
 function UserChat() {
+  const { eventId } = useParams();
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [replies, setReplies] = useState({});
+  const [replyTarget, setReplyTarget] = useState(null);
+
+  // 모달 상태
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null); // { username, userProfileImageUrl }
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const items = await commentBoards(eventId);
+        setComments(items);
+      } catch (error) {
+        console.error("댓글 조회 실패", error);
+        setComments([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchComments();
+  }, [eventId]);
+
+  const handleCommentAdded = (newComment) => {
+    setComments((prev) => [...prev, newComment]);
+  };
+
+  const handleReplyAdded = (newReply, parentId) => {
+    setReplies((prev) => ({
+      ...prev,
+      [parentId]: [...(prev[parentId] || []), newReply],
+    }));
+  };
+
+  const handleProfileClick = (user) => {
+    setSelectedUser(user);
+    setChatModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setChatModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const clickReply = async (commentId) => {
+    try {
+      if (replies[commentId]) {
+        setReplies((prev) => {
+          const updated = { ...prev };
+          delete updated[commentId];
+          return updated;
+        });
+      } else {
+        const items = await showReplies(eventId, commentId);
+        setReplies((prev) => ({ ...prev, [commentId]: items }));
+      }
+    } catch (error) {
+      console.error("대댓글 조회 실패", error);
+    }
+  };
+
+  const formatRelativeTime = (date) => {
+    const now = dayjs().tz("Asia/Seoul");
+    const created = dayjs.utc(date).tz("Asia/Seoul");
+    const diffMinutes = now.diff(created, "minute");
+    const diffHours = now.diff(created, "hour");
+    const diffDays = now.diff(created, "day");
+
+    if (diffMinutes < 1) return "방금 전";
+    if (diffMinutes < 60) return `${diffMinutes}분 전`;
+    if (diffHours < 24) return `${diffHours}시간 전`;
+    return `${diffDays}일 전`;
+  };
+
+  if (loading) return <p>로딩 중...</p>;
+
   return (
-    <div>
-      <div>
-        <img src />
+    <div style={{ position: "relative", paddingBottom: "60px" }}>
+      {comments.length === 0 ? (
+        <p>작성된 댓글이 없습니다.</p>
+      ) : (
+        comments.map((comment) => (
+          <div
+            key={comment.commentId}
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "14px",
+              marginBottom: "12px",
+              borderBottom: "1px solid #e0e0e0",
+            }}
+          >
+            {/* 프로필 클릭 시 모달 */}
+            <CommentUserImg
+              src={comment.userProfileImageUrl}
+              alt={comment.username}
+              style={{ cursor: "pointer" }}
+              onClick={() =>
+                handleProfileClick({
+                  username: comment.username,
+                  userProfileImageUrl: comment.userProfileImageUrl,
+                })
+              }
+            />
+
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  height: "20px",
+                }}
+              >
+                <CommentUserName>{comment.username}</CommentUserName>
+                <CommentWriteTime>
+                  • {formatRelativeTime(comment.createdAt)}
+                </CommentWriteTime>
+              </div>
+
+              <CommentContent>{comment.content}</CommentContent>
+
+              {/* 답글 영역 */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  marginTop: "6px",
+                  gap: "4px",
+                }}
+              >
+                <AdditionReply
+                  onClick={() => setReplyTarget(comment.commentId)}
+                >
+                  답글달기
+                </AdditionReply>
+
+                {replyTarget === comment.commentId && (
+                  <AddReplyMessage
+                    eventId={eventId}
+                    parentCommentId={comment.commentId}
+                    onReplyAdded={handleReplyAdded}
+                    onCancel={() => setReplyTarget(null)}
+                  />
+                )}
+
+                {comment.replyCommentCount > 0 && (
+                  <ShowReply onClick={() => clickReply(comment.commentId)}>
+                    <img src={Aply} alt="reply icon" />
+                    {replies[comment.commentId]
+                      ? "답글 숨기기"
+                      : `답글 ${comment.replyCommentCount}개 더보기`}
+                  </ShowReply>
+                )}
+
+                {/* 대댓글 렌더링 */}
+                {replies[comment.commentId] &&
+                  replies[comment.commentId].map((reply) => (
+                    <div
+                      key={reply.replyId || reply.commentId}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "12px",
+                        marginTop: "10px",
+                        marginLeft: "40px",
+                      }}
+                    >
+                      <CommentUserImg
+                        src={reply.userProfileImageUrl}
+                        alt={reply.username}
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          handleProfileClick({
+                            username: reply.username,
+                            userProfileImageUrl: reply.userProfileImageUrl,
+                          })
+                        }
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            height: "20px",
+                          }}
+                        >
+                          <CommentUserName>{reply.username}</CommentUserName>
+                          <CommentWriteTime>
+                            • {formatRelativeTime(reply.createdAt)}
+                          </CommentWriteTime>
+                        </div>
+                        <CommentContent>{reply.content}</CommentContent>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        ))
+      )}
+
+      {/* 댓글 입력 */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          background: "#fff",
+          padding: "8px 16px",
+          borderTop: "1px solid #ddd",
+          boxShadow: "0 -2px 4px rgba(0,0,0,0.1)",
+        }}
+      >
+        <AddCommentMessage
+          eventId={eventId}
+          onCommentAdded={handleCommentAdded}
+        />
       </div>
-      <p></p>
-      {/* 닉네입 삽입 */}
-      <Link>
-        {/* 이동 주소 넣기 */}
-        <button>채팅보내기</button>
-      </Link>
+
+      {/* ChatModal */}
+      {chatModalOpen && selectedUser && (
+        <ChatModal user={selectedUser} onClose={handleCloseModal} />
+      )}
     </div>
   );
 }
 
-function Location() {
+function AddCommentMessage({ eventId, onCommentAdded }) {
+  const [comment, setComment] = useState("");
+  const handleAddComment = async () => {
+    if (!comment.trim()) return;
+    try {
+      const newComment = await addComment(eventId, comment);
+      setComment("");
+      if (onCommentAdded) onCommentAdded(newComment);
+    } catch (error) {
+      console.error("댓글 작성 실패", error);
+    }
+  };
   return (
     <div>
-      <p></p>
-      <p></p>
-      <p></p>
+      {" "}
+      <KeyboardDiv>
+        {" "}
+        <KeyboardInput
+          type="text"
+          placeholder="댓글을 입력하세요"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />{" "}
+        <KeyboardBtn src={KeyboardButton} onClick={handleAddComment} />{" "}
+      </KeyboardDiv>{" "}
     </div>
   );
 }
+function AddReplyMessage({ eventId, parentCommentId, onReplyAdded, onCancel }) {
+  const [content, setContent] = useState("");
 
-function DatalButton() {
-  const [type, setType] = useState("내용");
+  const handleAddReply = async () => {
+    if (!content.trim()) return;
+
+    try {
+      const newReply = await addReply(eventId, parentCommentId, content);
+      if (onReplyAdded) onReplyAdded(newReply, parentCommentId);
+      setContent("");
+      if (onCancel) onCancel(); // 입력창 닫기
+    } catch (error) {
+      console.error("대댓글 작성 실패", error);
+    }
+  };
 
   return (
-    <div>
-      <button
-        onClick={() => {
-          setType("내용");
-        }}
-      >
-        내용
-      </button>
-      <button
-        onClick={() => {
-          setType("관련모임");
-        }}
-      >
-        관련모임
-      </button>
-      <button
-        onClick={() => {
-          setType("댓글");
-        }}
-      >
-        댓글
-      </button>
+    <div style={{ marginLeft: "40px", marginTop: "6px" }}>
+      <ReplyKeyboardDiv>
+        <ReplyKeyboard
+          type="text"
+          placeholder="답글을 입력하세요"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <ReplyKeyboardBtn src={KeyboardButton} onClick={handleAddReply} />
+      </ReplyKeyboardDiv>
     </div>
   );
 }
-
-function DetailContext() {
-  return (
-    <div>
-      <input type="text"></input>
-      <button>AI 요약하기</button>
-    </div>
+function ChatModal({ user, onClose }) {
+  // 포털을 통해 body 바로 아래 렌더링
+  return ReactDOM.createPortal(
+    <ModalBackground onClick={onClose}>
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
+        <ModalTitle>유저 프로필</ModalTitle>
+        <ModalProfile src={user.userProfileImageUrl} alt={user.username} />
+        <ProfileNickName>{user.username}</ProfileNickName>
+        <GoChat>
+          채팅하기
+          <GoChatImg src={GoChatRoom} alt="채팅" />
+        </GoChat>
+        <Close onClick={onClose}>닫기</Close>
+      </ModalContainer>
+    </ModalBackground>,
+    document.body
   );
 }
-
 function Group() {
   return (
     <div>
-      <button>+관련게시글 작성</button>
+      <MakeGroupBtn>
+        모임 만들기
+        <MakeGroupImg src={GroupImg} />
+      </MakeGroupBtn>
       <div></div>
       {/* 게시글 보이게 */}
     </div>
   );
 }
-
-function Comment() {}
+DetailBoard.ChatModal = ChatModal;
 DetailBoard.LowCopoments = LowCopoments;
 DetailBoard.DetailContent = DetailContent;
 DetailBoard.BodyTop = BodyTop;
 DetailBoard.LowBody = LowBody;
 DetailBoard.Low = Low;
 DetailBoard.UserChat = UserChat;
-DetailBoard.Location = Location;
-DetailBoard.DatalButton = DatalButton;
 DetailBoard.High = Hight;
 DetailBoard.LowHead = LowHead;
 DetailBoard.ShowImage = ShowImage;
 DetailBoard.BodyMiddle = BodyMiddle;
 DetailBoard.MiddleWho = MiddleWho;
 DetailBoard.TabMenu = TabMenu;
+DetailBoard.Group = Group;

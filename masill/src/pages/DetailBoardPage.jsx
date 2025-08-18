@@ -1,8 +1,11 @@
 import DetailBoard from "../components/board/DetailBoard";
+import { useState } from "react";
 
 export default function DetailBoardPage() {
+  const [activeTab, setActiveTab] = useState("내용"); // Tab 상태 부모에서 관리
+
   return (
-    <DetailBoard>
+    <DetailBoard style={{ position: "relative" }}>
       <div style={{ position: "relative" }}>
         <DetailBoard.High>
           <DetailBoard.ShowImage />
@@ -13,10 +16,18 @@ export default function DetailBoardPage() {
             <DetailBoard.BodyTop />
             <DetailBoard.BodyMiddle>
               <DetailBoard.MiddleWho />
-              <DetailBoard.TabMenu />
+              <DetailBoard.TabMenu
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
             </DetailBoard.BodyMiddle>
-            <DetailBoard.LowCopoments>
-              <DetailBoard.DetailContent />
+
+            <DetailBoard.LowCopoments style={{ position: "relative" }}>
+              {activeTab === "내용" && <DetailBoard.DetailContent />}
+
+              {activeTab === "댓글" && <DetailBoard.UserChat />}
+
+              {activeTab === "마실 모임" && <DetailBoard.Group />}
             </DetailBoard.LowCopoments>
           </DetailBoard.LowBody>
         </DetailBoard.Low>

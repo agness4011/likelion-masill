@@ -1,5 +1,54 @@
 import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 
+/* --- API 호출 --- */
+
+export const addReply = async (eventId, commentId, content) => {
+  try {
+    const res = await privateAPI.post(
+      `/events/${eventId}/${commentId}/replies`,
+      {
+        content,
+      }
+    );
+    return res.data.data; // ✅ 서버가 data.data 안에 새 댓글 줄 가능성 반영
+  } catch (error) {
+    console.error("댓글 작성 실패", error);
+    throw error;
+  }
+};
+
+export const showReplies = async (eventId, commentId) => {
+  try {
+    const res = await publicAPI.get(`/events/${eventId}/${commentId}/replies`);
+    return res.data.data.items;
+  } catch (error) {
+    console.error("이벤트 댓글 조회 실패", error);
+    throw error;
+  }
+};
+
+export const addComment = async (eventId, content) => {
+  try {
+    const res = await privateAPI.post(`/events/${eventId}/comments`, {
+      content,
+    });
+    return res.data.data; // ✅ 서버가 data.data 안에 새 댓글 줄 가능성 반영
+  } catch (error) {
+    console.error("댓글 작성 실패", error);
+    throw error;
+  }
+};
+
+export const commentBoards = async (eventId) => {
+  try {
+    const res = await publicAPI.get(`/events/${eventId}/comments`);
+    return res.data.data.items;
+  } catch (error) {
+    console.error("이벤트 댓글 조회 실패", error);
+    throw error;
+  }
+};
+
 export const detailImg = async (eventId) => {
   try {
     const res = await privateAPI.get(`/events/${eventId}`);
@@ -16,6 +65,17 @@ export const detailBoard = async (eventId) => {
     return res.data.data; // 실제 이벤트 데이터 반환
   } catch (error) {
     console.error("이벤트 조회 실패", error);
+    throw error;
+  }
+};
+export const changeRegion = async (regionId) => {
+  try {
+    const res = await privateAPI.patch(`/users/me/region`, {
+      regionId, // body에 regionId 전달
+    });
+    return res.data; // 응답 그대로 반환
+  } catch (error) {
+    console.error("지역 이벤트 실패", error);
     throw error;
   }
 };
