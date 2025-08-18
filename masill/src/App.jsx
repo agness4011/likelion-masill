@@ -40,6 +40,8 @@ import SelectRegion from "./components/board/SelectRegion";
 import SelectRegionDetail from "./components/board/SelectRegionDetail";
 import ChangeRegion from "./components/main/ChangeRegion";
 import ChangeRegionDetail from "./components/main/ChangeRegionDetail";
+import SmallGroupPage from "./pages/SmallGroupPage";
+import WriteSmallPage from "./pages/WriteSmallPage";
 
 export default function App() {
   return (
@@ -105,7 +107,12 @@ export default function App() {
             <Route path="/board" element={<BoardPage />} />
             <Route path="write" element={<WriteBoardPage />} />
             <Route path="detail/:eventId" element={<DetailBoardPage />} />
-            
+            <Route
+              path="detail/:eventId/clubId/:clubId"
+              element={<SmallGroupPage />}
+            />
+            <Route path="writeSmallGroup" element={<WriteSmallPage />} />
+
             {/* 지역 선택 흐름 (글쓰기용) */}
             <Route path="region" element={<SignRegionPage />} />
             <Route path="region-detail" element={<SignRegionDetailPage />} />
