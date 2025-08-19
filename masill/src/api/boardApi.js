@@ -1,23 +1,111 @@
 import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 
 /* --- API 호출 --- */
-
-export const smallGroupDetail = async (eventId, clubId) => {
+export const deleteSmallGroup = async (eventId, clubId) => {
   try {
-    const res = await publicAPI.get(`/events/${eventId}/clubs/${clubId}`);
-    return res.data.data; // data 전체 반환
+    const res = await privateAPI.delete(`/events/${eventId}/clubs/${clubId}`);
+    return res.data;
   } catch (error) {
-    console.error("소모임 상세 조회 실패", error);
+    console.error("소모임 삭제 실패", error);
+    throw error;
+  }
+};
+export const retouchSmallGroup = async (eventId, clubId, payload) => {
+  try {
+    const res = await privateAPI.put(
+      `/events/${eventId}/clubs/${clubId}`,
+      payload
+    );
+    return res.data;
+  } catch (error) {
+    console.error("소모임 수정 실패", error);
+    throw error;
+  }
+};
+export const showSmallGroupReplies = async (eventId, clubId, commentId) => {
+  try {
+    const res = await privateAPI.get(
+      `/events/${eventId}/clubs/${clubId}/comments/${commentId}/replies`
+    );
+    return res.data.data.items;
+  } catch (error) {
+    console.error("이벤트 댓글 조회 실패", error);
     throw error;
   }
 };
 
-export const smallGroupDetailImg = async (eventId, clubId) => {
+export const commentSmallGroups = async (eventId, clubId) => {
+  try {
+    const res = await publicAPI.get(
+      `/events/${eventId}/clubs/${clubId}/comments`
+    );
+    return res.data.data.items;
+  } catch (error) {
+    console.error("이벤트 댓글 조회 실패", error);
+    throw error;
+  }
+};
+
+export const addSmallGroupComment = async (eventId, clubId, content) => {
+  try {
+    const res = await privateAPI.post(
+      `/events/${eventId}/clubs/${clubId}/comments`,
+      {
+        content,
+      }
+    );
+    return res.data.data; // ✅ 서버가 data.data 안에 새 댓글 줄 가능성 반영
+  } catch (error) {
+    console.error("댓글 작성 실패", error);
+    throw error;
+  }
+};
+
+export const addSmallGroup = async (eventId, payload) => {
+  try {
+    console.log("POST 요청: /events");
+    console.log("payload:", payload);
+
+    const res = await privateAPI.post(
+      `/events/${eventId}/clubs`,
+      payload, // 🚀 JSON 그대로 전달
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    return res.data;
+  } catch (error) {
+    console.error("addSmallGroup 에러:", error);
+    console.error("에러 응답:", error.response?.data);
+    throw error;
+  }
+};
+
+export const addSmallGroupReply = async (
+  eventId,
+  clubId,
+  commentId,
+  content
+) => {
+  try {
+    const res = await privateAPI.post(
+      `/events/${eventId}/clubs/${clubId}/comments/${commentId}/replies`,
+      {
+        content,
+      }
+    );
+    return res.data.data; // ✅ 서버가 data.data 안에 새 댓글 줄 가능성 반영
+  } catch (error) {
+    console.error("댓글 작성 실패", error);
+    throw error;
+  }
+};
+
+export const smallGroupDetail = async (eventId, clubId) => {
   try {
     const res = await privateAPI.get(`/events/${eventId}/clubs/${clubId}`);
     return res.data.data; // data 전체 반환
   } catch (error) {
-    console.error("이벤트 이미지 조회 실패", error);
+    console.error("소모임 상세 조회 실패", error);
     throw error;
   }
 };
