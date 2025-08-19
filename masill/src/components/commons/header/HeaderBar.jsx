@@ -1,7 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 
 import MainImg from "../../../assets/logo/mainImg/logomasill.png";
-import AlarmImg from "../../../assets/logo/mainImg/bell.png";
 import ChatImg from "../../../assets/logo/mainImg/chat.png";
 import MyHomeImg from "../../../assets/logo/mainImg/home.png";
 import LogoImg from "../../../assets/logo/mainImg/logo.png";
@@ -14,8 +13,9 @@ export default function HeaderBar({ children }) {
 const Container = styled.div`
   display: flex;
   align-items: flex-start; /* 상단 기준 정렬 */
-  padding-top: 32px; /* 전체 상단 여백 32px */
+  padding-top: 40px; /* 전체 상단 여백 32px */
   gap: 115px; /* HeadLeft와 HeadRight 사이 간격 */
+  justify-content: space-between; /* 좌우 끝으로 배치 */
 `;
 function HeadLeft() {
   const navigate = useNavigate();
@@ -46,9 +46,6 @@ function HeadRight() {
       <Link to="/board/reigon">
         <Board src={BoardImg} alt="게시글작성" />
       </Link>
-      <Link to="/alarm">
-        <Alarm src={AlarmImg} alt="알림페이지" />
-      </Link>
       <Link to="/chat">
         <Chat src={ChatImg} alt="채팅페이지" />
       </Link>
@@ -63,6 +60,7 @@ const Right = styled.div`
   display: flex;
   align-items: center;
   gap: 12px; /* 아이콘들 간격 12px */
+  margin-top: 8px;
 `;
 
 const MyHome = styled.img`
@@ -72,12 +70,6 @@ const MyHome = styled.img`
   aspect-ratio: 1 / 1;
 `;
 const Chat = styled.img`
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  aspect-ratio: 1 / 1;
-`;
-const Alarm = styled.img`
   width: 24px;
   height: 24px;
   flex-shrink: 0;

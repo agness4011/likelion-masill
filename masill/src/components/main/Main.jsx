@@ -35,6 +35,7 @@ import {
   ToggleLoctionDiv,
   ToggleP,
   ToggleOpenDiv,
+  BoardDiv,
 } from "./MainStyles.styled";
 import styled from "styled-components";
 
@@ -43,6 +44,7 @@ export default function Main({ children }) {
 }
 const MainContainer = styled.div`
   overflow-x: hidden;
+  overflow-y: hidden;
 `;
 // 배경 이미지
 function HigherContainer({ children }) {
@@ -170,8 +172,10 @@ function CategoryItem({
   return (
     <CategoryBtn
       style={{
-        background: isActive ? "#fff" : "#e5ecff",
-        border: isActive ? "1px solid var(--Blur-gary-400, #CDDBFF)" : "none",
+        background: isActive
+          ? "linear-gradient(#fff, #fff) padding-box, linear-gradient(17deg, #1B409C 5.84%, #FF7852 68.23%) border-box"
+          : "#e5ecff",
+        border: isActive ? "2px solid transparent" : "none",
         color: isActive ? "#000" : "var(--Gray-900, #727C94)",
       }}
       onClick={handleClick}
@@ -317,7 +321,7 @@ function Post() {
   });
 
   const navigate = useNavigate();
-  const options = ["AI 추천순", "조회수 높은 순", "인기순", "날짜순"];
+  const options = ["AI 추천순", "댓글순", "인기순", "날짜순"];
 
   const toggleOpen = () => setIsOpen((prev) => !prev);
   const handleSelect = (type) => {
@@ -424,7 +428,7 @@ function Post() {
         </SearchResultHeader>
       )}
 
-      <div>
+      <BoardDiv>
         {sortedPosts.length === 0 ? (
           <NoPostsMessage>
             {searchTerm.trim()
@@ -473,7 +477,10 @@ function Post() {
                     <MemberLogo src={item.userImage} alt="회원로고" />
                     <TextInfo>
                       <BoardTitleH1>{item.title}</BoardTitleH1>
-                      <BoardLocationP>{item.location}</BoardLocationP>
+                      <BoardLocationP>
+                        {item.region?.sido} {item.region?.sigungu}{" "}
+                        {item.location}
+                      </BoardLocationP>
                       <BoardDateP>
                         {`${dayjs(item.startAt).format(
                           "YYYY.MM.DD.(dd)"
@@ -511,7 +518,7 @@ function Post() {
             );
           })
         )}
-      </div>
+      </BoardDiv>
     </BoardContanier>
   );
 }

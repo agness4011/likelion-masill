@@ -111,9 +111,9 @@ function Reigon({ regionName }) {
 }
 function SetLocation({ location, setLocation, error, setTouched }) {
   // 선택된 지역 정보 가져오기
-  const selectedRegion = localStorage.getItem('selectedRegion') || '';
-  const selectedDistrict = localStorage.getItem('selectedDistrict') || '';
-  
+  const selectedRegion = localStorage.getItem("selectedRegion") || "";
+  const selectedDistrict = localStorage.getItem("selectedDistrict") || "";
+
   return (
     <div>
       <ErrorDiv>
@@ -132,12 +132,14 @@ function SetLocation({ location, setLocation, error, setTouched }) {
         {/* <MapImg src={MapIcon} /> */}
       </InputWrapper>
       {selectedRegion && selectedDistrict && (
-        <div style={{ 
-          fontSize: '12px', 
-          color: '#666', 
-          marginTop: '4px',
-          paddingLeft: '4px'
-        }}>
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#666",
+            marginTop: "4px",
+            paddingLeft: "4px",
+          }}
+        >
           선택된 지역: {selectedRegion} {selectedDistrict}
         </div>
       )}
@@ -283,8 +285,6 @@ function UploadImg({ images, setImages, error, setTouched }) {
           </PreviewBox>
         ))}
       </PreviewRight>
-      {/* 
-      {error && <ErrorMessage>{error}</ErrorMessage>} */}
     </UploadContainer>
   );
 }

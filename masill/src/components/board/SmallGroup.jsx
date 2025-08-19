@@ -6,15 +6,13 @@ import Heart from "../../assets/detail/heart.png";
 import Chat from "../../assets/detail/chat.png";
 import CommentImg from "../../assets/detail/comment.png";
 import ContentsImg from "../../assets/detail/contents.png";
-import GroupImg from "../../assets/detail/group.png";
-import OnGroupImg from "../../assets/detail/onGroup.png";
 import OnCommentImg from "../../assets/detail/oncomment.png";
 import OnContentsImg from "../../assets/detail/onContents.png";
-import SummaryImg from "../../assets/detail/summary.png";
-import OnSummaryImg from "../../assets/detail/onsummary.png";
 import KeyboardButton from "../../assets/detail/keyboard.png";
 import Aply from "../../assets/detail/aply.png";
 import GoChatRoom from "../../assets/detail/gochatroom.svg";
+import DeleteImg from "../../assets/detail/delete.png";
+import TrashImgBtn from "../../assets/detail/trash.png";
 
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
@@ -26,13 +24,12 @@ import "dayjs/locale/ko";
 import styled from "styled-components";
 import {
   smallGroupDetail,
-  smallGroupDetailImg,
-  commentBoards,
-  addComment,
-  showReplies,
-  addReply,
-  fetchSmallGroup,
-  smallFavorite,
+  commentSmallGroups,
+  addSmallGroupComment,
+  showSmallGroupReplies,
+  addSmallGroupReply,
+  deleteSmallGroup,
+  detailBoard,
 } from "../../api/boardApi";
 import { privateAPI } from "../../api/axios";
 
@@ -49,20 +46,16 @@ import {
   HeartImg,
   TabContainer,
   TabButton,
-  SummaryBtn,
   DetailPart,
-  CategoryMark,
   TitleP,
   LoccationP,
   DateP,
   BodyTopDiv,
-  FavoriteCountP,
   UserImg,
   UserNickName,
   ChatImg,
   ChatBtn,
   UserDiv,
-  SummaryImgSize,
   DetailDiv,
   DetailText,
   KeyboardInput,
@@ -77,36 +70,29 @@ import {
   CommentWriteTime,
   AdditionReply,
   ShowReply,
-  MakeGroupBtn,
-  MakeGroupImg,
-  GroupEventID,
-  GroupTitle,
-  GroupHeart,
-  GroupSummary,
-  GroupMainImage,
-  GroupComponent,
-  GroupCommentImg,
-  GroupCommentNum,
-  GroupUserImg,
-  GroupBottomRow,
-  GroupRight,
-  GroupTopRow,
-  GroupUserAndText,
-  GroupTextBox,
   LowWrapper,
   ModalContainer,
   ModalTitle,
   ModalBackground,
-  ModalProfile,
-  ProfileP,
-  ProfileNickName,
   Close,
-  GoChat,
-  GoChatImg,
   ButtonWrapper,
   BorderLine,
   ModalMain,
-} from "./Detail.styled";
+  ModalProfile,
+  ProfileP,
+  GoChat,
+  ProfileNickName,
+  EventTitle,
+  ReadMoreBtn,
+  DeleteBtn,
+  BtnDiv,
+  TrashImg,
+  DeleteButton,
+  ModalWarning,
+  GoChatImg,
+  DeleteModalContaier,
+  DeleteModalMain,
+} from "./SmallGroup.styled";
 
 export default function SmallGroup({ children }) {
   return <div>{children}</div>;
@@ -118,15 +104,15 @@ function Hight({ children }) {
 
 function ShowImage() {
   const { eventId, clubId } = useParams();
-  const [event, setEvent] = useState(null);
+  const [club, setClub] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await smallGroupDetailImg(eventId, clubId);
-        setEvent(res.data); // API 데이터 중 data만 가져오기
+        const data = await smallGroupDetail(eventId, clubId); // privateAPI 여부 확인
+        setClub(data);
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -137,31 +123,31 @@ function ShowImage() {
   }, [eventId, clubId]);
 
   if (loading) return <p>로딩 중...</p>;
-  if (!event) return <p>이벤트를 찾을 수 없습니다.</p>;
+  if (!club) return <p>이벤트를 찾을 수 없습니다.</p>;
 
-  const images = event.images || [];
-
-  const handleRight = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const handleLeft = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
+  const images = club.images || [];
 
   if (images.length === 0) return <p>이미지가 없습니다.</p>;
 
   return (
     <ImageWrapper>
-      {images.length > 1 && <LeftBtn onClick={handleLeft} src={Button} />}
-
-      <TopImg
-        src={images[currentIndex].imageUrl}
-        alt={`이미지 ${currentIndex + 1}`}
-      />
-
-      {images.length > 1 && <RightBtn onClick={handleRight} src={Button} />}
-
+      {images.length > 1 && (
+        <LeftBtn
+          onClick={() =>
+            setCurrentIndex(
+              (prev) => (prev - 1 + images.length) % images.length
+            )
+          }
+          src={Button}
+        />
+      )}
+      <TopImg src={images[currentIndex]} alt={`이미지 ${currentIndex + 1}`} />
+      {images.length > 1 && (
+        <RightBtn
+          onClick={() => setCurrentIndex((prev) => (prev + 1) % images.length)}
+          src={Button}
+        />
+      )}
       <PageIndicator>
         {currentIndex + 1} / {images.length}
       </PageIndicator>
@@ -173,7 +159,38 @@ function Low({ children }) {
   return <LowContainer>{children}</LowContainer>;
 }
 function LowHead() {
+  const { eventId, clubId } = useParams();
   const navigate = useNavigate();
+  const [club, setClub] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // 모달 상태
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const data = await smallGroupDetail(eventId, clubId);
+        setClub(data);
+      } catch (error) {
+        console.error("이벤트 조회 실패", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
+  }, [eventId, clubId]);
+
+  const handleDelete = async () => {
+    try {
+      await deleteSmallGroup(eventId, clubId);
+      alert("소모임이 삭제되었습니다.");
+      navigate(`/detail/${eventId}`);
+    } catch (error) {
+      alert("소모임 삭제에 실패했습니다.");
+    } finally {
+      setShowDeleteModal(false); // 모달 닫기
+    }
+  };
+
   return (
     <LowHeaderContainer>
       <BackBtn
@@ -181,8 +198,51 @@ function LowHead() {
         alt="페이지 뒤로 가는 버튼"
         onClick={() => navigate(-1)}
       />
-      <PencilBtn src={Pencil} />
+      {club?.author && (
+        <BtnDiv>
+          <PencilBtn
+            src={Pencil}
+            onClick={() => navigate(`retouchSmallGroup`)}
+          />
+          <DeleteBtn onClick={() => setShowDeleteModal(true)} src={DeleteImg} />
+        </BtnDiv>
+      )}
+
+      {/* 삭제 모달 */}
+      {showDeleteModal && (
+        <DeleteModal
+          onClose={() => setShowDeleteModal(false)}
+          onDelete={handleDelete} // 실제 삭제 함수 전달
+        />
+      )}
     </LowHeaderContainer>
+  );
+}
+
+// DeleteModal 수정
+function DeleteModal({ onClose, onDelete }) {
+  const modalRoot = document.getElementById("modal-root");
+  if (!modalRoot) return null;
+
+  return ReactDOM.createPortal(
+    <ModalBackground onClick={onClose}>
+      <DeleteModalContaier onClick={(e) => e.stopPropagation()}>
+        <BorderLine>
+          <ModalTitle>알림</ModalTitle>
+        </BorderLine>
+        <DeleteModalMain>
+          <ModalWarning>정말 게시물을 삭제하시겠어요?</ModalWarning>
+          <ButtonWrapper>
+            <Close onClick={onClose}>취소</Close>
+            <DeleteButton onClick={onDelete}>
+              삭제하기
+              <TrashImg src={TrashImgBtn} />
+            </DeleteButton>
+          </ButtonWrapper>
+        </DeleteModalMain>
+      </DeleteModalContaier>
+    </ModalBackground>,
+    modalRoot
   );
 }
 function LowBody({ children }) {
@@ -190,17 +250,132 @@ function LowBody({ children }) {
 }
 function BodyTop() {
   const { eventId, clubId } = useParams(); // URL에서 eventId 가져오기
-  const [event, setEvent] = useState(null);
+  const [club, setClub] = useState(null);
+  const [loadingClub, setLoadingClub] = useState(true);
+
+  const [mainEvent, setMainEvent] = useState(null);
+  const [loadingMainEvent, setLoadingMainEvent] = useState(true);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchClub = async () => {
+      try {
+        const data = await smallGroupDetail(eventId, clubId);
+        setClub(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingClub(false);
+      }
+    };
+
+    const fetchMainEvent = async () => {
+      try {
+        const data = await detailBoard(eventId);
+        setMainEvent(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingMainEvent(false);
+      }
+    };
+
+    fetchClub();
+    fetchMainEvent();
+  }, [eventId, clubId]);
+
+  if (loadingClub || loadingMainEvent) return <p>로딩 중...</p>;
+  if (!club || !mainEvent) return <p>이벤트를 찾을 수 없습니다.</p>;
+
+  return (
+    <BodyTopDiv>
+      <div style={{ display: "flex", gap: "6px" }}>
+        <EventTitle>{mainEvent?.title || "로딩 중..."}</EventTitle>
+        <ReadMoreBtn
+          onClick={() => {
+            navigate(`/detail/${eventId}`);
+          }}
+        >
+          자세히 보기
+        </ReadMoreBtn>
+      </div>
+      <div
+        style={{ position: "relative", display: "inline-block", width: "100%" }}
+      >
+        <TitleP
+          style={{
+            paddingRight: "40px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {club?.title || "로딩 중..."}
+        </TitleP>
+
+        <HeartImg
+          src={club?.liked ? FullHeart : Heart}
+          alt="하트"
+          style={{
+            position: "absolute",
+            right: "30px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            cursor: "pointer",
+          }}
+          onClick={async () => {
+            if (!club) return;
+            try {
+              const res = await privateAPI.post(
+                `/events/${eventId}/clubs/${clubId}/favorites`
+              );
+              const { favoriteCount, favorite } = res.data.data;
+
+              setClub((prev) => ({
+                ...prev,
+                liked: favorite,
+                favoriteCount: favoriteCount,
+              }));
+            } catch (error) {
+              console.error("하트 클릭 에러:", error);
+            }
+          }}
+        />
+      </div>
+      <div>
+        <DateP>
+          {club
+            ? `${dayjs(club.startAt).format("YYYY.MM.DD.(dd)")}  ${dayjs(
+                club.startAt
+              ).format("HH:mm")}`
+            : "로딩 중..."}
+        </DateP>
+        <LoccationP>{club?.location || "로딩 중..."}</LoccationP>
+      </div>
+    </BodyTopDiv>
+  );
+}
+
+function BodyMiddle({ children }) {
+  return <div>{children}</div>;
+}
+function MiddleWho() {
+  const { eventId, clubId } = useParams();
+  const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [club, setClub] = useState(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const data = await smallGroupDetail(eventId, clubId);
-        // API 호출
-        setEvent(data); // API에서 받아온 이벤트 데이터 저장
-        console.log("title", data.title);
-        console.log("eventType", data.content);
+        const detailData = await smallGroupDetail(eventId, clubId); // 이벤트 정보
+        // imgData 필요 없음, detailData.data 안에 userImage 포함
+        setEventData({
+          username: detailData.username,
+          userImage: detailData.userImage,
+        });
+        setClub(detailData);
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -211,108 +386,18 @@ function BodyTop() {
   }, [eventId, clubId]);
 
   if (loading) return <p>로딩 중...</p>;
-  if (!event) return <p>이벤트를 찾을 수 없습니다.</p>;
-
-  const getEventTypeLabel = (type) => {
-    switch (type) {
-      case "FLEA_MARKET":
-        return "플리마켓";
-      case "FESTIVAL":
-        return "축제";
-      case "CULTURE_ART":
-        return "문화•예술";
-      case "OUTDOOR_ACTIVITY":
-        return "야외활동";
-      case "VOLUNTEER":
-        return "자원봉사";
-      case "STORE_EVENT":
-        return "가게행사";
-      case "EDUCATION":
-        return "교육";
-      default:
-        return "기타";
-    }
-  };
-
-  return (
-    <BodyTopDiv>
-      <div>
-        <CategoryMark>{getEventTypeLabel(event.eventType)}</CategoryMark>
-        <TitleP>{event.title}</TitleP>
-        <LoccationP>{event.location}</LoccationP>
-        <DateP>
-          {`${dayjs(event.startAt).format("YYYY.MM.DD.(dd)")} ~ ${dayjs(
-            event.endAt
-          ).format("YYYY.MM.DD.(dd)")} ${dayjs(event.startAt).format(
-            "HH:mm"
-          )}~${dayjs(event.endAt).format("HH:mm")}`}
-        </DateP>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <FavoriteCountP>{event.favoriteCount}</FavoriteCountP>
-        <HeartImg
-          src={event.liked ? FullHeart : Heart}
-          alt="하트"
-          style={{ cursor: "pointer", width: "24px", height: "24px" }}
-          onClick={async () => {
-            try {
-              const res = await privateAPI.post(
-                `/events/${event.eventId}/favorites`
-              );
-              const { favoriteCount, favorite } = res.data.data;
-
-              // 이벤트 상태 업데이트
-              setEvent((prev) => ({
-                ...prev,
-                liked: favorite, // 서버 liked 값 반영
-                favoriteCount: favoriteCount,
-              }));
-            } catch (error) {
-              console.error("하트 클릭 에러:", error);
-            }
-          }}
-        />
-      </div>
-    </BodyTopDiv>
-  );
-}
-function BodyMiddle({ children }) {
-  return <div>{children}</div>;
-}
-function MiddleWho() {
-  const { eventId } = useParams();
-  const [eventData, setEventData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const detailData = await detailBoard(eventId); // 이벤트 정보
-        // imgData 필요 없음, detailData.data 안에 userImage 포함
-        setEventData({
-          username: detailData.username,
-          userImage: detailData.userImage,
-        });
-      } catch (error) {
-        console.error("이벤트 조회 실패", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEvent();
-  }, [eventId]);
-
-  if (loading) return <p>로딩 중...</p>;
   if (!eventData) return <p>데이터를 찾을 수 없습니다.</p>;
 
   return (
     <UserDiv>
       <UserImg src={eventData.userImage} alt="유저 이미지" />
       <UserNickName>{eventData.username}</UserNickName>
-      <ChatBtn>
-        대화하기
-        <ChatImg src={Chat} />
-      </ChatBtn>
+      {club?.author && (
+        <ChatBtn>
+          대화하기
+          <ChatImg src={Chat} />
+        </ChatBtn>
+      )}
     </UserDiv>
   );
 }
@@ -348,18 +433,16 @@ function LowCopoments({ children }) {
 }
 
 function DetailContent() {
-  const { eventId } = useParams();
+  const { eventId, clubId } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [summaryDone, setSummaryDone] = useState(false); // 요약 완료 상태
 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const data = await detailBoard(eventId);
+        const data = await smallGroupDetail(eventId, clubId);
         setEvent(data);
         console.log("content", data.content);
-        console.log("summary", data.summary);
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -367,32 +450,14 @@ function DetailContent() {
       }
     };
     fetchEvent();
-  }, [eventId]);
+  }, [eventId, clubId]);
 
   if (!event) return <p>이벤트를 찾을 수 없습니다.</p>;
 
   return (
     <DetailDiv>
-      <div>
-        <SummaryBtn
-          summaryDone={summaryDone}
-          onClick={() => setSummaryDone((prev) => !prev)}
-        >
-          {summaryDone ? (
-            <>
-              <SummaryImgSize src={OnSummaryImg} alt="summary" />
-              AI 요약 완료
-            </>
-          ) : (
-            <>
-              AI 요약하기
-              <SummaryImgSize src={SummaryImg} alt="summary" />
-            </>
-          )}
-        </SummaryBtn>
-      </div>
       <DetailPart>
-        <DetailText>{summaryDone ? event.summary : event.content}</DetailText>
+        <DetailText>{event.content}</DetailText>
       </DetailPart>
     </DetailDiv>
   );
@@ -405,7 +470,7 @@ dayjs.extend(timezone);
 dayjs.extend(relativeTime);
 
 function UserChat() {
-  const { eventId } = useParams();
+  const { eventId, clubId } = useParams();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [replies, setReplies] = useState({});
@@ -418,7 +483,7 @@ function UserChat() {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const items = await commentBoards(eventId);
+        const items = await commentSmallGroups(eventId, clubId);
         setComments(items);
       } catch (error) {
         console.error("댓글 조회 실패", error);
@@ -428,7 +493,7 @@ function UserChat() {
       }
     };
     fetchComments();
-  }, [eventId]);
+  }, [eventId, clubId]);
 
   const handleCommentAdded = (newComment) => {
     setComments((prev) => [...prev, newComment]);
@@ -460,7 +525,7 @@ function UserChat() {
           return updated;
         });
       } else {
-        const items = await showReplies(eventId, commentId);
+        const items = await showSmallGroupReplies(eventId, clubId, commentId);
         setReplies((prev) => ({ ...prev, [commentId]: items }));
       }
     } catch (error) {
@@ -547,19 +612,11 @@ function UserChat() {
                 {replyTarget === comment.commentId && (
                   <AddReplyMessage
                     eventId={eventId}
+                    clubId={clubId}
                     parentCommentId={comment.commentId}
                     onReplyAdded={handleReplyAdded}
                     onCancel={() => setReplyTarget(null)}
                   />
-                )}
-
-                {comment.replyCommentCount > 0 && (
-                  <ShowReply onClick={() => clickReply(comment.commentId)}>
-                    <img src={Aply} alt="reply icon" />
-                    {replies[comment.commentId]
-                      ? "답글 숨기기"
-                      : `답글 ${comment.replyCommentCount}개 더보기`}
-                  </ShowReply>
                 )}
 
                 {/* 대댓글 렌더링 */}
@@ -604,6 +661,14 @@ function UserChat() {
                       </div>
                     </div>
                   ))}
+                {comment.replyCommentCount > 0 && (
+                  <ShowReply onClick={() => clickReply(comment.commentId)}>
+                    <img src={Aply} alt="reply icon" />
+                    {replies[comment.commentId]
+                      ? "답글 숨기기"
+                      : `답글 ${comment.replyCommentCount}개 더보기`}
+                  </ShowReply>
+                )}
               </div>
             </div>
           </div>
@@ -624,8 +689,9 @@ function UserChat() {
         }}
       >
         <AddCommentMessage
-          eventId={eventId}
+          clubId={clubId}
           onCommentAdded={handleCommentAdded}
+          eventId={eventId}
         />
       </div>
 
@@ -637,12 +703,12 @@ function UserChat() {
   );
 }
 
-function AddCommentMessage({ eventId, onCommentAdded }) {
+function AddCommentMessage({ clubId, onCommentAdded, eventId }) {
   const [comment, setComment] = useState("");
   const handleAddComment = async () => {
     if (!comment.trim()) return;
     try {
-      const newComment = await addComment(eventId, comment);
+      const newComment = await addSmallGroupComment(eventId, clubId, comment);
       setComment("");
       if (onCommentAdded) onCommentAdded(newComment);
     } catch (error) {
@@ -665,14 +731,25 @@ function AddCommentMessage({ eventId, onCommentAdded }) {
     </div>
   );
 }
-function AddReplyMessage({ eventId, parentCommentId, onReplyAdded, onCancel }) {
+function AddReplyMessage({
+  eventId,
+  clubId,
+  parentCommentId,
+  onReplyAdded,
+  onCancel,
+}) {
   const [content, setContent] = useState("");
 
   const handleAddReply = async () => {
     if (!content.trim()) return;
 
     try {
-      const newReply = await addReply(eventId, parentCommentId, content);
+      const newReply = await addSmallGroupReply(
+        eventId,
+        clubId,
+        parentCommentId,
+        content
+      );
       if (onReplyAdded) onReplyAdded(newReply, parentCommentId);
       setContent("");
       if (onCancel) onCancel(); // 입력창 닫기
@@ -731,10 +808,10 @@ SmallGroup.DetailContent = DetailContent;
 SmallGroup.BodyTop = BodyTop;
 SmallGroup.LowBody = LowBody;
 SmallGroup.Low = Low;
-SmallGroup.UserChat = UserChat;
 SmallGroup.High = Hight;
 SmallGroup.LowHead = LowHead;
 SmallGroup.ShowImage = ShowImage;
 SmallGroup.BodyMiddle = BodyMiddle;
 SmallGroup.MiddleWho = MiddleWho;
 SmallGroup.TabMenu = TabMenu;
+SmallGroup.UserChat = UserChat;

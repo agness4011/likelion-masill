@@ -558,15 +558,6 @@ function UserChat() {
                   />
                 )}
 
-                {comment.replyCommentCount > 0 && (
-                  <ShowReply onClick={() => clickReply(comment.commentId)}>
-                    <img src={Aply} alt="reply icon" />
-                    {replies[comment.commentId]
-                      ? "답글 숨기기"
-                      : `답글 ${comment.replyCommentCount}개 더보기`}
-                  </ShowReply>
-                )}
-
                 {/* 대댓글 렌더링 */}
                 {replies[comment.commentId] &&
                   replies[comment.commentId].map((reply) => (
@@ -609,6 +600,14 @@ function UserChat() {
                       </div>
                     </div>
                   ))}
+                {comment.replyCommentCount > 0 && (
+                  <ShowReply onClick={() => clickReply(comment.commentId)}>
+                    <img src={Aply} alt="reply icon" />
+                    {replies[comment.commentId]
+                      ? "답글 숨기기"
+                      : `답글 ${comment.replyCommentCount}개 더보기`}
+                  </ShowReply>
+                )}
               </div>
             </div>
           </div>
@@ -790,7 +789,7 @@ function Group() {
 
   return (
     <div>
-      <MakeGroupBtn onClick={() => navigate("/writeSmallGroup")}>
+      <MakeGroupBtn onClick={() => navigate(`/writeSmallGroup/${eventId}`)}>
         모임 만들기
         <MakeGroupImg src={GroupImg} />
       </MakeGroupBtn>
@@ -830,7 +829,6 @@ function Group() {
                       onClick={(e) => clickHeart(e, group.clubId)}
                       style={{ cursor: "pointer" }}
                     />
-                    <span>{group.favoriteCount}</span>
                   </div>
                 </GroupTopRow>
 

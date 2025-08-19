@@ -42,6 +42,7 @@ import ChangeRegion from "./components/main/ChangeRegion";
 import ChangeRegionDetail from "./components/main/ChangeRegionDetail";
 import SmallGroupPage from "./pages/SmallGroupPage";
 import WriteSmallPage from "./pages/WriteSmallPage";
+import RetouchSmallPage from "./pages/RetouchSmallPage";
 
 export default function App() {
   return (
@@ -111,7 +112,14 @@ export default function App() {
               path="detail/:eventId/clubId/:clubId"
               element={<SmallGroupPage />}
             />
-            <Route path="writeSmallGroup" element={<WriteSmallPage />} />
+            <Route
+              path="writeSmallGroup/:eventId"
+              element={<WriteSmallPage />}
+            />
+            <Route
+              path="detail/:eventId/clubId/:clubId/retouchSmallGroup"
+              element={<RetouchSmallPage />}
+            />
 
             {/* 지역 선택 흐름 (글쓰기용) */}
             <Route path="region" element={<SignRegionPage />} />

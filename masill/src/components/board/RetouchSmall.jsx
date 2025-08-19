@@ -3,7 +3,11 @@ import React, { useState, useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
-import { addSmallGroup, detailBoard } from "../../api/boardApi";
+import {
+  retouchSmallGroup,
+  detailBoard,
+  smallGroupDetail,
+} from "../../api/boardApi";
 
 import BoardIcon from "../../assets/write/board.svg";
 import BackIcon from "../../assets/write/Arrow-Left.svg";
@@ -14,29 +18,10 @@ import {
   HeadTitle,
   HeadDiv,
   Formdiv,
-  UploadContainer,
-  UploadLeft,
-  UploadLabel,
-  UploadImgIcon,
-  UploadInput,
-  PreviewRight,
-  PreviewBox,
-  PreviewImg,
-  RemoveBtn,
-  RepresentativeTag,
-  UploadImgNum,
-  TotalImgNum,
   DetailDiv,
-  CategoryBtn,
-  Wrapper,
-  CategoryArea,
-  Categories,
-  LeftBtn,
-  RightBtn,
   TextStyle,
   InputStyle,
   InputWrapper,
-  MapImg,
   HeadBoardImg,
   TimeInput,
   TextArea,
@@ -47,14 +32,12 @@ import {
   ErrorDiv,
   overlayStyle,
   modalStyle,
-  ReigonInput,
-  CancleBtn,
   Div,
   MainEventDiv,
   BirdImg,
 } from "./WrtieSmall.styled";
 
-export default function WriteSmall({ children }) {
+export default function RetouchSmall({ children }) {
   return <div>{children}</div>;
 }
 
@@ -63,7 +46,7 @@ function Head() {
   return (
     <HeadDiv>
       <BackBtn src={BackIcon} onClick={() => navigate(-1)} />
-      <HeadTitle>모임만들기</HeadTitle>
+      <HeadTitle>모임 수정하기</HeadTitle>
       <HeadBoardImg src={BoardIcon} />
     </HeadDiv>
   );
@@ -114,7 +97,7 @@ function SetTitle({ title, setTitle, error, setTouched }) {
 
       <InputStyle
         type="text"
-        placeholder="이벤트 제목 입력"
+        placeholder="모임 제목 입력해주세요"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onBlur={() => setTouched(true)}
@@ -276,9 +259,37 @@ function WriteContext({ content, setContent, error, setTouched }) {
 // --- 최종 InputForm ---
 function InputForm() {
   const navigate = useNavigate();
-  const { eventId } = useParams();
+  const { eventId, clubId } = useParams();
+  const [club, setClub] = useState("");
+
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const res = await smallGroupDetail(eventId, clubId);
+        setClub(res);
+
+        // ✅ 초기값 세팅
+        setTitle(res.title || "");
+        setLocation(res.location || "");
+        setContent(res.content || "");
+        if (res.startAt) {
+          const start = new Date(res.startAt);
+          setStartDate(start);
+          setStartTime(start);
+        }
+      } catch (error) {
+        console.error("이벤트 조회 실패", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
+  }, [eventId, clubId]);
 
   // --- 기존 state ---
+
   const [title, setTitle] = useState("");
   const [titleError, setTitleError] = useState("");
   const [location, setLocation] = useState("");
@@ -358,7 +369,7 @@ function InputForm() {
         startAt: formatDateTimeLocal(startAt),
       };
 
-      const result = await addSmallGroup(eventId, payload);
+      const result = await retouchSmallGroup(eventId, clubId, payload);
 
       console.log("서버 응답:", result);
 
@@ -405,15 +416,15 @@ function InputForm() {
         {formError && <ErrorMessage>{formError}</ErrorMessage>}
       </ErrorDiv>
 
-      <SubmitBtn type="submit">작성 완료</SubmitBtn>
+      <SubmitBtn type="submit">수정 완료</SubmitBtn>
     </form>
   );
 }
-WriteSmall.SubmitButton = SubmitButton;
-WriteSmall.InputForm = InputForm;
+RetouchSmall.SubmitButton = SubmitButton;
+RetouchSmall.InputForm = InputForm;
 
-WriteSmall.Form = Form;
-WriteSmall.Head = Head;
-WriteSmall.SetTitle = SetTitle;
+RetouchSmall.Form = Form;
+RetouchSmall.Head = Head;
+RetouchSmall.SetTitle = SetTitle;
 
-WriteSmall.WriteContext = WriteContext;
+RetouchSmall.WriteContext = WriteContext;
