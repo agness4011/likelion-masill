@@ -23,7 +23,12 @@ import {
 import { privateAPI } from "../../api/axios";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import {
+  useNavigate,
+  Link,
+  useLocation,
+  useOutletContext,
+} from "react-router-dom";
 import {
   LocationDiv,
   LocationImg,
@@ -43,8 +48,7 @@ export default function Main({ children }) {
   return <MainContainer>{children}</MainContainer>;
 }
 const MainContainer = styled.div`
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
 `;
 // 배경 이미지
 function HigherContainer({ children }) {
@@ -212,7 +216,8 @@ function Post() {
 
   const [searchResults, setSearchResults] = useState(null); // 검색 결과 상태 추가
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태 추가
-  const [isSearchActive, setIsSearchActive] = useState(false); // 검색 활성화 상태 추가
+
+  const { isSearchActive, setIsSearchActive } = useOutletContext(); // 🔽 MainPage에서 내려준 함수 받기
 
   const regionId = JSON.parse(localStorage.getItem("currentUser"))?.regionId;
   console.log("currentUser///////////", localStorage.getItem("currentUser"));
@@ -233,16 +238,13 @@ function Post() {
     if (location.state?.searchResults) {
       setSearchResults(location.state.searchResults);
       setSearchTerm(location.state.searchTerm || "");
-      setIsSearchActive(true); // 검색 활성화
+      setIsSearchActive(true); // MainPage에 알림
     } else {
       setSearchResults(null);
       setSearchTerm("");
-      setIsSearchActive(false); // 검색 비활성화
+      setIsSearchActive(false); // MainPage에 알림
     }
-
-    // 게시글 작성 완료 후 새로고침 신호는 더 이상 사용하지 않음
-    // window.location.reload()를 사용하여 페이지 전체를 새로고침
-  }, [location.state]);
+  }, [location.state, setIsSearchActive]);
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -343,6 +345,13 @@ function Post() {
       navigate("/changeRegion");
     }
   };
+  // 검색 초기화 버튼
+  const handleClearSearch = () => {
+    setSearchResults(null);
+    setSearchTerm("");
+    setIsSearchActive(false); // MainPage에 알림
+    navigate("/main", { replace: true });
+  };
 
   // Heart 클릭 함수
   const clickHeart = async (eventId) => {
@@ -387,42 +396,36 @@ function Post() {
       <ToggleLoctionDiv>
         <LocationDiv onClick={handleRegionClick}>
           <LocationImg src={SetLocation} />
-          <LocationP>우리 마을 {myRegion}</LocationP>
+          <LocationP>우리 마을 [ {myRegion} ]</LocationP>
         </LocationDiv>
+        {!searchResults && (
+          <div style={{ position: "relative", width: 220 }}>
+            <ToggleOpenDiv onClick={toggleOpen}>
+              <p style={{ margin: 0 }}>{sortType}</p>
+              <Recommandimg src={Recommand} alt="toggle icon" />
+            </ToggleOpenDiv>
 
-        <div style={{ position: "relative", width: 220 }}>
-          <ToggleOpenDiv onClick={toggleOpen}>
-            <p style={{ margin: 0 }}>{sortType}</p>
-            <Recommandimg src={Recommand} alt="toggle icon" />
-          </ToggleOpenDiv>
-
-          {isOpen && (
-            <ToggleDiv>
-              {options.map((type) => (
-                <ToggleP key={type} onClick={() => handleSelect(type)}>
-                  {type}
-                </ToggleP>
-              ))}
-            </ToggleDiv>
-          )}
-        </div>
+            {isOpen && (
+              <ToggleDiv>
+                {options.map((type) => (
+                  <ToggleP key={type} onClick={() => handleSelect(type)}>
+                    {type}
+                  </ToggleP>
+                ))}
+              </ToggleDiv>
+            )}
+          </div>
+        )}
       </ToggleLoctionDiv>
 
+      {/* 검색 결과 표시 */}
       {/* 검색 결과 표시 */}
       {searchResults && (
         <SearchResultHeader>
           <SearchResultText>
             "{searchTerm}" 검색 결과 {searchResults.length}개
           </SearchResultText>
-          <ClearSearchButton
-            onClick={() => {
-              setSearchResults(null);
-              setSearchTerm("");
-              setIsSearchActive(false); // 검색 활성화 상태 비활성화
-              // 검색 초기화 후 원래 메인화면으로 이동
-              navigate("/main", { replace: true });
-            }}
-          >
+          <ClearSearchButton onClick={handleClearSearch}>
             검색 초기화
           </ClearSearchButton>
         </SearchResultHeader>
@@ -575,10 +578,10 @@ function MoveInterest() {
 
 const BoardContanier = styled.div`
   margin-left: 24px;
+  overflow-x: hidden;
 `;
 const PostWrapper = styled.div`
   padding: 0 0 8px 0;
-  margin-top: 13px;
   cursor: pointer;
   border-top: 2px solid var(--Gray-500, #c1cae0);
   &:hover {
@@ -804,7 +807,7 @@ const CategoryScroll = styled.div`
   scroll-behavior: smooth;
   margin-left: 24px;
   margin-right: 24px;
-  padding: 16px 0 10px 0;
+  padding: 16px 0 0 0;
   &::-webkit-scrollbar {
     display: none;
   }

@@ -22,7 +22,7 @@ const Container = styled.div`
   width: 100%;
   max-width: 100vw;
   position: relative;
-  
+
   /* 전체 페이지에서 가로 스크롤 방지 */
   & * {
     box-sizing: border-box;
@@ -57,11 +57,11 @@ const BackButton = styled.button`
   align-items: center;
   justify-content: center;
   margin-right: 12px;
-  
+
   &:hover {
     opacity: 0.7;
   }
-  
+
   img {
     width: 24px;
     height: 24px;
@@ -116,7 +116,7 @@ const UserAvatar = styled.div`
   color: white;
   overflow: hidden;
   margin-top: -40px;
-  
+
   border: 2px solid white;
   z-index: 1;
 `;
@@ -133,7 +133,7 @@ const OpponentAvatar = styled.div`
   font-weight: 600;
   color: white;
   overflow: hidden;
- 
+
   border: 2px solid white;
   margin-left: -25px;
   margin-top: 15px;
@@ -166,7 +166,7 @@ const ChatRoomInfo = styled.div`
 const UserName = styled.div`
   font-size: 16px;
   font-weight: 600;
-  color: #060D1D;
+  color: #060d1d;
   margin-bottom: 6px;
   display: flex;
   align-items: center;
@@ -183,12 +183,12 @@ const TimeDot = styled.div`
   width: 2px;
   height: 2px;
   border-radius: 50%;
-  background-color: #959EB7;
+  background-color: #959eb7;
 `;
 
 const TimeText = styled.span`
   font-size: 14px;
-  color: #959EB7;
+  color: #959eb7;
   font-weight: 400;
 `;
 
@@ -199,7 +199,9 @@ const LastMessage = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(100vw - 160px); /* 화면 너비에서 두 개의 아바타와 패딩을 뺀 값 */
+  max-width: calc(
+    100vw - 160px
+  ); /* 화면 너비에서 두 개의 아바타와 패딩을 뺀 값 */
   line-height: 1.4;
   width: 100%;
 `;
@@ -210,7 +212,7 @@ const MessageTime = styled.div`
 `;
 
 const UnreadBadge = styled.div`
-  background: #154AD0;
+  background: #154ad0;
   color: white;
   border-radius: 50%;
   padding: 2px 2px;
@@ -260,154 +262,197 @@ export default function ChatRoomPage() {
       const response = await getMyChatRooms({
         page: 1,
         size: 200,
-        sortBy: 'lastMessageAt',
-        sortDir: 'desc'
+        sortBy: "lastMessageAt",
+        sortDir: "desc",
       });
 
       if (response.success && response.data) {
         const rooms = response.data.content || [];
-        
-        console.log('채팅방 목록 데이터 전체 구조:', rooms);
-        
+
+        console.log("채팅방 목록 데이터 전체 구조:", rooms);
+
         // 각 채팅방의 상세 정보를 가져와서 상대방 정보 추출 (개별 채팅방과 동일한 방식)
         const roomsWithUserInfo = await Promise.all(
           rooms.map(async (room) => {
-            console.log('개별 채팅방 데이터:', room);
-            
+            console.log("개별 채팅방 데이터:", room);
+
             try {
               // 개별 채팅방과 동일한 방식으로 채팅방 상세 정보 조회
               const chatRoomResponse = await fetchChatRoom(room.roomId);
               console.log(`채팅방 ${room.roomId} 상세 정보:`, chatRoomResponse);
-              
-                             if (chatRoomResponse && chatRoomResponse.success && chatRoomResponse.data) {
-                 const chatRoomData = chatRoomResponse.data;
-                 
-                 // 개별 채팅방과 동일한 방식으로 상대방 정보 추출
-                 let targetUser = {
-                   nickname: chatRoomData.targetUsername || chatRoomData.targetUserNickname || chatRoomData.username || chatRoomData.userNickname || '사용자',
-                   profileImage: chatRoomData.targetUserImage || chatRoomData.targetUserProfileImage || chatRoomData.userImage || chatRoomData.userProfileImage || null
-                 };
-                 
-                 const targetUserId = chatRoomData.targetUserId || chatRoomData.userId;
-                 
-                 // 채팅방 데이터에서 상대방 정보 추출 (실제 프로필 이미지 확인)
-                 if (targetUserId) {
-                   const defaultUserInfo = {
-                     116: { nickname: 'test1', avatarId: 3 }, // test1은 기본 아바타 사용
-                     119: { nickname: 'test2', avatarId: 2 }  // test2는 기본 아바타 사용
-                   };
-                   const userInfo = defaultUserInfo[targetUserId];
-                   if (userInfo) {
-                     targetUser.nickname = userInfo.nickname;
-                     
-                     // test2의 경우 실제 변경된 프로필 이미지 확인
-                     if (targetUserId === 119) {
-                       // test2의 실제 변경된 프로필 이미지 URL (임시 하드코딩)
-                       const test2ProfileImage = 'https://masilbucket.s3.ap-northeast-2.amazonaws.com/profile/4d0348a7-c784-4c84-8d83-3b6f919793bf';
-                       targetUser.profileImage = test2ProfileImage; // 실제 변경된 이미지 사용
-                     } else {
-                       targetUser.profileImage = null; // 기본 아바타 사용
-                     }
-                   }
-                 }
-                
-                console.log(`채팅방 ${room.roomId} 상대방 정보 추출 완료:`, { 
-                  targetUser, 
+
+              if (
+                chatRoomResponse &&
+                chatRoomResponse.success &&
+                chatRoomResponse.data
+              ) {
+                const chatRoomData = chatRoomResponse.data;
+
+                // 개별 채팅방과 동일한 방식으로 상대방 정보 추출
+                let targetUser = {
+                  nickname:
+                    chatRoomData.targetUsername ||
+                    chatRoomData.targetUserNickname ||
+                    chatRoomData.username ||
+                    chatRoomData.userNickname ||
+                    "사용자",
+                  profileImage:
+                    chatRoomData.targetUserImage ||
+                    chatRoomData.targetUserProfileImage ||
+                    chatRoomData.userImage ||
+                    chatRoomData.userProfileImage ||
+                    null,
+                };
+
+                const targetUserId =
+                  chatRoomData.targetUserId || chatRoomData.userId;
+
+                // 채팅방 데이터에서 상대방 정보 추출 (실제 프로필 이미지 확인)
+                if (targetUserId) {
+                  const defaultUserInfo = {
+                    116: { nickname: "test1", avatarId: 3 }, // test1은 기본 아바타 사용
+                    119: { nickname: "test2", avatarId: 2 }, // test2는 기본 아바타 사용
+                  };
+                  const userInfo = defaultUserInfo[targetUserId];
+                  if (userInfo) {
+                    targetUser.nickname = userInfo.nickname;
+
+                    // test2의 경우 실제 변경된 프로필 이미지 확인
+                    if (targetUserId === 119) {
+                      // test2의 실제 변경된 프로필 이미지 URL (임시 하드코딩)
+                      const test2ProfileImage =
+                        "https://masilbucket.s3.ap-northeast-2.amazonaws.com/profile/4d0348a7-c784-4c84-8d83-3b6f919793bf";
+                      targetUser.profileImage = test2ProfileImage; // 실제 변경된 이미지 사용
+                    } else {
+                      targetUser.profileImage = null; // 기본 아바타 사용
+                    }
+                  }
+                }
+
+                console.log(`채팅방 ${room.roomId} 상대방 정보 추출 완료:`, {
+                  targetUser,
                   targetUserId,
-                  contextType: room.contextType
+                  contextType: room.contextType,
                 });
-                
+
                 return {
                   ...room,
                   targetUser,
-                  targetUserId
+                  targetUserId,
                 };
-                             } else {
-                 // 상세 정보 조회 실패 시 기본 정보 사용
-                 console.log(`채팅방 ${room.roomId} 상세 정보 조회 실패, 기본 정보 사용`);
-                 
-                 let targetUser = {
-                   nickname: room.targetUsername || room.targetUserNickname || room.username || room.userNickname || '사용자',
-                   profileImage: room.targetUserImage || room.targetUserProfileImage || room.userImage || room.userProfileImage || null
-                 };
-                 
-                 const targetUserId = room.targetUserId || room.userId;
-                 
-                 // 상대방 ID를 기반으로 기본 닉네임과 아바타 설정
-                 if (targetUserId) {
-                   const defaultUserInfo = {
-                     116: { nickname: 'test1', avatarId: 3 },
-                     119: { nickname: 'test2', avatarId: 2 }
-                   };
-                   const userInfo = defaultUserInfo[targetUserId];
-                   if (userInfo) {
-                     targetUser.nickname = userInfo.nickname;
-                     
-                     // test2의 경우 실제 변경된 프로필 이미지 확인
-                     if (targetUserId === 119) {
-                       // test2의 실제 변경된 프로필 이미지 URL (임시 하드코딩)
-                       const test2ProfileImage = 'https://masilbucket.s3.ap-northeast-2.amazonaws.com/profile/4d0348a7-c784-4c84-8d83-3b6f919793bf';
-                       targetUser.profileImage = test2ProfileImage;
-                     } else {
-                       targetUser.profileImage = null;
-                     }
-                   }
-                 }
-                 
-                 return {
-                   ...room,
-                   targetUser,
-                   targetUserId
-                 };
-               }
-                         } catch (error) {
-               console.error(`채팅방 ${room.roomId} 상세 정보 조회 중 오류:`, error);
-               // 오류 발생 시 기본 정보 사용
-               
-               let targetUser = {
-                 nickname: room.targetUsername || room.targetUserNickname || room.username || room.userNickname || '사용자',
-                 profileImage: room.targetUserImage || room.targetUserProfileImage || room.userImage || room.userProfileImage || null
-               };
-               
-               const targetUserId = room.targetUserId || room.userId;
-               
-                              // 상대방 ID를 기반으로 기본 닉네임과 아바타 설정
-               if (targetUserId) {
-                 const defaultUserInfo = {
-                   116: { nickname: 'test1', avatarId: 3 },
-                   119: { nickname: 'test2', avatarId: 2 }
-                 };
-                 const userInfo = defaultUserInfo[targetUserId];
-                 if (userInfo) {
-                   targetUser.nickname = userInfo.nickname;
-                   
-                   // test2의 경우 실제 변경된 프로필 이미지 확인
-                   if (targetUserId === 119) {
-                     // test2의 실제 변경된 프로필 이미지 URL (임시 하드코딩)
-                     const test2ProfileImage = 'https://masilbucket.s3.ap-northeast-2.amazonaws.com/profile/4d0348a7-c784-4c84-8d83-3b6f919793bf';
-                     targetUser.profileImage = test2ProfileImage;
-                   } else {
-                     targetUser.profileImage = null;
-                   }
-                 }
-               }
-               
-               return {
-                 ...room,
-                 targetUser,
-                 targetUserId
-               };
-             }
+              } else {
+                // 상세 정보 조회 실패 시 기본 정보 사용
+                console.log(
+                  `채팅방 ${room.roomId} 상세 정보 조회 실패, 기본 정보 사용`
+                );
+
+                let targetUser = {
+                  nickname:
+                    room.targetUsername ||
+                    room.targetUserNickname ||
+                    room.username ||
+                    room.userNickname ||
+                    "사용자",
+                  profileImage:
+                    room.targetUserImage ||
+                    room.targetUserProfileImage ||
+                    room.userImage ||
+                    room.userProfileImage ||
+                    null,
+                };
+
+                const targetUserId = room.targetUserId || room.userId;
+
+                // 상대방 ID를 기반으로 기본 닉네임과 아바타 설정
+                if (targetUserId) {
+                  const defaultUserInfo = {
+                    116: { nickname: "test1", avatarId: 3 },
+                    119: { nickname: "test2", avatarId: 2 },
+                  };
+                  const userInfo = defaultUserInfo[targetUserId];
+                  if (userInfo) {
+                    targetUser.nickname = userInfo.nickname;
+
+                    // test2의 경우 실제 변경된 프로필 이미지 확인
+                    if (targetUserId === 119) {
+                      // test2의 실제 변경된 프로필 이미지 URL (임시 하드코딩)
+                      const test2ProfileImage =
+                        "https://masilbucket.s3.ap-northeast-2.amazonaws.com/profile/4d0348a7-c784-4c84-8d83-3b6f919793bf";
+                      targetUser.profileImage = test2ProfileImage;
+                    } else {
+                      targetUser.profileImage = null;
+                    }
+                  }
+                }
+
+                return {
+                  ...room,
+                  targetUser,
+                  targetUserId,
+                };
+              }
+            } catch (error) {
+              console.error(
+                `채팅방 ${room.roomId} 상세 정보 조회 중 오류:`,
+                error
+              );
+              // 오류 발생 시 기본 정보 사용
+
+              let targetUser = {
+                nickname:
+                  room.targetUsername ||
+                  room.targetUserNickname ||
+                  room.username ||
+                  room.userNickname ||
+                  "사용자",
+                profileImage:
+                  room.targetUserImage ||
+                  room.targetUserProfileImage ||
+                  room.userImage ||
+                  room.userProfileImage ||
+                  null,
+              };
+
+              const targetUserId = room.targetUserId || room.userId;
+
+              // 상대방 ID를 기반으로 기본 닉네임과 아바타 설정
+              if (targetUserId) {
+                const defaultUserInfo = {
+                  116: { nickname: "test1", avatarId: 3 },
+                  119: { nickname: "test2", avatarId: 2 },
+                };
+                const userInfo = defaultUserInfo[targetUserId];
+                if (userInfo) {
+                  targetUser.nickname = userInfo.nickname;
+
+                  // test2의 경우 실제 변경된 프로필 이미지 확인
+                  if (targetUserId === 119) {
+                    // test2의 실제 변경된 프로필 이미지 URL (임시 하드코딩)
+                    const test2ProfileImage =
+                      "https://masilbucket.s3.ap-northeast-2.amazonaws.com/profile/4d0348a7-c784-4c84-8d83-3b6f919793bf";
+                    targetUser.profileImage = test2ProfileImage;
+                  } else {
+                    targetUser.profileImage = null;
+                  }
+                }
+              }
+
+              return {
+                ...room,
+                targetUser,
+                targetUserId,
+              };
+            }
           })
         );
-        
+
         setChatRooms(roomsWithUserInfo);
       } else {
-        setError('채팅방 목록을 불러올 수 없습니다.');
+        setError("채팅방 목록을 불러올 수 없습니다.");
       }
     } catch (err) {
-      console.error('채팅방 목록 조회 실패:', err);
-      setError('채팅방 목록을 불러오는데 실패했습니다.');
+      console.error("채팅방 목록 조회 실패:", err);
+      setError("채팅방 목록을 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -424,17 +469,17 @@ export default function ChatRoomPage() {
 
   // 시간 포맷팅 함수 (상대적 시간 표시)
   const formatTime = (timestamp) => {
-    if (!timestamp) return '';
-    
+    if (!timestamp) return "";
+
     let date;
     let isUtc = false;
-    
-    if (typeof timestamp === 'string') {
-      if (timestamp.includes('Z')) {
+
+    if (typeof timestamp === "string") {
+      if (timestamp.includes("Z")) {
         date = new Date(timestamp);
         isUtc = true;
-      } else if (timestamp.includes('T')) {
-        date = new Date(timestamp + 'Z');
+      } else if (timestamp.includes("T")) {
+        date = new Date(timestamp + "Z");
         isUtc = true;
       } else {
         date = new Date(timestamp);
@@ -444,22 +489,22 @@ export default function ChatRoomPage() {
       date = new Date(timestamp);
       isUtc = false;
     }
-    
+
     if (isNaN(date.getTime())) {
-      return '';
+      return "";
     }
-    
+
     let koreanDate;
     if (isUtc) {
-      koreanDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+      koreanDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
     } else {
       koreanDate = date;
     }
-    
+
     // 현재 시간도 한국 시간으로 계산
     const now = new Date();
-    const nowKorean = new Date(now.getTime() + (9 * 60 * 60 * 1000));
-    
+    const nowKorean = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+
     const diffInMs = nowKorean - koreanDate;
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
@@ -467,7 +512,7 @@ export default function ChatRoomPage() {
     const diffInWeeks = Math.floor(diffInMs / (1000 * 60 * 60 * 24 * 7));
 
     if (diffInMinutes < 1) {
-      return '방금 전';
+      return "방금 전";
     } else if (diffInMinutes < 60) {
       return `${diffInMinutes}분 전`;
     } else if (diffInHours < 24) {
@@ -483,17 +528,17 @@ export default function ChatRoomPage() {
 
   // 정확한 시간 포맷팅 함수 (오전/오후 시:분)
   const formatExactTime = (timestamp) => {
-    if (!timestamp) return '';
-    
+    if (!timestamp) return "";
+
     let date;
     let isUtc = false;
-    
-    if (typeof timestamp === 'string') {
-      if (timestamp.includes('Z')) {
+
+    if (typeof timestamp === "string") {
+      if (timestamp.includes("Z")) {
         date = new Date(timestamp);
         isUtc = true;
-      } else if (timestamp.includes('T')) {
-        date = new Date(timestamp + 'Z');
+      } else if (timestamp.includes("T")) {
+        date = new Date(timestamp + "Z");
         isUtc = true;
       } else {
         date = new Date(timestamp);
@@ -503,39 +548,42 @@ export default function ChatRoomPage() {
       date = new Date(timestamp);
       isUtc = false;
     }
-    
+
     if (isNaN(date.getTime())) {
-      return '';
+      return "";
     }
-    
+
     let koreanHour, koreanMinute;
-    
+
     if (isUtc) {
-      const koreanDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+      const koreanDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
       koreanHour = koreanDate.getUTCHours();
       koreanMinute = koreanDate.getUTCMinutes();
     } else {
       koreanHour = date.getHours();
       koreanMinute = date.getMinutes();
     }
-    
-    const period = koreanHour >= 12 ? '오후' : '오전';
-    const displayHour = koreanHour > 12 ? koreanHour - 12 : (koreanHour === 0 ? 12 : koreanHour);
-    
-    return `${period} ${displayHour.toString().padStart(2, '0')}:${koreanMinute.toString().padStart(2, '0')}`;
+
+    const period = koreanHour >= 12 ? "오후" : "오전";
+    const displayHour =
+      koreanHour > 12 ? koreanHour - 12 : koreanHour === 0 ? 12 : koreanHour;
+
+    return `${period} ${displayHour.toString().padStart(2, "0")}:${koreanMinute
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   // 컨텍스트 타입에 따른 표시 텍스트
   const getContextTypeText = (contextType) => {
     switch (contextType) {
-      case 'EVENT_POST':
-        return '이벤트';
-      case 'COMMENT':
-        return '댓글';
-      case 'CLUB_POST':
-        return '소모임';
+      case "EVENT_POST":
+        return "이벤트";
+      case "COMMENT":
+        return "댓글";
+      case "CLUB_POST":
+        return "소모임";
       default:
-        return '채팅';
+        return "채팅";
     }
   };
 
@@ -567,7 +615,7 @@ export default function ChatRoomPage() {
   return (
     <Container>
       <Header>
-        <BackButton onClick={() => navigate('/myhome')}>
+        <BackButton onClick={() => navigate("/myhome")}>
           <img src={MainArrowLeftIcon} alt="뒤로가기" />
         </BackButton>
         <HeaderTitle>채팅</HeaderTitle>
@@ -583,10 +631,10 @@ export default function ChatRoomPage() {
         ) : (
           chatRooms.map((room) => {
             // 개별 채팅방과 동일한 방식으로 상대방 정보 추출
-            const targetNickname = room.targetUser?.nickname || '사용자';
+            const targetNickname = room.targetUser?.nickname || "사용자";
             const targetProfileImage = room.targetUser?.profileImage;
             const avatarText = targetNickname.charAt(0).toUpperCase();
-            
+
             // 아바타 아이콘 매핑
             const avatarIcons = {
               1: Avatar1Icon,
@@ -594,9 +642,9 @@ export default function ChatRoomPage() {
               3: Avatar3Icon,
               4: Avatar4Icon,
               5: Avatar5Icon,
-              6: Avatar6Icon
+              6: Avatar6Icon,
             };
-            
+
             // 상대방 ID에 따른 아바타 아이콘 결정 (실제 프로필 이미지 우선 적용)
             let opponentAvatarIcon = null;
             if (room.targetUserId) {
@@ -607,8 +655,8 @@ export default function ChatRoomPage() {
               } else {
                 // 상대방이 기본 아바타를 사용하는 경우
                 const defaultUserInfo = {
-                  116: { nickname: 'test1', avatarId: 3 }, // test1은 기본 아바타 사용
-                  119: { nickname: 'test2', avatarId: 2 }   // test2는 기본 아바타 사용 (변경되지 않은 경우)
+                  116: { nickname: "test1", avatarId: 3 }, // test1은 기본 아바타 사용
+                  119: { nickname: "test2", avatarId: 2 }, // test2는 기본 아바타 사용 (변경되지 않은 경우)
                 };
                 const userInfo = defaultUserInfo[room.targetUserId];
                 if (userInfo) {
@@ -616,17 +664,22 @@ export default function ChatRoomPage() {
                 }
               }
             }
-            
+
             // 본인 아바타 아이콘 결정 (프로필 이미지 변경 여부에 따라)
-            const currentUserId = userData?.id || localStorage.getItem('currentUserId');
-            const userAvatarId = userData?.avatarId || localStorage.getItem('userAvatarId') || 1;
-            
+            const currentUserId =
+              userData?.id || localStorage.getItem("currentUserId");
+            const userAvatarId =
+              userData?.avatarId || localStorage.getItem("userAvatarId") || 1;
+
             // 프로필 이미지가 변경되었는지 확인
-            const hasCustomProfileImage = userData?.profileImage && userData.profileImage !== null;
-            const myAvatarIcon = hasCustomProfileImage ? userData.profileImage : (avatarIcons[userAvatarId] || Avatar1Icon);
-            
+            const hasCustomProfileImage =
+              userData?.profileImage && userData.profileImage !== null;
+            const myAvatarIcon = hasCustomProfileImage
+              ? userData.profileImage
+              : avatarIcons[userAvatarId] || Avatar1Icon;
+
             return (
-              <ChatRoomItem 
+              <ChatRoomItem
                 key={room.roomId}
                 onClick={() => handleChatRoomClick(room.roomId)}
               >
@@ -634,65 +687,69 @@ export default function ChatRoomPage() {
                 <ProfileImagesContainer>
                   {/* 본인 프로필 (왼쪽) */}
                   <UserAvatar>
-                    {typeof myAvatarIcon === 'string' && myAvatarIcon.startsWith('http') ? (
+                    {typeof myAvatarIcon === "string" &&
+                    myAvatarIcon.startsWith("http") ? (
                       // 실제 프로필 이미지 URL인 경우
-                      <UserAvatarImage 
-                        src={myAvatarIcon} 
+                      <UserAvatarImage
+                        src={myAvatarIcon}
                         alt="내 프로필"
                         onError={(e) => {
                           // 이미지 로드 실패 시 기본 아바타로 폴백
-                          const fallbackAvatarId = userData?.avatarId || localStorage.getItem('userAvatarId') || 1;
-                          e.target.src = avatarIcons[fallbackAvatarId] || Avatar1Icon;
+                          const fallbackAvatarId =
+                            userData?.avatarId ||
+                            localStorage.getItem("userAvatarId") ||
+                            1;
+                          e.target.src =
+                            avatarIcons[fallbackAvatarId] || Avatar1Icon;
                         }}
                       />
                     ) : (
                       // SVG 아이콘인 경우
-                      <UserAvatarImage 
-                        src={myAvatarIcon} 
-                        alt="내 프로필"
-                      />
+                      <UserAvatarImage src={myAvatarIcon} alt="내 프로필" />
                     )}
                   </UserAvatar>
-                  
+
                   {/* 상대방 프로필 (오른쪽) */}
                   <OpponentAvatar>
                     {opponentAvatarIcon ? (
-                      typeof opponentAvatarIcon === 'string' && opponentAvatarIcon.startsWith('http') ? (
+                      typeof opponentAvatarIcon === "string" &&
+                      opponentAvatarIcon.startsWith("http") ? (
                         // 실제 프로필 이미지 URL인 경우
-                        <OpponentAvatarImage 
-                          src={opponentAvatarIcon} 
+                        <OpponentAvatarImage
+                          src={opponentAvatarIcon}
                           alt={`${targetNickname} 프로필`}
                           onError={(e) => {
                             // 이미지 로드 실패 시 텍스트 아바타로 폴백
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
+                            e.target.style.display = "none";
+                            e.target.nextSibling.style.display = "flex";
                           }}
                         />
                       ) : (
                         // SVG 아이콘인 경우
-                        <OpponentAvatarImage 
-                          src={opponentAvatarIcon} 
+                        <OpponentAvatarImage
+                          src={opponentAvatarIcon}
                           alt={`${targetNickname} 프로필`}
                         />
                       )
                     ) : null}
                     {/* 텍스트 아바타 (폴백) */}
-                    <div style={{ 
-                      width: '100%',
-                      height: '100%',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      color: 'white',
-                      display: 'flex',
-                      display: opponentAvatarIcon ? 'none' : 'flex'
-                    }}>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "16px",
+                        fontWeight: "600",
+                        color: "white",
+                        display: opponentAvatarIcon ? "none" : "flex",
+                      }}
+                    >
                       {avatarText}
                     </div>
                   </OpponentAvatar>
                 </ProfileImagesContainer>
-                
+
                 {/* 채팅방 정보 */}
                 <ChatRoomInfo>
                   {/* 상대방 닉네임과 시간 */}
@@ -706,12 +763,12 @@ export default function ChatRoomPage() {
                       <UnreadBadge>{room.myUnreadCount}</UnreadBadge>
                     )}
                   </UserName>
-                  
+
                   {/* 마지막 메시지 */}
                   <LastMessage>
-                    {room.lastMessage || '메시지가 없습니다.'}
+                    {room.lastMessage || "메시지가 없습니다."}
                   </LastMessage>
-                  
+
                   {/* 마지막 메시지 시간 */}
                   <MessageTime>
                     {formatExactTime(room.lastMessageAt)}
