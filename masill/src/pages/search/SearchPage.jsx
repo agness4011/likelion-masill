@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useNavigate, useLocation } from 'react-router-dom';
-import ArrowLeftIcon from '@assets/logo/main/main-arrowleft.svg';
-import BirdIcon from '@logo/bird.svg';
-import SearchIcon from '@logo/search/searchicon.svg';
-import SearchArrowRight from '@logo/search/search-arrowright.svg';
-import { fetchAllBoards, fetchAllBoardsForSearch } from '../../api/boardApi';
-import dayjs from 'dayjs';
-import Fullheart from '@logo/mainImg/fullheart.png';
-import Heart from '@logo/mainImg/Heart.png';
-import Comment from '@logo/mainImg/commant.png';
-import SetLocation from '@logo/mainImg/set.png';
-import Recommand from '@logo/mainImg/recommand.png';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { useNavigate, useLocation } from "react-router-dom";
+import ArrowLeftIcon from "@assets/logo/main/main-arrowleft.svg";
+import BirdIcon from "@logo/bird.svg";
+import SearchIcon from "@logo/search/searchicon.svg";
+import SearchArrowRight from "@logo/search/search-arrowright.svg";
+import { fetchAllBoards, fetchAllBoardsForSearch } from "../../api/boardApi";
+import dayjs from "dayjs";
+import Fullheart from "@logo/mainImg/fullheart.png";
+import Heart from "@logo/mainImg/Heart.png";
+import Comment from "@logo/mainImg/commant.png";
+import SetLocation from "@logo/mainImg/set.png";
+import Recommand from "@logo/mainImg/recommand.png";
 
 const Container = styled.div`
   height: 100%;
@@ -45,7 +45,6 @@ const BackButton = styled.button`
   justify-content: center;
   width: 24px;
   height: 24px;
-  margin-right: 12px;
 `;
 
 const BackIcon = styled.img`
@@ -62,14 +61,30 @@ const SearchInput = styled.input`
   width: 100%;
   padding: 12px 40px 12px 16px;
   border: none;
-  border-radius: 20px;
-  background: #f8f9fa;
-  font-size: 16px;
+
   outline: none;
-  
+
+  width: 313px;
+  height: 42px;
+  flex-shrink: 0;
+
+  border-radius: 18px;
+  background: var(--BG, #fbfcff);
+  /* 박스 이너셰도 */
+  box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.4) inset;
+
   &::placeholder {
     color: #999;
   }
+
+  color: var(--Gray-700, #959eb7);
+  /* SUB BIGEST */
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
 `;
 
 const SearchIconWrapper = styled.div`
@@ -95,6 +110,7 @@ const Content = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  background: var(--Gray-100, #f4f7ff);
 `;
 
 const RecentSearches = styled.div`
@@ -112,21 +128,36 @@ const SectionHeader = styled.div`
 const SectionTitle = styled.h3`
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
-  color: #333;
+
+  color: var(--Gray-900, #727c94);
+  /* SUB BOLD */
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%; /* 14.4px */
+  letter-spacing: 0.12px;
 `;
 
 const DeleteAllButton = styled.button`
   background: none;
   border: none;
-  color: #666;
+  color: var(--Gray-700, #959eb7);
   font-size: 14px;
   cursor: pointer;
   padding: 4px 8px;
-  
+
   &:hover {
-    color: #333;
+    color: var(--Gray-700, #959eb7);
   }
+
+  /* SUB MID */
+  font-family: Pretendard;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%; /* 14.4px */
+  letter-spacing: 0.12px;
 `;
 
 const SearchItem = styled.div`
@@ -135,22 +166,27 @@ const SearchItem = styled.div`
   align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid #f0f0f0;
-  
+
   &:last-child {
     border-bottom: none;
   }
 `;
 
 const SearchTerm = styled.span`
+  /* 16 MID */
+  font-family: Pretendard;
   font-size: 16px;
-  color: #333;
-  flex: 1;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
+  color: var(--Gray-900, #727c94);
 `;
 
 const DeleteButton = styled.button`
-  background: none;
+  background: #c1cae0;
   border: none;
-  color: #ccc;
+  color: var(--Gray-100, #f4f7ff);
   font-size: 16px;
   cursor: pointer;
   padding: 4px;
@@ -159,9 +195,12 @@ const DeleteButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+  text-align: center;
+
+  border-radius: 50%;
+
   &:hover {
-    color: #999;
+    background: #a3aabd;
   }
 `;
 
@@ -209,9 +248,9 @@ const Bubble = styled.div`
   line-height: 1.4;
   position: relative;
   min-width: 250px;
-  
-  ${({ variant }) => 
-    variant === 'primary' 
+
+  ${({ variant }) =>
+    variant === "primary"
       ? `
         background: white;
         border: 1px solid #e9ecef;
@@ -229,8 +268,7 @@ const Bubble = styled.div`
         &:hover {
           background: #fff5f2;
         }
-      `
-  }
+      `}
 `;
 
 const ArrowIcon = styled.img`
@@ -251,7 +289,7 @@ const SearchKeywordDisplay = styled.div`
   margin-bottom: 16px;
   font-size: 14px;
   color: #666;
-  border-left: 4px solid #007AFF;
+  border-left: 4px solid #007aff;
 `;
 
 const SearchKeywordText = styled.span`
@@ -269,8 +307,6 @@ const NoResultsContainer = styled.div`
 `;
 
 const NoResultsMessage = styled.div`
-  font-size: 16px;
-  color: #333;
   margin-bottom: 40px;
   line-height: 1.5;
 `;
@@ -286,12 +322,12 @@ const NoResultsBirdImage = styled.img`
   width: 80px;
   height: 80px;
   position: absolute;
-  
+
   &:first-child {
     top: 0;
     left: 20px;
   }
-  
+
   &:last-child {
     bottom: 0;
     right: 20px;
@@ -418,6 +454,34 @@ const CommentImg = styled.img`
   height: 20px;
 `;
 
+const NoResults = styled.p`
+  color: var(--Dark-Text, #060d1d);
+  text-align: center;
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+`;
+
+const NoResultsText = styled.p`
+  color: var(--Dark-Text, #060d1d);
+  /* 16 MID */
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%;
+  letter-spacing: 0.32px;
+`;
+
 // 더미 데이터 제거
 // const recentSearches = [
 //   "성북 청년의 날 행사",
@@ -429,7 +493,7 @@ const CommentImg = styled.img`
 const SearchPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [searches, setSearches] = useState([]); // 빈 배열로 시작
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -437,12 +501,12 @@ const SearchPage = () => {
 
   // localStorage에서 검색 기록 불러오기
   useEffect(() => {
-    const savedSearches = localStorage.getItem('recentSearches');
+    const savedSearches = localStorage.getItem("recentSearches");
     if (savedSearches) {
       try {
         setSearches(JSON.parse(savedSearches));
       } catch (error) {
-        console.error('검색 기록 불러오기 실패:', error);
+        console.error("검색 기록 불러오기 실패:", error);
         setSearches([]);
       }
     }
@@ -453,23 +517,23 @@ const SearchPage = () => {
     const loadAllPosts = async () => {
       try {
         // 사용자의 현재 지역 ID 가져오기
-        const currentRegionId = localStorage.getItem('selectedRegionId');
-        console.log('현재 지역 ID:', currentRegionId);
-        
+        const currentRegionId = localStorage.getItem("selectedRegionId");
+        console.log("현재 지역 ID:", currentRegionId);
+
         // 현재 지역의 게시글을 더 많이 가져오기 (size를 100으로 증가)
         const res = await fetchAllBoards(currentRegionId, 1, 100);
         const posts = res?.data?.content || [];
-        console.log('로드된 게시글 데이터:', posts);
-        console.log('게시글 개수:', posts.length);
-        
+        console.log("로드된 게시글 데이터:", posts);
+        console.log("게시글 개수:", posts.length);
+
         // 각 게시글의 구조 확인
         if (posts.length > 0) {
-          console.log('첫 번째 게시글 구조:', posts[0]);
+          console.log("첫 번째 게시글 구조:", posts[0]);
         }
-        
+
         setAllPosts(posts);
       } catch (error) {
-        console.error('게시글 데이터 로드 실패:', error);
+        console.error("게시글 데이터 로드 실패:", error);
         setAllPosts([]);
       }
     };
@@ -480,9 +544,9 @@ const SearchPage = () => {
   // 검색 기록을 localStorage에 저장하는 함수
   const saveSearchesToStorage = (newSearches) => {
     try {
-      localStorage.setItem('recentSearches', JSON.stringify(newSearches));
+      localStorage.setItem("recentSearches", JSON.stringify(newSearches));
     } catch (error) {
-      console.error('검색 기록 저장 실패:', error);
+      console.error("검색 기록 저장 실패:", error);
     }
   };
 
@@ -499,58 +563,62 @@ const SearchPage = () => {
       setSearchResults([]);
       setIsSearching(false);
       // If query is empty, still navigate to main to clear previous search
-      navigate('/main', { 
-        state: { 
+      navigate("/main", {
+        state: {
           searchResults: [],
-          searchTerm: '' 
-        } 
+          searchTerm: "",
+        },
       });
       return;
     }
 
     setIsSearching(true);
-    
-    console.log('검색 시작:', query);
-    console.log('검색할 데이터:', allPosts);
-    console.log('데이터 개수:', allPosts.length);
-    
+
+    console.log("검색 시작:", query);
+    console.log("검색할 데이터:", allPosts);
+    console.log("데이터 개수:", allPosts.length);
+
     // 실제 API 데이터에서 검색
     const searchQuery = query.toLowerCase();
-    const results = allPosts.filter(post => {
-      const title = (post.title || '').toLowerCase();
-      const location = (post.location || '').toLowerCase();
-      const detailLocation = (post.detailLocation || '').toLowerCase();
-      const content = (post.content || '').toLowerCase();
-      
+    const results = allPosts.filter((post) => {
+      const title = (post.title || "").toLowerCase();
+      const location = (post.location || "").toLowerCase();
+      const detailLocation = (post.detailLocation || "").toLowerCase();
+      const content = (post.content || "").toLowerCase();
+
       const titleMatch = title.includes(searchQuery);
       const locationMatch = location.includes(searchQuery);
       const detailLocationMatch = detailLocation.includes(searchQuery);
       const contentMatch = content.includes(searchQuery);
-      
-      const isMatch = titleMatch || locationMatch || detailLocationMatch || contentMatch;
-      
+
+      const isMatch =
+        titleMatch || locationMatch || detailLocationMatch || contentMatch;
+
       if (isMatch) {
-        console.log('매칭된 게시글:', {
+        console.log("매칭된 게시글:", {
           title: post.title,
           location: post.location,
           detailLocation: post.detailLocation,
-          content: post.content?.substring(0, 50) + '...'
+          content: post.content?.substring(0, 50) + "...",
         });
       }
-      
+
       return isMatch;
     });
-    
-    console.log('검색 결과 개수:', results.length);
-    console.log('검색 결과:', results);
-    
+
+    console.log("검색 결과 개수:", results.length);
+    console.log("검색 결과:", results);
+
     setSearchResults(results);
     setIsSearching(false);
-    
+
     // 검색어를 최근 검색에 추가
     if (query.trim()) {
-      setSearches(prev => {
-        const newSearches = [query.trim(), ...prev.filter(search => search !== query.trim())];
+      setSearches((prev) => {
+        const newSearches = [
+          query.trim(),
+          ...prev.filter((search) => search !== query.trim()),
+        ];
         const finalSearches = newSearches.slice(0, 10);
         saveSearchesToStorage(finalSearches);
         return finalSearches;
@@ -559,19 +627,19 @@ const SearchPage = () => {
 
     // 검색 결과가 있으면 바로 메인화면으로 이동
     if (results.length > 0) {
-      navigate('/main', { 
-        state: { 
+      navigate("/main", {
+        state: {
           searchResults: results,
-          searchTerm: query 
-        } 
+          searchTerm: query,
+        },
       });
     } else {
       // 검색 결과가 없어도 메인화면으로 이동 (빈 결과 표시)
-      navigate('/main', { 
-        state: { 
+      navigate("/main", {
+        state: {
           searchResults: [],
-          searchTerm: query 
-        } 
+          searchTerm: query,
+        },
       });
     }
   };
@@ -588,7 +656,7 @@ const SearchPage = () => {
   };
 
   const handleSearch = (e) => {
-    if (e.key === 'Enter' && searchTerm.trim()) {
+    if (e.key === "Enter" && searchTerm.trim()) {
       performSearch(searchTerm);
     }
   };
@@ -600,7 +668,7 @@ const SearchPage = () => {
   };
 
   const handleRecommendation = () => {
-    navigate('/chat/7');
+    navigate("/chat/7");
   };
 
   const handleResultClick = (eventId) => {
@@ -622,11 +690,11 @@ const SearchPage = () => {
             onKeyDown={handleSearch}
           />
           <SearchIconWrapper>
-            <SearchIconImage 
-              src={SearchIcon} 
-              alt="검색" 
+            <SearchIconImage
+              src={SearchIcon}
+              alt="검색"
               onClick={handleSearchIconClick}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
             />
           </SearchIconWrapper>
         </SearchContainer>
@@ -634,7 +702,9 @@ const SearchPage = () => {
 
       <Content>
         {isSearching ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#666' }}>
+          <div
+            style={{ textAlign: "center", padding: "40px 20px", color: "#666" }}
+          >
             검색 중...
           </div>
         ) : (
@@ -647,43 +717,47 @@ const SearchPage = () => {
                   전체 삭제
                 </DeleteAllButton>
               </SectionHeader>
-              
+
               {searches.map((search, index) => (
                 <SearchItem key={index}>
-                  <SearchTerm 
+                  <SearchTerm
                     onClick={() => {
                       setSearchTerm(search);
                       // 최근 검색어 클릭 시 바로 검색 실행
                       const searchQuery = search.toLowerCase();
-                      const results = allPosts.filter(post => {
-                        const title = (post.title || '').toLowerCase();
-                        const location = (post.location || '').toLowerCase();
-                        const detailLocation = (post.detailLocation || '').toLowerCase();
-                        const content = (post.content || '').toLowerCase();
-                        
-                        return title.includes(searchQuery) || 
-                               location.includes(searchQuery) || 
-                               detailLocation.includes(searchQuery) ||
-                               content.includes(searchQuery);
+                      const results = allPosts.filter((post) => {
+                        const title = (post.title || "").toLowerCase();
+                        const location = (post.location || "").toLowerCase();
+                        const detailLocation = (
+                          post.detailLocation || ""
+                        ).toLowerCase();
+                        const content = (post.content || "").toLowerCase();
+
+                        return (
+                          title.includes(searchQuery) ||
+                          location.includes(searchQuery) ||
+                          detailLocation.includes(searchQuery) ||
+                          content.includes(searchQuery)
+                        );
                       });
-                      
+
                       if (results.length > 0) {
-                        navigate('/main', { 
-                          state: { 
+                        navigate("/main", {
+                          state: {
                             searchResults: results,
-                            searchTerm: search 
-                          } 
+                            searchTerm: search,
+                          },
                         });
                       } else {
-                        navigate('/main', { 
-                          state: { 
+                        navigate("/main", {
+                          state: {
                             searchResults: [],
-                            searchTerm: search 
-                          } 
+                            searchTerm: search,
+                          },
                         });
                       }
                     }}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: "pointer" }}
                   >
                     {search}
                   </SearchTerm>
@@ -698,9 +772,10 @@ const SearchPage = () => {
             {searchResults.length > 0 && (
               <SearchResultsContainer>
                 <SearchKeywordDisplay>
-                  <SearchKeywordText>"{searchTerm}"</SearchKeywordText> 검색 결과 {searchResults.length}개
+                  <SearchKeywordText>"{searchTerm}"</SearchKeywordText> 검색
+                  결과 {searchResults.length}개
                 </SearchKeywordDisplay>
-                
+
                 {searchResults.map((result) => (
                   <PostWrapper
                     key={result.eventId}
@@ -760,17 +835,20 @@ const SearchPage = () => {
             )}
 
             {/* 검색 결과가 없을 때 메시지 */}
-            {searchTerm.trim() && searchResults.length === 0 && !isSearching && (
-              <NoResultsContainer>
-                <NoResultsMessage>
-                  {searchTerm}에 대한 검색결과가 없습니다.
-                </NoResultsMessage>
-                <BirdsContainer>
-                  <NoResultsBirdImage src={BirdIcon} alt="새1" />
-                  <NoResultsBirdImage src={BirdIcon} alt="새2" />
-                </BirdsContainer>
-              </NoResultsContainer>
-            )}
+            {searchTerm.trim() &&
+              searchResults.length === 0 &&
+              !isSearching && (
+                <NoResultsContainer>
+                  <NoResultsMessage>
+                    <NoResults>{searchTerm}</NoResults>
+                    <NoResultsText>에 대한 검색결과가 없습니다.</NoResultsText>
+                  </NoResultsMessage>
+                  <BirdsContainer>
+                    <NoResultsBirdImage src={BirdIcon} alt="새1" />
+                    <NoResultsBirdImage src={BirdIcon} alt="새2" />
+                  </BirdsContainer>
+                </NoResultsContainer>
+              )}
 
             {/* 추천 섹션 */}
             {!searchTerm.trim() && (

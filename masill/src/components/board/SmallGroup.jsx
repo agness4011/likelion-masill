@@ -392,7 +392,7 @@ function MiddleWho() {
     <UserDiv>
       <UserImg src={eventData.userImage} alt="유저 이미지" />
       <UserNickName>{eventData.username}</UserNickName>
-      {club?.author && (
+      {club?.author || (
         <ChatBtn>
           대화하기
           <ChatImg src={Chat} />

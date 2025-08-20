@@ -14,18 +14,6 @@ import {
   HeadTitle,
   HeadDiv,
   Formdiv,
-  UploadContainer,
-  UploadLeft,
-  UploadLabel,
-  UploadImgIcon,
-  UploadInput,
-  PreviewRight,
-  PreviewBox,
-  PreviewImg,
-  RemoveBtn,
-  RepresentativeTag,
-  UploadImgNum,
-  TotalImgNum,
   DetailDiv,
   CategoryBtn,
   Wrapper,
@@ -53,10 +41,15 @@ import {
   MainEventDiv,
   BirdImg,
 } from "./WrtieSmall.styled";
+import styled from "styled-components";
 
 export default function WriteSmall({ children }) {
-  return <div>{children}</div>;
+  return <WriteWrapper>{children}</WriteWrapper>;
 }
+const WriteWrapper = styled.div`
+  overflow-x: hidden;
+  overflow-y: hidden;
+`;
 
 function Head() {
   const navigate = useNavigate();

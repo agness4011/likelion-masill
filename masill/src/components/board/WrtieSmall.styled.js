@@ -5,6 +5,7 @@ export const BackBtn = styled.img`
   height: 30px;
   flex-shrink: 0;
   aspect-ratio: 1/1;
+  cursor: pointer;
 `;
 export const HeadTitle = styled.h2`
   color: var(--Dark-Text, #060d1d);
@@ -34,9 +35,12 @@ export const HeadDiv = styled.div`
   padding: 10px 24px 16.768px 0; /* 오른쪽에 24px 여백 */
   gap: 16.768px;
   flex-shrink: 0;
+  margin-left: 15px;
 `;
 export const Formdiv = styled.div`
   background: var(--BG, #fbfcff);
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 export const UploadContainer = styled.div`
   display: flex;
@@ -483,9 +487,12 @@ export const MainEventDiv = styled.div`
 
   width: fit-content;
   padding: 6px 12px;
+
+  margin-left: 24px;
 `;
 export const BirdImg = styled.img`
   width: 125px;
   height: 124px;
   flex-shrink: 0;
+  margin-left: 130px;
 `;
