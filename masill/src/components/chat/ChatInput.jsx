@@ -31,7 +31,7 @@ const SendButton = styled.button`
   width: 40px;
   height: 40px;
   border: none;
-  background: #007AFF;
+  
   color: #fff;
   border-radius: 50%;
   cursor: pointer;

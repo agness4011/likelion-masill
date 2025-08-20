@@ -198,17 +198,8 @@ const MenuItem = styled.div`
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   
-  &:hover {
-    background: #f8f9fa;
-    border-color: #dee2e6;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
+
+
 `;
 
 const MenuIcon = styled.div`
@@ -316,6 +307,10 @@ const MyHomePage = () => {
   const [bird1Position, setBird1Position] = React.useState({ x: 160, y: 120 });
   const [bird2Position, setBird2Position] = React.useState({ x: 220, y: 101 });
 
+  const handleHome = () => {
+    navigate('/myhome');
+  };
+
   const handleEditProfile = () => {
     navigate('/board');
   };
@@ -329,7 +324,7 @@ const MyHomePage = () => {
   };
 
   const handleProfile = () => {
-    console.log('메인화면으로 이동');
+
     navigate('/main');
   };
 
@@ -443,7 +438,7 @@ const MyHomePage = () => {
 
       {/* 헤더 */}
       <Header>
-        <Logo>
+        <Logo onClick={handleProfile} style={{ cursor: 'pointer' }}>
           <LogoImage src={MasilLogoIcon} alt="마실" />
         </Logo>
         <ActionIcons>
@@ -456,7 +451,7 @@ const MyHomePage = () => {
           <IconButton onClick={handleChat}>
             <IconImage src={ChatIcon} alt="채팅" />
           </IconButton>
-          <IconButton onClick={handleProfile}>
+          <IconButton onClick={handleHome}>
             <IconImage src={HomeIcon} alt="홈" />
           </IconButton>
         </ActionIcons>

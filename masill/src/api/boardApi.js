@@ -112,7 +112,13 @@ export const detailImg = async (eventId) => {
 
 export const detailBoard = async (eventId) => {
   try {
+    console.log(`=== detailBoard API 호출 ===`);
+    console.log(`요청 URL: /events/${eventId}`);
     const res = await privateAPI.get(`/events/${eventId}`);
+    console.log(`API 응답 전체:`, res);
+    console.log(`API 응답 data:`, res.data);
+    console.log(`API 응답 data.data:`, res.data.data);
+    console.log(`regionId 값:`, res.data.data?.regionId);
     return res.data.data; // 실제 이벤트 데이터 반환
   } catch (error) {
     console.error("이벤트 조회 실패", error);
@@ -831,5 +837,25 @@ export const getMyRegionName = async (regionId) => {
   } catch (error) {
     console.error("지역 정보 조회 실패:", error);
     return null;
+  }
+};
+
+// 게시글 수정 API
+export const updateEvent = async (eventId, formData) => {
+  try {
+    console.log("PUT 요청: /events/" + eventId);
+    console.log("updateEvent 호출됨 - FormData 내용:");
+
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
+    // addBoard와 동일한 방식으로 multipartAPI.private 사용
+    const res = await multipartAPI.private.put(`/events/${eventId}`, formData);
+    return res.data;
+  } catch (error) {
+    console.error("updateEvent 에러:", error);
+    console.error("에러 응답:", error.response?.data);
+    throw error;
   }
 };

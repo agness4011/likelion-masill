@@ -75,8 +75,7 @@ export const BackBtn = styled.img`
   flex-shrink: 0;
   aspect-ratio: 1/1;
   cursor: pointer;
-  margin-top: 20px;
-  margin-left: 13px;
+  margin-right: 243px;
 `;
 
 export const PencilBtn = styled.img`
@@ -84,12 +83,13 @@ export const PencilBtn = styled.img`
   height: 24px;
   flex-shrink: 0;
   aspect-ratio: 1/1;
-  margin-top: 20px;
 `;
 
 export const LowHeaderContainer = styled.div`
   display: flex;
-  gap: 301px;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 13px 10px 13px;
 `;
 export const CategoryMark = styled.p`
   display: flex;
@@ -501,8 +501,8 @@ export const ReplyKeyboardBtn = styled.img`
   cursor: pointer;
 `;
 export const ModalBackground = styled.div`
-  background: rgba(114, 124, 148, 0.8);
-  position: absolute; /* 이제 body가 아니라 modal-root 기준 */
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -510,7 +510,7 @@ export const ModalBackground = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
+  z-index: 1000;
 `;
 
 export const ModalTitle = styled.p`

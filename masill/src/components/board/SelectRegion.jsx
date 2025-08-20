@@ -30,9 +30,11 @@ export default function SelectRegion() {
   }, []);
 
   const handleRegionSelect = (region) => {
+    console.log("지역 선택됨:", region);
     setSelectedRegion(region);
     // 지역 선택 시 바로 다음 페이지로 이동
     localStorage.setItem("selectedRegion", region);
+    console.log("localStorage에 selectedRegion 저장:", region);
     nav("/board/reigon/detail");
   };
 

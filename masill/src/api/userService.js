@@ -23,6 +23,7 @@ export const login = async (loginData) => {
       ? {
           id: body.data.userId,
           email: body.data.email,
+          nickname: body.data.nickname || body.data.username || (body.data.email === 'test1@gmail.com' ? 'test1' : 'test2'),
           regionId: body.data.regionId ?? null,
           role: body.data.role ?? null,
           expirationTime: body.data.expirationTime ?? null,
@@ -36,7 +37,12 @@ export const login = async (loginData) => {
 
     // 2) 저장 (리다이렉트/상태 변경 전에!)
     localStorage.setItem('accessToken', accessToken);
-    if (user) localStorage.setItem('currentUser', JSON.stringify(user));
+    if (user) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    }
+    
+    // UserContext 업데이트를 위한 커스텀 이벤트 발생
+    window.dispatchEvent(new CustomEvent('userLogin'));
 
     // 3) 저장 직후 검증
     console.log('[login] 저장 직후 accessToken:', localStorage.getItem('accessToken'));
@@ -64,8 +70,8 @@ export const login = async (loginData) => {
       setTimeout(() => {
         const dummyUsers = JSON.parse(localStorage.getItem('dummyUsers') || '[]');
         const validCredentials = [
-          { email: 'jhjk1234@gmail.com', password: 'password123!', nickname: '비쿠' },
-          { email: 'ABC123@gmail.com',  password: 'masill@1',     nickname: 'masill_love' },
+          { email: 'test1@gmail.com', password: 'masill@1', nickname: 'test1' },
+          { email: 'test2@gmail.com', password: 'masill@1', nickname: 'test2' },
           ...dummyUsers,
         ];
 
@@ -87,7 +93,24 @@ export const login = async (loginData) => {
 
           localStorage.setItem('accessToken', fake.accessToken);
           localStorage.setItem('currentUser', JSON.stringify(fake.user));
+          
+          // 채팅용 사용자 ID 저장 (test1: 116, test2: 119)
+          const currentUserId = matched.email === 'test1@gmail.com' ? '116' : '119';
+          localStorage.setItem('currentUserId', currentUserId);
+          
+          // 강제로 확인 로그 추가
+          console.log('=== 사용자 ID 설정 확인 ===');
+          console.log('이메일:', matched.email);
+          console.log('설정된 ID:', currentUserId);
+          console.log('저장된 ID:', localStorage.getItem('currentUserId'));
+          console.log('========================');
+          
           console.log('[login:dummy] 저장된 토큰:', fake.accessToken);
+          console.log('[login:dummy] 저장된 nickname:', matched.nickname);
+          console.log('[login:dummy] 저장된 currentUserId:', currentUserId);
+          
+          // UserContext 업데이트를 위한 커스텀 이벤트 발생
+          window.dispatchEvent(new CustomEvent('userLogin'));
 
           resolve(fake);
         } else {
