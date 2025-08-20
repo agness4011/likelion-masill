@@ -29,6 +29,7 @@ import SignCompletePage from "@components/signup/SignCompletePage";
 
 import ChatPage from "@pages/chat/ChatPage";
 import ChatRoomPage from "@pages/chat/ChatRoomPage";
+import ChatRoomDetailPage from "@pages/chat/ChatRoomDetailPage";
 import AuthContainer from "./components/auth/AuthContainer";
 import MyHomePage from "./pages/myhome/MyHomePage";
 import MyPostsPage from "./pages/myhome/MyPostsPage";
@@ -107,6 +108,7 @@ export default function App() {
             />
             <Route path="/board" element={<BoardPage />} />
             <Route path="write" element={<WriteBoardPage />} />
+            <Route path="board/:eventId" element={<WriteBoardPage />} />
             <Route path="detail/:eventId" element={<DetailBoardPage />} />
             <Route
               path="detail/:eventId/clubId/:clubId"
@@ -127,7 +129,8 @@ export default function App() {
 
             {/* 채팅 */}
             <Route path="chat" element={<ChatPage />} />
-            <Route path="chat/:roomId" element={<ChatRoomPage />} />
+            <Route path="chat/list" element={<ChatRoomPage />} />
+            <Route path="chat/room/:roomId" element={<ChatRoomDetailPage />} />
 
             {/* 마이페이지 */}
             <Route path="myhome" element={<MyHomePage />} />

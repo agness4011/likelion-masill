@@ -1,9 +1,9 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import React, { useState, useRef, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
-import { addBoard, getRegionName } from "../../api/boardApi";
+import { addBoard, getRegionName, detailBoard, updateEvent } from "../../api/boardApi";
 
 import BoardIcon from "../../assets/write/board.svg";
 import MapIcon from "../../assets/write/map.svg";
@@ -62,10 +62,13 @@ export default function WriteBoard({ children }) {
 
 function Head() {
   const navigate = useNavigate();
+  const { eventId } = useParams();
+  const isEditMode = !!eventId;
+  
   return (
     <HeadDiv>
       <BackBtn src={BackIcon} onClick={() => navigate(-1)} />
-      <HeadTitle>게시글 작성</HeadTitle>
+      <HeadTitle>{isEditMode ? '게시글 수정' : '게시글 작성'}</HeadTitle>
       <HeadBoardImg src={BoardIcon} />
     </HeadDiv>
   );
@@ -91,8 +94,18 @@ function SetTitle({ title, setTitle, error, setTouched }) {
     </Div>
   );
 }
-function Reigon({ regionName }) {
+function Reigon({ regionName, isEditMode, eventId, onBeforeChangeRegion }) {
   const navigate = useNavigate();
+
+  const handleRegionClick = () => {
+    try {
+      onBeforeChangeRegion?.(); // 이동 전 드래프트 저장
+    } catch {}
+    // 돌아올 경로 저장
+    localStorage.setItem("editPageReturnUrl", window.location.pathname);
+    navigate("/board/reigon");
+  };
+
   return (
     <div>
       <ErrorDiv>
@@ -102,7 +115,10 @@ function Reigon({ regionName }) {
       <div>
         <ReigonInput>
           {regionName}
-          <CancleBtn src={Cancle} onClick={() => navigate("/board/reigon")} />
+          <CancleBtn 
+            src={Cancle} 
+            onClick={handleRegionClick}
+          />
         </ReigonInput>
       </div>
       <InputWrapper></InputWrapper>
@@ -459,6 +475,8 @@ function EventDateTimePicker({
 // --- 최종 InputForm ---
 function InputForm() {
   const navigate = useNavigate();
+  const { eventId } = useParams();
+  const isEditMode = !!eventId;
 
   // --- 기존 state ---
   const [title, setTitle] = useState("");
@@ -479,17 +497,250 @@ function InputForm() {
   const [formError, setFormError] = useState("");
   const [regionId, setRegionId] = useState(null);
   const [regionName, setRegionName] = useState(null);
+  const [loading, setLoading] = useState(isEditMode);
 
-  useEffect(() => {
-    const storedId = localStorage.getItem("selectedRegionId");
-    const id = storedId ? parseInt(storedId, 10) : null;
-    if (id) {
-      setRegionId(id);
-      getRegionName(id)
-        .then(setRegionName)
-        .catch((err) => console.error("지역 이름 불러오기 실패:", err));
-    }
+  // ====== 드래프트 저장/복원 ======
+  const DRAFT_KEY = "boardDraft";
+
+  const saveDraft = React.useCallback(() => {
+    const draft = {
+      title,
+      location,
+      categories,
+      content,
+      startDate: startDate ? startDate.getTime() : null,
+      endDate: endDate ? endDate.getTime() : null,
+      startTime: startTime ? startTime.getTime() : null,
+      endTime: endTime ? endTime.getTime() : null,
+      regionId,
+    };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  }, [
+    title,
+    location,
+    categories,
+    content,
+    startDate,
+    endDate,
+    startTime,
+    endTime,
+    regionId,
+  ]);
+
+  const loadDraft = React.useCallback(() => {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    try {
+      const d = JSON.parse(raw);
+      if (d.title) setTitle(d.title);
+      if (d.location) setLocation(d.location);
+      if (Array.isArray(d.categories)) setCategories(d.categories);
+      if (d.content) setContent(d.content);
+      if (d.startDate) setStartDate(new Date(d.startDate));
+      if (d.endDate) setEndDate(new Date(d.endDate));
+      if (d.startTime) setStartTime(new Date(d.startTime));
+      if (d.endTime) setEndTime(new Date(d.endTime));
+      if (d.regionId) {
+        setRegionId(d.regionId);
+        getRegionName(d.regionId).then(setRegionName).catch(() => {});
+      }
+    } catch {}
   }, []);
+
+  // 마운트 시: 수정 모드에서만 저장된 드래프트가 있으면 복원
+  useEffect(() => {
+    if (isEditMode) {
+      loadDraft();
+    }
+  }, [loadDraft, isEditMode]);
+
+  // 폼 값이 바뀔 때마다 자동 저장 (수정 모드에서만)
+  useEffect(() => {
+    if (isEditMode) {
+      saveDraft();
+    }
+  }, [saveDraft, isEditMode]);
+
+  // 수정 모드일 때 기존 게시글 데이터 로드
+  useEffect(() => {
+    if (isEditMode && eventId) {
+      const fetchEventData = async () => {
+        try {
+          setLoading(true);
+          const eventData = await detailBoard(eventId);
+          
+          console.log('=== 게시글 데이터 로드 ===');
+          console.log('전체 데이터:', eventData);
+          console.log('모든 키 확인:', Object.keys(eventData));
+          console.log('지역ID:', eventData.regionId, '타입:', typeof eventData.regionId);
+          console.log('지역ID 존재 여부:', eventData.regionId !== undefined && eventData.regionId !== null);
+          console.log('region 객체 확인:', eventData.region);
+          console.log('region.regionId 확인:', eventData.region?.regionId);
+          console.log('regionId 필드 확인:', eventData.regionId);
+          console.log('areaId 필드 확인:', eventData.areaId);
+          console.log('locationId 필드 확인:', eventData.locationId);
+          console.log('area 필드 확인:', eventData.area);
+          console.log('location 필드 확인:', eventData.location);
+          console.log('sido 필드 확인:', eventData.sido);
+          console.log('sigungu 필드 확인:', eventData.sigungu);
+          console.log('전체 데이터 상세:', JSON.stringify(eventData, null, 2));
+          
+          // 폼 데이터 설정
+          setTitle(eventData.title || '');
+          setLocation(eventData.location || '');
+          setContent(eventData.content || '');
+          
+          // 카테고리 설정
+          const REVERSE_CATEGORY_MAP = {
+            "CULTURE_ART": "문화•예술",
+            "FLEA_MARKET": "플리마켓",
+            "VOLUNTEER": "자원봉사",
+            "FESTIVAL": "축제",
+            "OUTDOOR_ACTIVITY": "야외활동",
+            "EDUCATION": "교육",
+            "ETC": "기타",
+            "STORE_EVENT": "가게행사",
+          };
+          
+          if (eventData.eventType) {
+            const categoryName = REVERSE_CATEGORY_MAP[eventData.eventType];
+            if (categoryName) {
+              setCategories([categoryName]);
+            }
+          }
+          
+          // 날짜/시간 설정
+          if (eventData.startAt) {
+            const startDateTime = new Date(eventData.startAt);
+            setStartDate(startDateTime);
+            setStartTime(startDateTime);
+          }
+          
+          if (eventData.endAt) {
+            const endDateTime = new Date(eventData.endAt);
+            setEndDate(endDateTime);
+            setEndTime(endDateTime);
+          }
+          
+          // 지역 설정
+          console.log('=== 지역 정보 설정 시작 ===');
+          console.log('eventData.regionId 값:', eventData.regionId);
+          console.log('eventData.regionId 타입:', typeof eventData.regionId);
+          console.log('eventData.regionId가 truthy인가:', !!eventData.regionId);
+          
+          // 다양한 지역 ID 필드명 확인 (숫자 타입만 허용)
+          // 백엔드에서 region 객체 안에 regionId를 반환하므로 이를 우선 확인
+          const possibleRegionId = eventData.region?.regionId || eventData.regionId || eventData.region || eventData.areaId || eventData.locationId || eventData.area;
+          console.log('가능한 지역 ID:', possibleRegionId);
+          
+          if (possibleRegionId !== undefined && possibleRegionId !== null && !isNaN(Number(possibleRegionId))) {
+            console.log('=== 지역 정보 설정 ===');
+            console.log('사용할 지역 ID:', possibleRegionId, typeof possibleRegionId);
+            setRegionId(possibleRegionId);
+            
+            // API로 지역 이름 가져오기
+            const regionIdNum = parseInt(possibleRegionId);
+            console.log('변환된 regionId:', regionIdNum);
+            
+            getRegionName(regionIdNum)
+              .then((regionData) => {
+                console.log('API로 가져온 지역:', regionData);
+                setRegionName(regionData);
+              })
+              .catch((err) => {
+                console.error('지역 이름 가져오기 실패:', err);
+                console.log('지역 정보를 가져올 수 없습니다. 지역을 다시 선택해주세요.');
+                setRegionName(null);
+              });
+          } else {
+            console.log('eventData.regionId가 없음:', eventData.regionId);
+            console.log('regionId가 undefined/null이므로 지역 정보를 설정하지 않음');
+            
+            // 서버에서 regionId를 반환하지 않는 문제가 있습니다.
+            // 이는 서버 측 문제로, 게시글 생성 시 regionId가 저장되지 않았거나
+            // 조회 시 regionId가 반환되지 않고 있습니다.
+            console.log('⚠️ 서버 문제: regionId가 API 응답에 없습니다.');
+            console.log('서버 개발자에게 다음을 확인 요청하세요:');
+            console.log('1. 게시글 저장 시 regionId가 제대로 저장되는지');
+            console.log('2. 게시글 조회 시 regionId가 응답에 포함되는지');
+            
+            // regionId가 없으면 기본값 설정하지 않음
+            setRegionId(null);
+            setRegionName(null);
+            
+            // 사용자에게 지역 재선택 안내
+            console.log('지역 정보가 없습니다. 사용자가 지역을 다시 선택해야 합니다.');
+          }
+          
+          // 기존 이미지 설정
+          if (eventData.images && eventData.images.length > 0) {
+            const existingImageFiles = eventData.images.map((img, index) => ({
+              file: null,
+              preview: img.imageUrl,
+              isExisting: true,
+              imageId: img.sequence
+            }));
+            setImages(existingImageFiles);
+          }
+          
+        } catch (err) {
+          console.error('게시글 데이터 로드 실패:', err);
+          setFormError('게시글을 불러오는데 실패했습니다.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchEventData();
+    }
+  }, [isEditMode, eventId]);
+
+  // 지역 선택에서 돌아온 경우를 감지
+  useEffect(() => {
+    const checkForRegionSelection = () => {
+      const selectedRegion = localStorage.getItem('selectedRegion');
+      const selectedDistrict = localStorage.getItem('selectedDistrict');
+      const selectedRegionId = localStorage.getItem('selectedRegionId');
+      const editPageReturnUrl = localStorage.getItem('editPageReturnUrl');
+      
+      console.log('지역 선택 감지 중...');
+      console.log('selectedRegion:', selectedRegion);
+      console.log('selectedDistrict:', selectedDistrict);
+      console.log('selectedRegionId:', selectedRegionId);
+      console.log('editPageReturnUrl:', editPageReturnUrl);
+      console.log('현재 페이지:', window.location.pathname);
+      console.log('isEditMode:', isEditMode);
+      
+      // 지역 선택 정보가 있는 경우 (작성 모드와 수정 모드 모두)
+      if (selectedRegion && selectedDistrict && selectedRegionId) {
+        console.log('지역 선택 정보 발견!');
+        console.log('지역 정보 업데이트 실행:', selectedRegion, selectedDistrict, selectedRegionId);
+        
+        // 지역 정보 업데이트
+        setRegionId(parseInt(selectedRegionId));
+        setRegionName({ sido: selectedRegion, sigungu: selectedDistrict });
+        
+        console.log('지역 정보 업데이트 완료!');
+        
+        // 지역 정보 업데이트 후 localStorage 정리 (약간의 지연 후)
+        setTimeout(() => {
+          localStorage.removeItem('selectedRegion');
+          localStorage.removeItem('selectedDistrict');
+          localStorage.removeItem('selectedRegionId');
+          localStorage.removeItem('editPageEventId');
+          localStorage.removeItem('editPageReturnUrl');
+          console.log('localStorage 정리 완료');
+        }, 500);
+      }
+    };
+
+    // 로딩이 완료된 후 지역 선택 감지
+    if (!loading) {
+      checkForRegionSelection();
+      const interval = setInterval(checkForRegionSelection, 200);
+      return () => clearInterval(interval);
+    }
+  }, [loading, isEditMode]);
 
   const CATEGORY_MAP = {
     "문화•예술": "CULTURE_ART",
@@ -522,7 +773,7 @@ function InputForm() {
       valid = false;
     } else setCategoryError("");
 
-    if (images.length === 0) {
+    if (!isEditMode && images.length === 0) {
       setImageError("사진을 추가해주세요!");
       valid = false;
     } else setImageError("");
@@ -557,8 +808,17 @@ function InputForm() {
     setFormError("");
 
     try {
+      console.log('=== 폼 제출 시작 ===');
+      console.log('현재 regionId:', regionId);
+      console.log('현재 regionName:', regionName);
+      
+      if (!regionId) {
+        setFormError("지역을 선택해주세요!");
+        return;
+      }
+      
       const regionFullName = await getRegionName(regionId);
-      console.log(regionFullName);
+      console.log('API로 가져온 지역명:', regionFullName);
 
       // 날짜 검증
       const startAt = new Date(
@@ -610,9 +870,19 @@ function InputForm() {
         }
       });
 
-      const result = await addBoard(formData);
-      console.log("서버 응답:", result);
-      navigate("/main/event");
+      if (isEditMode) {
+        const result = await updateEvent(eventId, formData);
+        console.log("수정 서버 응답:", result);
+        alert('게시글이 성공적으로 수정되었습니다.');
+        navigate(`/detail/${eventId}`);
+      } else {
+        const result = await addBoard(formData);
+        console.log("작성 서버 응답:", result);
+        navigate("/main/event");
+      }
+
+      // 제출 성공 시 드래프트 정리
+      localStorage.removeItem(DRAFT_KEY);
     } catch (error) {
       console.error("저장 실패:", error);
       setFormError("서버 저장 중 오류가 발생했습니다.");
@@ -647,6 +917,9 @@ function InputForm() {
         regionName={
           regionName ? `${regionName.sido} ${regionName.sigungu}` : "지역 선택"
         }
+        isEditMode={isEditMode}
+        eventId={eventId}
+        onBeforeChangeRegion={isEditMode ? saveDraft : undefined}
       />
       {/* 장소 */}
       <SetLocation
@@ -680,7 +953,7 @@ function InputForm() {
         {formError && <ErrorMessage>{formError}</ErrorMessage>}
       </ErrorDiv>
 
-      <SubmitBtn type="submit">작성 완료</SubmitBtn>
+      <SubmitBtn type="submit">{isEditMode ? '수정 완료' : '작성 완료'}</SubmitBtn>
     </form>
   );
 }
@@ -694,3 +967,4 @@ WriteBoard.UploadImg = UploadImg;
 WriteBoard.SetTitle = SetTitle;
 WriteBoard.SetLocation = SetLocation;
 WriteBoard.WriteContext = WriteContext;
+WriteBoard.Reigon = Reigon;

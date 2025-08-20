@@ -11,14 +11,42 @@ export const useUser = () => {
 };
 
 export const UserProvider = ({ children }) => {
-  const [userData, setUserData] = useState({
-    username: localStorage.getItem('nickname') || "masill_love1",
-    nickname: localStorage.getItem('nickname') || "masill_love1",
-    email: "user@example.com",
-    isSajangVerified: false,
-    avatarId: null,
-    profileImage: localStorage.getItem('userProfileImage') || null
-  });
+  // 로그인된 사용자 정보 가져오기
+  const getCurrentUser = () => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    
+    if (currentUser) {
+      // currentUser에 nickname이 있으면 그것을 사용, 없으면 이메일 기반으로 설정
+      let userNickname = currentUser.nickname;
+      if (!userNickname && currentUser.email) {
+        userNickname = currentUser.email === 'test1@gmail.com' ? 'test1' : 'test2';
+      }
+      if (!userNickname) {
+        userNickname = "test1"; // 기본값
+      }
+      
+      return {
+        username: userNickname,
+        nickname: userNickname,
+        email: currentUser.email || "user@example.com",
+        isSajangVerified: false,
+        avatarId: null,
+        profileImage: localStorage.getItem('userProfileImage') || null
+      };
+    }
+    
+    // 로그인되지 않은 경우 기본값
+    return {
+      username: "test1",
+      nickname: "test1",
+      email: "user@example.com",
+      isSajangVerified: false,
+      avatarId: null,
+      profileImage: localStorage.getItem('userProfileImage') || null
+    };
+  };
+
+  const [userData, setUserData] = useState(getCurrentUser());
 
   // 사용자 초기화 시 랜덤 아바타 할당 및 닉네임 로드
   useEffect(() => {
@@ -52,22 +80,20 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   // localStorage 변경 감지 및 커스텀 이벤트 감지
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'nickname' && e.newValue) {
-        setUserData(prev => ({
-          ...prev,
-          username: e.newValue,
-          nickname: e.newValue
-        }));
-      }
-      if (e.key === 'userProfileImage') {
-        setUserData(prev => ({
-          ...prev,
-          profileImage: e.newValue
-        }));
-      }
-    };
+          useEffect(() => {
+          const handleStorageChange = (e) => {
+            if (e.key === 'userProfileImage') {
+              setUserData(prev => ({
+                ...prev,
+                profileImage: e.newValue
+              }));
+            }
+            // currentUser가 변경되면 전체 사용자 정보 업데이트
+            if (e.key === 'currentUser') {
+              const newUserData = getCurrentUser();
+              setUserData(newUserData);
+            }
+          };
 
     const handleProfileImageUpdate = (e) => {
       setUserData(prev => ({
@@ -76,12 +102,19 @@ export const UserProvider = ({ children }) => {
       }));
     };
 
+    const handleUserLogin = (e) => {
+      const newUserData = getCurrentUser();
+      setUserData(newUserData);
+    };
+
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('profileImageUpdated', handleProfileImageUpdate);
+    window.addEventListener('userLogin', handleUserLogin);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('profileImageUpdated', handleProfileImageUpdate);
+      window.removeEventListener('userLogin', handleUserLogin);
     };
   }, []);
 

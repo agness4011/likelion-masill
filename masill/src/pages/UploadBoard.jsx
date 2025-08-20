@@ -2,14 +2,11 @@ import WriteBoard from "../components/board/WriteBoard";
 
 export default function UploadBoard() {
   return (
-    <WriteBoard>
-      <WriteBoard.Container>
-        <WriteBoard.UploadImg />
-        <WriteBoard.SetTitle />
-        <WriteBoard.SetLocation />
-        {/* <WriteBoard.SelectDate /> */}
-        <WriteBoard.WriteContext />
-      </WriteBoard.Container>
-    </WriteBoard>
+    <div style={{ width: '393px', height: '852px', background: '#fff', overflowY: 'auto' }}>
+      <WriteBoard.Head />
+      <WriteBoard.Form>
+        <WriteBoard.InputForm />
+      </WriteBoard.Form>
+    </div>
   );
 }

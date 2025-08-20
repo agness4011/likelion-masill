@@ -269,6 +269,7 @@ export default function SelectRegionDetail() {
 
     // 선택된 구/군을 즉시 저장
     localStorage.setItem("selectedDistrict", district);
+    console.log("localStorage에 selectedDistrict 저장:", district);
 
     try {
       // 지역 ID 조회
@@ -278,18 +279,37 @@ export default function SelectRegionDetail() {
 
       // 지역 ID도 저장
       localStorage.setItem("selectedRegionId", regionId);
+      console.log("localStorage에 selectedRegionId 저장:", regionId);
 
       // 1초 후 자동으로 다음 페이지로 이동
       setTimeout(() => {
         console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
-        nav("/board");
+        
+        // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
+        const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
+        if (editPageReturnUrl) {
+          console.log("수정 페이지로 돌아가기:", editPageReturnUrl);
+          nav(editPageReturnUrl);
+        } else {
+          console.log("새 게시글 작성 페이지로 이동");
+          nav("/board");
+        }
       }, 1000);
     } catch (error) {
       console.error("지역 ID 조회 실패:", error);
       // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
       setTimeout(() => {
         console.log("지역 ID 조회 실패, 기본값으로 이동:", district);
-        nav("/board");
+        
+        // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
+        const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
+        if (editPageReturnUrl) {
+          console.log("수정 페이지로 돌아가기:", editPageReturnUrl);
+          nav(editPageReturnUrl);
+        } else {
+          console.log("새 게시글 작성 페이지로 이동");
+          nav("/board");
+        }
       }, 1000);
     }
   };
@@ -297,7 +317,16 @@ export default function SelectRegionDetail() {
   const handleNext = () => {
     if (selectedDistrict) {
       localStorage.setItem("selectedDistrict", selectedDistrict);
-      nav("/board");
+      
+      // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
+      const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
+      if (editPageReturnUrl) {
+        console.log("수정 페이지로 돌아가기:", editPageReturnUrl);
+        nav(editPageReturnUrl);
+      } else {
+        console.log("새 게시글 작성 페이지로 이동");
+        nav("/board");
+      }
     } else {
       alert("구/군을 선택해주세요.");
     }
