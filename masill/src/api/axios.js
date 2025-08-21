@@ -4,7 +4,7 @@ import axios from "axios";
 const BASE_URL =
   process.env.NODE_ENV === "development"
     ? "/api" // 프록시 사용
-    : "http://43.202.247.99:8080/api"; // 프로덕션에서는 직접 URL 사용
+    : "https://hyunjun.store/api"; // 프로덕션에서는 직접 URL 사용
 
 console.log('현재 환경:', process.env.NODE_ENV);
 console.log('BASE_URL:', BASE_URL);
