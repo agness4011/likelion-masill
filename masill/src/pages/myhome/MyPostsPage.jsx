@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import ArrowLeftIcon from '@assets/logo/main/main-arrowleft.svg';
-import HeartIcon from '@logo/myhome/heart.svg';
-import ChatIcon from '@logo/myhome/chat.svg';
-import Fullheart from '@assets/logo/mainImg/fullheart.png';
-import Heart from '@assets/logo/mainImg/Heart.png';
-import Comment from '@assets/logo/mainImg/commant.png';
-import PromotionIcon from '@logo/myhome/promotion.svg';
-import dayjs from 'dayjs';
-import { fetchMyPosts } from '../../api/boardApi';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import ArrowLeftIcon from "@assets/logo/main/main-arrowleft.svg";
+import HeartIcon from "@logo/myhome/heart.svg";
+import ChatIcon from "@logo/myhome/chat.svg";
+import Fullheart from "@assets/logo/mainImg/fullheart.png";
+import Heart from "@assets/logo/mainImg/Heart.png";
+import Comment from "@assets/logo/mainImg/commant.png";
+import PromotionIcon from "@logo/myhome/promotion.svg";
+import dayjs from "dayjs";
+import { fetchMyPosts } from "../../api/boardApi";
 import {
   BoardTitleH1,
   BoardLocationP,
   BoardDateP,
-} from '../../components/main/MainStyles.styled';
+} from "../../components/main/MainStyles.styled";
 
 const Container = styled.div`
   width: 393px;
@@ -224,7 +224,10 @@ const MyPostsPage = () => {
         setLoading(true);
         const res = await fetchMyPosts();
         console.log("내가 작성한 게시글:", res);
-        console.log("내가 작성한 게시글 데이터 구조:", JSON.stringify(res, null, 2));
+        console.log(
+          "내가 작성한 게시글 데이터 구조:",
+          JSON.stringify(res, null, 2)
+        );
 
         // 실제 데이터 구조에 맞게 접근
         const content = res?.data?.content || [];
@@ -257,7 +260,7 @@ const MyPostsPage = () => {
     if (id) {
       navigate(`/detail/${id}`);
     } else {
-      console.error('게시글 ID를 찾을 수 없습니다:', post);
+      console.error("게시글 ID를 찾을 수 없습니다:", post);
     }
   };
 
@@ -265,13 +268,20 @@ const MyPostsPage = () => {
     return (
       <Container>
         <Header>
-          <BackButton onClick={() => navigate(-1)}>
+          <BackButton onClick={() => navigate("/myhome")}>
             <BackIcon src={ArrowLeftIcon} alt="뒤로 가기" />
           </BackButton>
           <Title>내가 작성한 게시물</Title>
         </Header>
         <Content>
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "#666",
+              fontSize: "16px",
+            }}
+          >
             로딩 중...
           </div>
         </Content>
@@ -283,13 +293,20 @@ const MyPostsPage = () => {
     return (
       <Container>
         <Header>
-          <BackButton onClick={() => navigate(-1)}>
+          <BackButton onClick={() => navigate("/myhome")}>
             <BackIcon src={ArrowLeftIcon} alt="뒤로 가기" />
           </BackButton>
           <Title>내가 작성한 게시물</Title>
         </Header>
         <Content>
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "#666",
+              fontSize: "16px",
+            }}
+          >
             게시물을 불러오는 중 오류가 발생했습니다.
           </div>
         </Content>
@@ -300,7 +317,7 @@ const MyPostsPage = () => {
   return (
     <Container>
       <Header>
-        <BackButton onClick={() => navigate(-1)}>
+        <BackButton onClick={() => navigate("/myhome")}>
           <BackIcon src={ArrowLeftIcon} alt="뒤로 가기" />
         </BackButton>
         <Title>내가 작성한 게시물</Title>
@@ -308,24 +325,33 @@ const MyPostsPage = () => {
 
       <Content>
         {posts.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
-            아직 작성한 게시물이 없습니다.<br />새로운 게시물을 작성해보세요!
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "#666",
+              fontSize: "16px",
+            }}
+          >
+            아직 작성한 게시물이 없습니다.
+            <br />
+            새로운 게시물을 작성해보세요!
           </div>
         ) : (
-          <div style={{ padding: '0 24px 0 16px' }}>
+          <div style={{ padding: "0 24px 0 16px" }}>
             {posts.map((post, index) => (
               <React.Fragment key={post.eventId}>
                 <PostCard onClick={() => handlePostClick(post)}>
                   <ImageScrollWrapper>
-                    {Array.isArray(post.images) && post.images.length > 0 ? (
-                      post.images.map((image, idx) => (
-                        <BoardImage
-                          key={idx}
-                          src={image.imageUrl}
-                          alt={`${post.title}-${idx}`}
-                        />
-                      ))
-                    ) : null}
+                    {Array.isArray(post.images) && post.images.length > 0
+                      ? post.images.map((image, idx) => (
+                          <BoardImage
+                            key={idx}
+                            src={image.imageUrl}
+                            alt={`${post.title}-${idx}`}
+                          />
+                        ))
+                      : null}
                   </ImageScrollWrapper>
 
                   <ContentWrapper>
@@ -362,11 +388,14 @@ const MyPostsPage = () => {
                       </CommentArea>
                     </RightContent>
                   </ContentWrapper>
-                  
+
                   {/* PromotionIcon을 마지막 게시물이 아닌 경우에만 표시 */}
                   {index < posts.length - 1 && (
                     <PromotionContainer>
-                      <PromotionIconImg src={PromotionIcon} alt="프로모션 아이콘" />
+                      <PromotionIconImg
+                        src={PromotionIcon}
+                        alt="프로모션 아이콘"
+                      />
                     </PromotionContainer>
                   )}
                 </PostCard>

@@ -44,6 +44,7 @@ import ChangeRegionDetail from "./components/main/ChangeRegionDetail";
 import SmallGroupPage from "./pages/SmallGroupPage";
 import WriteSmallPage from "./pages/WriteSmallPage";
 import RetouchSmallPage from "./pages/RetouchSmallPage";
+import ChatAi from "./pages/chat/ChatAi";
 
 export default function App() {
   return (
@@ -99,6 +100,7 @@ export default function App() {
 
             {/* 검색 */}
             <Route path="search" element={<SearchPage />} />
+            <Route path="chat/AI" element={<ChatAi />} />
 
             {/* 게시글 작성 흐름 */}
             <Route path="board/reigon" element={<SelectRegion />} />

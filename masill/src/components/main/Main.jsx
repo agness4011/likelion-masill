@@ -460,63 +460,65 @@ function Post() {
                 key={item.eventId}
                 onClick={() => navigate(`/detail/${item.eventId}`)}
               >
-                <ImageScrollWrapper>
-                  {Array.isArray(item.images) &&
-                    item.images.map((img, idx) => (
-                      <BoardImage
-                        key={idx}
-                        src={img.imageUrl}
-                        alt={`${item.title}-${idx}`}
-                      />
-                    ))}
-                </ImageScrollWrapper>
+                <div style={{ marginLeft: "24px" }}>
+                  <ImageScrollWrapper>
+                    {Array.isArray(item.images) &&
+                      item.images.map((img, idx) => (
+                        <BoardImage
+                          key={idx}
+                          src={img.imageUrl}
+                          alt={`${item.title}-${idx}`}
+                        />
+                      ))}
+                  </ImageScrollWrapper>
 
-                {isClosingSoon && (
-                  <ClosingTag>🔥 {deadline} 마감 임박!</ClosingTag>
-                )}
+                  {isClosingSoon && (
+                    <ClosingTag>🔥 {deadline} 마감 임박!</ClosingTag>
+                  )}
 
-                <ContentWrapper>
-                  <LeftContent>
-                    <MemberLogo src={item.userImage} alt="회원로고" />
-                    <TextInfo>
-                      <BoardTitleH1>{item.title}</BoardTitleH1>
-                      <BoardLocationP>
-                        {item.region?.sido} {item.region?.sigungu}{" "}
-                        {item.location}
-                      </BoardLocationP>
-                      <BoardDateP>
-                        {`${dayjs(item.startAt).format(
-                          "YYYY.MM.DD.(dd)"
-                        )} ~ ${dayjs(item.endAt).format(
-                          "YYYY.MM.DD.(dd)"
-                        )} ${dayjs(item.startAt).format("HH:mm")}~${dayjs(
-                          item.endAt
-                        ).format("HH:mm")}`}
-                      </BoardDateP>
-                    </TextInfo>
-                  </LeftContent>
+                  <ContentWrapper>
+                    <LeftContent>
+                      <MemberLogo src={item.userImage} alt="회원로고" />
+                      <TextInfo>
+                        <BoardTitleH1>{item.title}</BoardTitleH1>
+                        <BoardLocationP>
+                          {item.region?.sido} {item.region?.sigungu}{" "}
+                          {item.location}
+                        </BoardLocationP>
+                        <BoardDateP>
+                          {`${dayjs(item.startAt).format(
+                            "YYYY.MM.DD.(dd)"
+                          )} ~ ${dayjs(item.endAt).format(
+                            "YYYY.MM.DD.(dd)"
+                          )} ${dayjs(item.startAt).format("HH:mm")}~${dayjs(
+                            item.endAt
+                          ).format("HH:mm")}`}
+                        </BoardDateP>
+                      </TextInfo>
+                    </LeftContent>
 
-                  <RightContent>
-                    <HeartArea
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        clickHeart(item.eventId); // 상태 업데이트는 clickHeart 안에서 처리
-                      }}
-                    >
-                      <TextStyle>{item.favoriteCount}</TextStyle>
-                      <HeartImg
-                        src={item.isHeartClicked ? Fullheart : Heart}
-                        alt="하트"
-                        style={{ width: "24px", height: "24px" }}
-                      />
-                    </HeartArea>
+                    <RightContent>
+                      <HeartArea
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clickHeart(item.eventId); // 상태 업데이트는 clickHeart 안에서 처리
+                        }}
+                      >
+                        <TextStyle>{item.favoriteCount}</TextStyle>
+                        <HeartImg
+                          src={item.isHeartClicked ? Fullheart : Heart}
+                          alt="하트"
+                          style={{ width: "24px", height: "24px" }}
+                        />
+                      </HeartArea>
 
-                    <CommentArea>
-                      <TextStyle>{item.commentCount}</TextStyle>
-                      <CommentImg src={Comment} alt="댓글" />
-                    </CommentArea>
-                  </RightContent>
-                </ContentWrapper>
+                      <CommentArea>
+                        <TextStyle>{item.commentCount}</TextStyle>
+                        <CommentImg src={Comment} alt="댓글" />
+                      </CommentArea>
+                    </RightContent>
+                  </ContentWrapper>
+                </div>
               </PostWrapper>
             );
           })
@@ -577,7 +579,6 @@ function MoveInterest() {
 }
 
 const BoardContanier = styled.div`
-  margin-left: 24px;
   overflow-x: hidden;
 `;
 const PostWrapper = styled.div`
@@ -587,7 +588,6 @@ const PostWrapper = styled.div`
   &:hover {
     background-color: #fafafa;
   }
-  width: 380px;
 `;
 
 const ClosingTag = styled.p`
@@ -671,6 +671,7 @@ const RightContent = styled.div`
   padding-bottom: 2px;
   right: 50px;
   min-height: 100%; /* 세로 위치 계산 위해 높이 유지 */
+  right: 24px;
 `;
 
 const HeartArea = styled.div`
@@ -778,7 +779,7 @@ const CategoryWrapper = styled.div`
 const LeftBtn = styled.img`
   position: absolute;
   left: 0;
-  top: 50%;
+  top: 65%;
   transform: translateY(-50%) scaleX(-1);
   cursor: pointer;
   width: 26px;
@@ -791,7 +792,7 @@ const LeftBtn = styled.img`
 const RightBtn = styled.img`
   position: absolute;
   right: 0;
-  top: 50%;
+  top: 65%;
   transform: translateY(-50%);
   cursor: pointer;
   width: 26px;
