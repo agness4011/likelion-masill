@@ -187,7 +187,7 @@ export default function ChatAi() {
 
     const userMsg = {
       id: Date.now(),
-      type: "text", // ✅ type 추가
+      type: "text",
       text: newMessage.trim(),
       fromMe: true,
       time: formatMessageTime(new Date()),
@@ -224,6 +224,7 @@ export default function ChatAi() {
           time: formatMessageTime(new Date()),
         };
         setMessages((prev) => [...prev, aiGroupMessage]);
+        console.log("AI 데이터:", aiData);
       }
     } catch (error) {
       setMessages((prev) => [
@@ -298,6 +299,7 @@ export default function ChatAi() {
                   <RecommendPost
                     key={index}
                     onClick={() => {
+                      // eventId를 다른 페이지로 state로 전달
                       navigate(`/detail/${item.eventId}`);
                     }}
                     style={{ cursor: "pointer" }}
@@ -322,7 +324,15 @@ export default function ChatAi() {
                   </RecommendPost>
                 ))}
                 <div style={{ display: "flex", justifyContent: "center" }}>
-                  <EntireBtn>추천 전체 보기</EntireBtn>
+                  <EntireBtn
+                    onClick={() => {
+                      // 전체 추천 보기 클릭 시 /main으로 eventId 배열 전달
+                      const eventIds = msg.posts.map((item) => item.eventId);
+                      navigate("/main", { state: { eventIds } });
+                    }}
+                  >
+                    추천 전체 보기
+                  </EntireBtn>
                 </div>
               </div>
             );
@@ -348,6 +358,7 @@ export default function ChatAi() {
     </Container>
   );
 }
+
 const EntireBtn = styled.button`
   display: inline-flex;
   padding: 8px 10px;

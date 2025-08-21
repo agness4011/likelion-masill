@@ -185,33 +185,32 @@ function LowHead() {
   const [isAuthor, setIsAuthor] = useState(false);
   const [eventData, setEventData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  
+
   useEffect(() => {
     const checkIfAuthor = async () => {
       try {
         const data = await detailBoard(eventId);
         setEventData(data);
-        
+
         // author 필드로 권한 확인
-        console.log('=== 권한 확인 디버깅 (author) ===');
-        console.log('게시글 데이터:', data);
-        console.log('author 필드:', data.author);
-        console.log('author 타입:', typeof data.author);
-        console.log('========================');
-        
+        console.log("=== 권한 확인 디버깅 (author) ===");
+        console.log("게시글 데이터:", data);
+        console.log("author 필드:", data.author);
+        console.log("author 타입:", typeof data.author);
+        console.log("========================");
+
         // author가 true일 때만 권한 부여
         const isAuthorized = data.author === true;
         setIsAuthor(isAuthorized);
-        
       } catch (error) {
         console.error("게시글 작성자 확인 실패:", error);
         setIsAuthor(false);
       }
     };
-    
+
     checkIfAuthor();
   }, [eventId, userData]);
-  
+
   const handleEditClick = () => {
     navigate(`/board/${eventId}`);
   };
@@ -223,18 +222,18 @@ function LowHead() {
   const handleDeleteConfirm = async () => {
     try {
       await privateAPI.delete(`/events/${eventId}`);
-      alert('게시글이 삭제되었습니다.');
-      navigate('/main/event');
+      alert("게시글이 삭제되었습니다.");
+      navigate("/main/event");
     } catch (error) {
-      console.error('게시글 삭제 실패:', error);
-      alert('게시글 삭제에 실패했습니다.');
+      console.error("게시글 삭제 실패:", error);
+      alert("게시글 삭제에 실패했습니다.");
     }
   };
 
   const handleDeleteCancel = () => {
     setShowDeleteModal(false);
   };
-  
+
   return (
     <LowHeaderContainer>
       <BackBtn
@@ -242,110 +241,120 @@ function LowHead() {
         alt="페이지 뒤로 가는 버튼"
         onClick={() => navigate(-1)}
       />
-             {/* 게시물 작성자에게만 수정/삭제 아이콘 표시 */}
-       {isAuthor && (
-         <>
-           <PencilBtn 
-             src={Pencil} 
-             alt="수정 버튼"
-             onClick={handleEditClick}
-             style={{ cursor: 'pointer' }}
-           />
-           <PencilBtn 
-             src={TrashIcon} 
-             alt="삭제 버튼"
-             onClick={handleDeleteClick}
-             style={{ cursor: 'pointer' }}
-           />
-         </>
-       )}
+      {/* 게시물 작성자에게만 수정/삭제 아이콘 표시 */}
+      {isAuthor && (
+        <>
+          <PencilBtn
+            src={Pencil}
+            alt="수정 버튼"
+            onClick={handleEditClick}
+            style={{ cursor: "pointer" }}
+          />
+          <PencilBtn
+            src={TrashIcon}
+            alt="삭제 버튼"
+            onClick={handleDeleteClick}
+            style={{ cursor: "pointer" }}
+          />
+        </>
+      )}
 
       {/* 삭제 확인 모달 */}
       {showDeleteModal && (
         <ModalBackground>
-          <div style={{
-            position: 'fixed',
-            left: '50%',
-            bottom: 0,
-            transform: 'translateX(-50%)',
-            width: '393px',
-            height: '250px',
-            backgroundColor: 'white',
-            borderRadius: '18px 18px 0 0',
-            padding: '24px',
-            textAlign: 'center',
-            zIndex: 1000
-          }}>
-                         <div style={{
-               fontSize: '18px',
-               fontWeight: '600',
-               color: '#000',
-               marginBottom: '16px'
-             }}>
-               알림
-             </div>
-                           <div style={{
-                width: '120%',
-                height: '1px',
-                backgroundColor: '#E5E5EA',
-                marginBottom: '16px',
-                marginLeft: '-10%'
-              }}></div>
-            <div style={{
-              fontSize: '16px',
-              color: '#000',
-              marginBottom: '24px',
-              lineHeight: '45px'
-            }}>
+          <div
+            style={{
+              position: "fixed",
+              left: "50%",
+              bottom: 0,
+              transform: "translateX(-50%)",
+              width: "393px",
+              height: "250px",
+              backgroundColor: "white",
+              borderRadius: "18px 18px 0 0",
+              padding: "24px",
+              textAlign: "center",
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                fontSize: "18px",
+                fontWeight: "600",
+                color: "#000",
+                marginBottom: "16px",
+              }}
+            >
+              알림
+            </div>
+            <div
+              style={{
+                width: "120%",
+                height: "1px",
+                backgroundColor: "#E5E5EA",
+                marginBottom: "16px",
+                marginLeft: "-10%",
+              }}
+            ></div>
+            <div
+              style={{
+                fontSize: "16px",
+                color: "#000",
+                marginBottom: "24px",
+                lineHeight: "45px",
+              }}
+            >
               정말 게시물을 삭제하시겠어요?
             </div>
-                         <div style={{
-               display: 'flex',
-               gap: '24px',
-               justifyContent: 'center'
-             }}>
-               <button 
-                 onClick={handleDeleteCancel}
-                 style={{
-                   width: '140px',
-                   height: '44px',
-                   border: 'none',
-                   borderRadius: '17px',
-                   backgroundColor: '#CDDBFF',
-                   color: '#727C94',
-                   fontSize: '16px',
-                   fontWeight: '500',
-                   cursor: 'pointer'
-                 }}
-               >
-                 취소
-               </button>
-               <button 
-                 onClick={handleDeleteConfirm}
-                 style={{
-                   width: '140px',
-                   height: '44px',
-                   border: 'none',
-                   borderRadius: '17px',
-                   backgroundColor: '#E60624',
-                   color: 'white',
-                   fontSize: '16px',
-                   fontWeight: '500',
-                   cursor: 'pointer',
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   gap: '6px'
-                 }}
-               >
-                <img 
-                  src={TrashIcon} 
-                  alt="삭제" 
-                  style={{ 
-                    width: '18px', 
-                    height: '18px', 
-                    filter: 'brightness(0) invert(1)' 
-                  }} 
+            <div
+              style={{
+                display: "flex",
+                gap: "24px",
+                justifyContent: "center",
+              }}
+            >
+              <button
+                onClick={handleDeleteCancel}
+                style={{
+                  width: "140px",
+                  height: "44px",
+                  border: "none",
+                  borderRadius: "17px",
+                  backgroundColor: "#CDDBFF",
+                  color: "#727C94",
+                  fontSize: "16px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                style={{
+                  width: "140px",
+                  height: "44px",
+                  border: "none",
+                  borderRadius: "17px",
+                  backgroundColor: "#E60624",
+                  color: "white",
+                  fontSize: "16px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                }}
+              >
+                <img
+                  src={TrashIcon}
+                  alt="삭제"
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    filter: "brightness(0) invert(1)",
+                  }}
                 />
                 삭제하기
               </button>
@@ -467,7 +476,8 @@ function MiddleWho() {
         setEventData({
           username: detailData.username,
           userImage: detailData.userImage,
-          userId: detailData.userId, // 작성자 ID 추가
+          userId: detailData.userId,
+          author: detailData.author, // 작성자 ID 추가
         });
       } catch (error) {
         console.error("이벤트 조회 실패", error);
@@ -481,51 +491,54 @@ function MiddleWho() {
   // 채팅방 생성/조회 함수
   const handleStartChat = async () => {
     if (chatLoading) return;
-    
+
     // 로그인 상태 확인 (accessToken도 함께 확인)
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem("accessToken");
     if (!userData || !accessToken) {
-      console.log('로그인 상태 확인:', { userData, accessToken });
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+      console.log("로그인 상태 확인:", { userData, accessToken });
+      alert("로그인이 필요합니다.");
+      navigate("/login");
       return;
     }
-    
+
     try {
       setChatLoading(true);
-      console.log('=== 채팅방 생성 시작 ===');
-      console.log('eventId:', eventId);
-      console.log('userData:', userData);
-      console.log('eventData:', eventData);
-      console.log('accessToken:', accessToken);
-      
+      console.log("=== 채팅방 생성 시작 ===");
+      console.log("eventId:", eventId);
+      console.log("userData:", userData);
+      console.log("eventData:", eventData);
+      console.log("accessToken:", accessToken);
+
       try {
         // 이벤트 작성자와 채팅 시작
-        console.log('startEventChat 호출 중...');
+        console.log("startEventChat 호출 중...");
         const response = await startEventChat(eventId);
-        console.log('startEventChat 응답:', response);
-        
+        console.log("startEventChat 응답:", response);
+
         if (response && response.success && response.data) {
           const roomId = response.data.roomId;
-          console.log('채팅방 생성 성공, roomId:', roomId);
+          console.log("채팅방 생성 성공, roomId:", roomId);
           // 생성된 채팅방으로 이동
           navigate(`/chat/room/${roomId}`);
         } else {
-          console.log('채팅방 생성 실패 - 응답 구조 문제:', response);
-          alert('채팅방 생성에 실패했습니다. 다시 시도해주세요.');
+          console.log("채팅방 생성 실패 - 응답 구조 문제:", response);
+          alert("채팅방 생성에 실패했습니다. 다시 시도해주세요.");
         }
       } catch (error) {
-        console.error('채팅방 생성 API 에러:', error);
-        console.error('에러 응답:', error.response?.data);
-        console.error('에러 상태:', error.response?.status);
-        
+        console.error("채팅방 생성 API 에러:", error);
+        console.error("에러 응답:", error.response?.data);
+        console.error("에러 상태:", error.response?.status);
+
         // 에러 메시지 표시
-        const errorMessage = error.response?.data?.message || error.message || '채팅방 생성에 실패했습니다.';
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "채팅방 생성에 실패했습니다.";
         alert(errorMessage);
       }
     } catch (error) {
-      console.error('채팅방 생성 전체 실패:', error);
-      alert('채팅방을 생성할 수 없습니다.');
+      console.error("채팅방 생성 전체 실패:", error);
+      alert("채팅방을 생성할 수 없습니다.");
     } finally {
       setChatLoading(false);
     }
@@ -538,17 +551,20 @@ function MiddleWho() {
     <UserDiv>
       <UserImg src={eventData.userImage} alt="유저 이미지" />
       <UserNickName>{eventData.username}</UserNickName>
-      <ChatBtn 
-        onClick={handleStartChat}
-        disabled={chatLoading}
-        style={{ 
-          cursor: chatLoading ? 'not-allowed' : 'pointer',
-          opacity: chatLoading ? 0.6 : 1
-        }}
-      >
-        {chatLoading ? '채팅방 생성 중...' : '대화하기'}
-        <ChatImg src={Chat} />
-      </ChatBtn>
+
+      {!eventData.author && (
+        <ChatBtn
+          onClick={handleStartChat}
+          disabled={chatLoading}
+          style={{
+            cursor: chatLoading ? "not-allowed" : "pointer",
+            opacity: chatLoading ? 0.6 : 1,
+          }}
+        >
+          {chatLoading ? "채팅방 생성 중..." : "대화하기"}
+          <ChatImg src={Chat} />
+        </ChatBtn>
+      )}
     </UserDiv>
   );
 }
@@ -656,13 +672,13 @@ function UserChat() {
     const fetchComments = async () => {
       try {
         const items = await commentBoards(eventId);
-        console.log('=== 댓글 데이터 구조 확인 ===');
-        console.log('댓글 목록:', items);
+        console.log("=== 댓글 데이터 구조 확인 ===");
+        console.log("댓글 목록:", items);
         if (items && items.length > 0) {
-          console.log('첫 번째 댓글 객체:', items[0]);
-          console.log('첫 번째 댓글의 모든 키:', Object.keys(items[0]));
+          console.log("첫 번째 댓글 객체:", items[0]);
+          console.log("첫 번째 댓글의 모든 키:", Object.keys(items[0]));
         }
-        console.log('========================');
+        console.log("========================");
         setComments(items);
       } catch (error) {
         console.error("댓글 조회 실패", error);
@@ -686,11 +702,11 @@ function UserChat() {
   };
 
   const handleProfileClick = (user, commentId) => {
-    console.log('=== handleProfileClick 호출 ===');
-    console.log('user:', user);
-    console.log('commentId:', commentId);
-    console.log('commentId 타입:', typeof commentId);
-    
+    console.log("=== handleProfileClick 호출 ===");
+    console.log("user:", user);
+    console.log("commentId:", commentId);
+    console.log("commentId 타입:", typeof commentId);
+
     setSelectedUser({ ...user, commentId });
     setChatModalOpen(true);
   };
@@ -710,13 +726,13 @@ function UserChat() {
         });
       } else {
         const items = await showReplies(eventId, commentId);
-        console.log('=== 대댓글 데이터 구조 확인 ===');
-        console.log('대댓글 목록:', items);
+        console.log("=== 대댓글 데이터 구조 확인 ===");
+        console.log("대댓글 목록:", items);
         if (items && items.length > 0) {
-          console.log('첫 번째 대댓글 객체:', items[0]);
-          console.log('첫 번째 대댓글의 모든 키:', Object.keys(items[0]));
+          console.log("첫 번째 대댓글 객체:", items[0]);
+          console.log("첫 번째 대댓글의 모든 키:", Object.keys(items[0]));
         }
-        console.log('========================');
+        console.log("========================");
         setReplies((prev) => ({ ...prev, [commentId]: items }));
       }
     } catch (error) {
@@ -761,14 +777,17 @@ function UserChat() {
               alt={comment.username}
               style={{ cursor: "pointer" }}
               onClick={() => {
-                console.log('=== 댓글 프로필 클릭 ===');
-                console.log('comment 객체:', comment);
-                console.log('comment.commentId:', comment.commentId);
-                
-                handleProfileClick({
-                  username: comment.username,
-                  userProfileImageUrl: comment.userProfileImageUrl,
-                }, comment.commentId);
+                console.log("=== 댓글 프로필 클릭 ===");
+                console.log("comment 객체:", comment);
+                console.log("comment.commentId:", comment.commentId);
+
+                handleProfileClick(
+                  {
+                    username: comment.username,
+                    userProfileImageUrl: comment.userProfileImageUrl,
+                  },
+                  comment.commentId
+                );
               }}
             />
 
@@ -831,16 +850,22 @@ function UserChat() {
                         alt={reply.username}
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          console.log('=== 대댓글 프로필 클릭 ===');
-                          console.log('reply 객체:', reply);
-                          console.log('reply.replyId:', reply.replyId);
-                          console.log('reply.commentId:', reply.commentId);
-                          console.log('사용할 ID:', reply.replyId || reply.commentId);
-                          
-                          handleProfileClick({
-                            username: reply.username,
-                            userProfileImageUrl: reply.userProfileImageUrl,
-                          }, reply.replyId || reply.commentId);
+                          console.log("=== 대댓글 프로필 클릭 ===");
+                          console.log("reply 객체:", reply);
+                          console.log("reply.replyId:", reply.replyId);
+                          console.log("reply.commentId:", reply.commentId);
+                          console.log(
+                            "사용할 ID:",
+                            reply.replyId || reply.commentId
+                          );
+
+                          handleProfileClick(
+                            {
+                              username: reply.username,
+                              userProfileImageUrl: reply.userProfileImageUrl,
+                            },
+                            reply.replyId || reply.commentId
+                          );
                         }}
                       />
                       <div style={{ flex: 1 }}>
@@ -896,9 +921,9 @@ function UserChat() {
 
       {/* ChatModal */}
       {chatModalOpen && selectedUser && (
-        <ChatModal 
-          user={selectedUser} 
-          onClose={handleCloseModal} 
+        <ChatModal
+          user={selectedUser}
+          onClose={handleCloseModal}
           commentId={selectedUser.commentId}
         />
       )}
@@ -994,48 +1019,51 @@ function ChatModal({ user, onClose, commentId }) {
 
   const handleStartChat = async () => {
     if (chatLoading) return;
-    
+
     // commentId 확인
     if (!commentId) {
-      console.error('commentId가 없습니다:', commentId);
-      alert('댓글 정보를 찾을 수 없습니다.');
+      console.error("commentId가 없습니다:", commentId);
+      alert("댓글 정보를 찾을 수 없습니다.");
       return;
     }
-    
+
     // 로그인 상태 확인
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem("accessToken");
     if (!userData || !accessToken) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+      alert("로그인이 필요합니다.");
+      navigate("/login");
       return;
     }
-    
+
     try {
       setChatLoading(true);
-      console.log('=== 댓글 작성자와 채팅 시작 ===');
-      console.log('commentId:', commentId);
-      console.log('commentId 타입:', typeof commentId);
-      console.log('user:', user);
-      
+      console.log("=== 댓글 작성자와 채팅 시작 ===");
+      console.log("commentId:", commentId);
+      console.log("commentId 타입:", typeof commentId);
+      console.log("user:", user);
+
       const response = await startCommentChat(commentId);
-      console.log('댓글 채팅방 생성 응답:', response);
-      
+      console.log("댓글 채팅방 생성 응답:", response);
+
       if (response && response.success && response.data) {
         const roomId = response.data.roomId;
-        console.log('댓글 채팅방 생성 성공, roomId:', roomId);
+        console.log("댓글 채팅방 생성 성공, roomId:", roomId);
         // 생성된 채팅방으로 이동
         navigate(`/chat/room/${roomId}`);
       } else {
-        console.log('댓글 채팅방 생성 실패 - 응답 구조 문제:', response);
-        alert('채팅방 생성에 실패했습니다. 다시 시도해주세요.');
+        console.log("댓글 채팅방 생성 실패 - 응답 구조 문제:", response);
+        alert("채팅방 생성에 실패했습니다. 다시 시도해주세요.");
       }
     } catch (error) {
-      console.error('댓글 채팅방 생성 API 에러:', error);
-      console.error('에러 응답:', error.response?.data);
-      console.error('에러 상태:', error.response?.status);
-      
+      console.error("댓글 채팅방 생성 API 에러:", error);
+      console.error("에러 응답:", error.response?.data);
+      console.error("에러 상태:", error.response?.status);
+
       // 에러 메시지 표시
-      const errorMessage = error.response?.data?.message || error.message || '채팅방 생성에 실패했습니다.';
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "채팅방 생성에 실패했습니다.";
       alert(errorMessage);
     } finally {
       setChatLoading(false);
@@ -1055,15 +1083,15 @@ function ChatModal({ user, onClose, commentId }) {
           {/* 버튼 영역 */}
           <ButtonWrapper>
             <Close onClick={onClose}>닫기</Close>
-            <GoChat 
+            <GoChat
               onClick={handleStartChat}
               disabled={chatLoading}
-              style={{ 
-                cursor: chatLoading ? 'not-allowed' : 'pointer',
-                opacity: chatLoading ? 0.6 : 1
+              style={{
+                cursor: chatLoading ? "not-allowed" : "pointer",
+                opacity: chatLoading ? 0.6 : 1,
               }}
             >
-              {chatLoading ? '채팅방 생성 중...' : '채팅하기'}
+              {chatLoading ? "채팅방 생성 중..." : "채팅하기"}
               <GoChatImg src={GoChatRoom} alt="채팅" />
             </GoChat>
           </ButtonWrapper>

@@ -1,6 +1,15 @@
 import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 
 /* --- API 호출 --- */
+export const AiRecommend = async () => {
+  try {
+    const res = await privateAPI.get(`/events/ai-recommendations`);
+    return res.data.data.items;
+  } catch (error) {
+    console.error("Ai 추천 조회 실패", error);
+    throw error;
+  }
+};
 export const deleteSmallGroup = async (eventId, clubId) => {
   try {
     const res = await privateAPI.delete(`/events/${eventId}/clubs/${clubId}`);

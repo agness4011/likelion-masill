@@ -45,6 +45,8 @@ import SmallGroupPage from "./pages/SmallGroupPage";
 import WriteSmallPage from "./pages/WriteSmallPage";
 import RetouchSmallPage from "./pages/RetouchSmallPage";
 import ChatAi from "./pages/chat/ChatAi";
+import AiPostList from "./pages/chat/AiPostList";
+import { Navigate } from "react-router-dom";
 
 export default function App() {
   return (
@@ -54,8 +56,8 @@ export default function App() {
           <Route element={<RootLayout />}>
             {/* 온보딩 */}
             <Route index element={<OnboardingPage />} />
-            <Route path="/onboarding1" element={<Onboarding1 />} />
-            <Route path="/onboarding2" element={<Onboarding2 />} />
+            <Route path="onboarding1" element={<Onboarding1 />} />
+            <Route path="onboarding2" element={<Onboarding2 />} />
 
             {/* 로그인 */}
             <Route
@@ -80,18 +82,19 @@ export default function App() {
 
             {/* 메인 + 카테고리 */}
             <Route path="main" element={<MainPage />}>
-              {/* /main 기본 경로 (index route) */}
               <Route index element={<Main.Post />} />
-
               {/* 카테고리별 route */}
               {mainCategoryRoutes.map((route) => (
                 <Route
                   key={route.path}
                   path={route.path}
-                  element={<Main.Post />} // Post 컴포넌트 렌더링
+                  element={<Main.Post />}
                 />
               ))}
+              {/* AI 추천 결과 페이지 */}
             </Route>
+
+            {/* Change Region */}
             <Route path="changeRegion" element={<ChangeRegion />} />
             <Route
               path="changeRegion/detail"
@@ -100,6 +103,8 @@ export default function App() {
 
             {/* 검색 */}
             <Route path="search" element={<SearchPage />} />
+
+            {/* AI 채팅 */}
             <Route path="chat/AI" element={<ChatAi />} />
 
             {/* 게시글 작성 흐름 */}

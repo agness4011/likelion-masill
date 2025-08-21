@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 export default function MainPage() {
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [aiPosts, setAiPosts] = useState([]); // ✅ ChatAi에서 넘겨줄 추천 결과
 
   // 토큰 상태 확인
   useEffect(() => {
