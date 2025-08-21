@@ -521,7 +521,6 @@ function Post() {
                         <HeartImg
                           src={item.isHeartClicked ? Fullheart : Heart}
                           alt="하트"
-                          style={{ width: "24px", height: "24px" }}
                         />
                       </HeartArea>
 
@@ -708,7 +707,7 @@ const CommentArea = styled.div`
 `;
 
 const TextStyle = styled.p`
-  color: var(--Gray-900,rgb(57, 62, 74));
+  color: var(--Gray-900, rgb(57, 62, 74));
   font-family: Pretendard;
   font-size: 12px;
   font-weight: 400;
@@ -726,7 +725,6 @@ const HeartImg = styled.img`
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
-  
 `;
 
 const CommentImg = styled.img`
@@ -736,7 +734,6 @@ const CommentImg = styled.img`
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
-  
 `;
 
 const MemberLogo = styled.img`
