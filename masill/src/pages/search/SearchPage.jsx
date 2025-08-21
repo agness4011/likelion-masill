@@ -328,8 +328,6 @@ const NoResultsBirdImage = styled.img`
   margin-left: -50px;
   margin-top: -40px;
 
-
-  
   opacity: 0.8;
 `;
 
@@ -857,17 +855,18 @@ const SearchPage = () => {
                   <NoResultsContainer>
                     <NoResultsMessage>
                       <NoResults>{searchTerm}</NoResults>
-                      <NoResultsText>에 대한 검색결과가 없습니다.</NoResultsText>
+                      <NoResultsText>
+                        에 대한 검색결과가 없습니다.
+                      </NoResultsText>
                     </NoResultsMessage>
                     <BirdsContainer>
                       <NoResultsBirdImage src={BirdIcon2} alt="새" />
-                    
                     </BirdsContainer>
                   </NoResultsContainer>
                   {/* 하트 블로팅 버튼 (메인화면과 동일한 위치) */}
-                  <GoHeartImg 
-                    src={Goheart} 
-                    alt="하트 블로팅" 
+                  <GoHeartImg
+                    src={Goheart}
+                    alt="하트 블로팅"
                     onClick={handleHeartClick}
                     style={{ cursor: "pointer" }}
                   />
