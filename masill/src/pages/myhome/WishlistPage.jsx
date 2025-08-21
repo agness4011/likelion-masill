@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import ArrowLeftIcon from '@assets/logo/main/main-arrowleft.svg';
-import HeartIcon from '@logo/myhome/heart.svg';
-import ChatIcon from '@logo/myhome/chat.svg';
-import Fullheart from '@assets/logo/mainImg/fullheart.png';
-import Heart from '@assets/logo/mainImg/Heart.png';
-import Comment from '@assets/logo/mainImg/commant.png';
-import PromotionIcon from '@logo/myhome/promotion.svg';
-import dayjs from 'dayjs';
-import { fetchMyFavorites } from '../../api/boardApi';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import ArrowLeftIcon from "@assets/logo/main/main-arrowleft.svg";
+import HeartIcon from "@logo/myhome/heart.svg";
+import ChatIcon from "@logo/myhome/chat.svg";
+import Fullheart from "@assets/logo/mainImg/fullheart.png";
+import Heart from "@assets/logo/mainImg/heart.png";
+import Comment from "@assets/logo/mainImg/commant.png";
+import PromotionIcon from "@logo/myhome/promotion.svg";
+import dayjs from "dayjs";
+import { fetchMyFavorites } from "../../api/boardApi";
 import {
   BoardTitleH1,
   BoardLocationP,
   BoardDateP,
-} from '../../components/main/MainStyles.styled';
+} from "../../components/main/MainStyles.styled";
 
 const Container = styled.div`
   width: 393px;
@@ -221,7 +221,6 @@ const PromotionIconImg = styled.img`
   width: 80%;
   height: 100px;
   border-radius: 20px;
- 
 `;
 
 // 더미 데이터 제거 - 실제 좋아요한 게시물을 사용
@@ -239,7 +238,10 @@ const WishlistPage = () => {
         setLoading(true);
         const res = await fetchMyFavorites();
         console.log("관심있는 게시글:", res);
-        console.log("관심있는 게시글 데이터 구조:", JSON.stringify(res, null, 2));
+        console.log(
+          "관심있는 게시글 데이터 구조:",
+          JSON.stringify(res, null, 2)
+        );
 
         // 실제 데이터 구조에 맞게 접근
         const content = res?.data?.content || [];
@@ -272,14 +274,14 @@ const WishlistPage = () => {
     if (id) {
       navigate(`/detail/${id}`);
     } else {
-      console.error('게시글 ID를 찾을 수 없습니다:', post);
+      console.error("게시글 ID를 찾을 수 없습니다:", post);
     }
   };
 
   const handleRemoveFromWishlist = (postId, e) => {
     e.stopPropagation();
     // TODO: API를 통해 관심 목록에서 제거하는 로직 추가
-    console.log('관심 목록에서 제거:', postId);
+    console.log("관심 목록에서 제거:", postId);
   };
 
   if (loading) {
@@ -292,7 +294,14 @@ const WishlistPage = () => {
           <Title>관심 목록</Title>
         </Header>
         <Content>
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "#666",
+              fontSize: "16px",
+            }}
+          >
             로딩 중...
           </div>
         </Content>
@@ -310,7 +319,14 @@ const WishlistPage = () => {
           <Title>관심 목록</Title>
         </Header>
         <Content>
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontSize: '16px' }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "#666",
+              fontSize: "16px",
+            }}
+          >
             관심 목록을 불러오는 중 오류가 발생했습니다.
           </div>
         </Content>
@@ -329,31 +345,33 @@ const WishlistPage = () => {
 
       <Content>
         {likedPosts.length === 0 ? (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '60px 20px',
-            color: '#666',
-            fontSize: '16px'
-          }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "#666",
+              fontSize: "16px",
+            }}
+          >
             아직 관심있는 게시물이 없습니다.
             <br />
             메인페이지에서 관심 있는 게시물에 하트를 눌러보세요!
           </div>
         ) : (
-          <div style={{ padding: '0 24px 0 24px' }}>
+          <div style={{ padding: "0 24px 0 24px" }}>
             {likedPosts.map((post, index) => (
               <React.Fragment key={post.postId}>
                 <PostCard onClick={() => handlePostClick(post)}>
                   <ImageScrollWrapper>
-                    {Array.isArray(post.images) && post.images.length > 0 ? (
-                      post.images.map((img, idx) => (
-                        <BoardImage
-                          key={idx}
-                          src={img.imageUrl}
-                          alt={`${post.title}-${idx}`}
-                        />
-                      ))
-                    ) : null}
+                    {Array.isArray(post.images) && post.images.length > 0
+                      ? post.images.map((img, idx) => (
+                          <BoardImage
+                            key={idx}
+                            src={img.imageUrl}
+                            alt={`${post.title}-${idx}`}
+                          />
+                        ))
+                      : null}
                   </ImageScrollWrapper>
 
                   <ContentWrapper>
@@ -376,7 +394,9 @@ const WishlistPage = () => {
 
                     <RightContent>
                       <HeartArea
-                        onClick={(e) => handleRemoveFromWishlist(post.postId, e)}
+                        onClick={(e) =>
+                          handleRemoveFromWishlist(post.postId, e)
+                        }
                       >
                         <TextStyle>{post.favoriteCount}</TextStyle>
                         <HeartImg
@@ -392,11 +412,14 @@ const WishlistPage = () => {
                       </CommentArea>
                     </RightContent>
                   </ContentWrapper>
-                  
+
                   {/* PromotionIcon을 마지막 게시물이 아닌 경우에만 표시 */}
                   {index < likedPosts.length - 1 && (
                     <PromotionContainer>
-                      <PromotionIconImg src={PromotionIcon} alt="프로모션 아이콘" />
+                      <PromotionIconImg
+                        src={PromotionIcon}
+                        alt="프로모션 아이콘"
+                      />
                     </PromotionContainer>
                   )}
                 </PostCard>
