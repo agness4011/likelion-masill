@@ -39,7 +39,7 @@ import {
   fetchSmallGroup,
   smallFavorite,
 } from "../../api/boardApi";
-import { startEventChat } from "../../api/chatService";
+import { startEventChat, startCommentChat } from "../../api/chatService";
 import { privateAPI } from "../../api/axios";
 
 import {
@@ -656,6 +656,13 @@ function UserChat() {
     const fetchComments = async () => {
       try {
         const items = await commentBoards(eventId);
+        console.log('=== 댓글 데이터 구조 확인 ===');
+        console.log('댓글 목록:', items);
+        if (items && items.length > 0) {
+          console.log('첫 번째 댓글 객체:', items[0]);
+          console.log('첫 번째 댓글의 모든 키:', Object.keys(items[0]));
+        }
+        console.log('========================');
         setComments(items);
       } catch (error) {
         console.error("댓글 조회 실패", error);
@@ -678,8 +685,13 @@ function UserChat() {
     }));
   };
 
-  const handleProfileClick = (user) => {
-    setSelectedUser(user);
+  const handleProfileClick = (user, commentId) => {
+    console.log('=== handleProfileClick 호출 ===');
+    console.log('user:', user);
+    console.log('commentId:', commentId);
+    console.log('commentId 타입:', typeof commentId);
+    
+    setSelectedUser({ ...user, commentId });
     setChatModalOpen(true);
   };
 
@@ -698,6 +710,13 @@ function UserChat() {
         });
       } else {
         const items = await showReplies(eventId, commentId);
+        console.log('=== 대댓글 데이터 구조 확인 ===');
+        console.log('대댓글 목록:', items);
+        if (items && items.length > 0) {
+          console.log('첫 번째 대댓글 객체:', items[0]);
+          console.log('첫 번째 대댓글의 모든 키:', Object.keys(items[0]));
+        }
+        console.log('========================');
         setReplies((prev) => ({ ...prev, [commentId]: items }));
       }
     } catch (error) {
@@ -741,12 +760,16 @@ function UserChat() {
               src={comment.userProfileImageUrl}
               alt={comment.username}
               style={{ cursor: "pointer" }}
-              onClick={() =>
+              onClick={() => {
+                console.log('=== 댓글 프로필 클릭 ===');
+                console.log('comment 객체:', comment);
+                console.log('comment.commentId:', comment.commentId);
+                
                 handleProfileClick({
                   username: comment.username,
                   userProfileImageUrl: comment.userProfileImageUrl,
-                })
-              }
+                }, comment.commentId);
+              }}
             />
 
             <div style={{ flex: 1 }}>
@@ -807,12 +830,18 @@ function UserChat() {
                         src={reply.userProfileImageUrl}
                         alt={reply.username}
                         style={{ cursor: "pointer" }}
-                        onClick={() =>
+                        onClick={() => {
+                          console.log('=== 대댓글 프로필 클릭 ===');
+                          console.log('reply 객체:', reply);
+                          console.log('reply.replyId:', reply.replyId);
+                          console.log('reply.commentId:', reply.commentId);
+                          console.log('사용할 ID:', reply.replyId || reply.commentId);
+                          
                           handleProfileClick({
                             username: reply.username,
                             userProfileImageUrl: reply.userProfileImageUrl,
-                          })
-                        }
+                          }, reply.replyId || reply.commentId);
+                        }}
                       />
                       <div style={{ flex: 1 }}>
                         <div
@@ -867,7 +896,11 @@ function UserChat() {
 
       {/* ChatModal */}
       {chatModalOpen && selectedUser && (
-        <ChatModal user={selectedUser} onClose={handleCloseModal} />
+        <ChatModal 
+          user={selectedUser} 
+          onClose={handleCloseModal} 
+          commentId={selectedUser.commentId}
+        />
       )}
     </div>
   );
@@ -931,10 +964,63 @@ function AddReplyMessage({ eventId, parentCommentId, onReplyAdded, onCancel }) {
     </div>
   );
 }
-function ChatModal({ user, onClose }) {
+function ChatModal({ user, onClose, commentId }) {
   const modalRoot = document.getElementById("modal-root");
+  const navigate = useNavigate();
+  const { userData } = useUser();
+  const [chatLoading, setChatLoading] = useState(false);
 
   if (!modalRoot) return null;
+
+  const handleStartChat = async () => {
+    if (chatLoading) return;
+    
+    // commentId 확인
+    if (!commentId) {
+      console.error('commentId가 없습니다:', commentId);
+      alert('댓글 정보를 찾을 수 없습니다.');
+      return;
+    }
+    
+    // 로그인 상태 확인
+    const accessToken = localStorage.getItem('accessToken');
+    if (!userData || !accessToken) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      setChatLoading(true);
+      console.log('=== 댓글 작성자와 채팅 시작 ===');
+      console.log('commentId:', commentId);
+      console.log('commentId 타입:', typeof commentId);
+      console.log('user:', user);
+      
+      const response = await startCommentChat(commentId);
+      console.log('댓글 채팅방 생성 응답:', response);
+      
+      if (response && response.success && response.data) {
+        const roomId = response.data.roomId;
+        console.log('댓글 채팅방 생성 성공, roomId:', roomId);
+        // 생성된 채팅방으로 이동
+        navigate(`/chat/room/${roomId}`);
+      } else {
+        console.log('댓글 채팅방 생성 실패 - 응답 구조 문제:', response);
+        alert('채팅방 생성에 실패했습니다. 다시 시도해주세요.');
+      }
+    } catch (error) {
+      console.error('댓글 채팅방 생성 API 에러:', error);
+      console.error('에러 응답:', error.response?.data);
+      console.error('에러 상태:', error.response?.status);
+      
+      // 에러 메시지 표시
+      const errorMessage = error.response?.data?.message || error.message || '채팅방 생성에 실패했습니다.';
+      alert(errorMessage);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   return ReactDOM.createPortal(
     <ModalBackground onClick={onClose}>
@@ -949,8 +1035,15 @@ function ChatModal({ user, onClose }) {
           {/* 버튼 영역 */}
           <ButtonWrapper>
             <Close onClick={onClose}>닫기</Close>
-            <GoChat>
-              채팅하기
+            <GoChat 
+              onClick={handleStartChat}
+              disabled={chatLoading}
+              style={{ 
+                cursor: chatLoading ? 'not-allowed' : 'pointer',
+                opacity: chatLoading ? 0.6 : 1
+              }}
+            >
+              {chatLoading ? '채팅방 생성 중...' : '채팅하기'}
               <GoChatImg src={GoChatRoom} alt="채팅" />
             </GoChat>
           </ButtonWrapper>

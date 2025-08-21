@@ -494,7 +494,7 @@ const MyHomePage = () => {
         </PlusButton>
         <UserInfo>
           <Username>
-            {userData.nickname || userData.username}
+                            {userData.username}
             {userData.isSajangVerified && (
               <SajangIconImage src={SajangIcon} alt="사장님 인증" />
             )}

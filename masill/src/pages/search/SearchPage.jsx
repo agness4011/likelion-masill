@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import ArrowLeftIcon from "@assets/logo/main/main-arrowleft.svg";
 import BirdIcon from "@logo/bird.svg";
+import BirdIcon2 from "@logo/search/twobird.svg";
 import SearchIcon from "@logo/search/searchicon.svg";
 import SearchArrowRight from "@logo/search/search-arrowright.svg";
 import { fetchAllBoards, fetchAllBoardsForSearch } from "../../api/boardApi";
@@ -12,6 +13,7 @@ import Heart from "@logo/mainImg/Heart.png";
 import Comment from "@logo/mainImg/commant.png";
 import SetLocation from "@logo/mainImg/set.png";
 import Recommand from "@logo/mainImg/recommand.png";
+import Goheart from "@logo/mainImg/goheart.png";
 
 const Container = styled.div`
   height: 100%;
@@ -304,6 +306,7 @@ const NoResultsContainer = styled.div`
   justify-content: center;
   height: 60vh;
   text-align: center;
+  gap: 120px; /* 텍스트와 새 아이콘 간의 간격을 60px로 설정 */
 `;
 
 const NoResultsMessage = styled.div`
@@ -319,20 +322,15 @@ const BirdsContainer = styled.div`
 `;
 
 const NoResultsBirdImage = styled.img`
-  width: 80px;
-  height: 80px;
+  width: 140px;
+  height: 140px;
   position: absolute;
+  margin-left: -50px;
+  margin-top: -40px;
 
-  &:first-child {
-    top: 0;
-    left: 20px;
-  }
 
-  &:last-child {
-    bottom: 0;
-    right: 20px;
-    transform: rotate(-15deg);
-  }
+  
+  opacity: 0.8;
 `;
 
 // 메인화면과 동일한 게시글 스타일
@@ -436,7 +434,7 @@ const HeartArea = styled.div`
 const CommentArea = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
 `;
 
 const TextStyle = styled.span`
@@ -456,6 +454,7 @@ const CommentImg = styled.img`
 
 const NoResults = styled.p`
   color: var(--Dark-Text, #060d1d);
+  margin-top: -20px;
   text-align: center;
   font-family: Pretendard;
   font-size: 16px;
@@ -475,11 +474,23 @@ const NoResultsText = styled.p`
   color: var(--Dark-Text, #060d1d);
   /* 16 MID */
   font-family: Pretendard;
+  margin-top: -10px;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 140%;
-  letter-spacing: 0.32px;
+  letter-spacing: 0.12px;
+`;
+
+// 하트 블로팅 버튼 스타일 (메인화면과 동일)
+const GoHeartImg = styled.img`
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  z-index: 200;
+  position: fixed;
+  right: 24px;
+  bottom: 45px;
 `;
 
 // 더미 데이터 제거
@@ -675,6 +686,10 @@ const SearchPage = () => {
     navigate(`/detail/${eventId}`);
   };
 
+  const handleHeartClick = () => {
+    navigate("/myhome/wishlist");
+  };
+
   return (
     <Container>
       <Header>
@@ -838,16 +853,25 @@ const SearchPage = () => {
             {searchTerm.trim() &&
               searchResults.length === 0 &&
               !isSearching && (
-                <NoResultsContainer>
-                  <NoResultsMessage>
-                    <NoResults>{searchTerm}</NoResults>
-                    <NoResultsText>에 대한 검색결과가 없습니다.</NoResultsText>
-                  </NoResultsMessage>
-                  <BirdsContainer>
-                    <NoResultsBirdImage src={BirdIcon} alt="새1" />
-                    <NoResultsBirdImage src={BirdIcon} alt="새2" />
-                  </BirdsContainer>
-                </NoResultsContainer>
+                <>
+                  <NoResultsContainer>
+                    <NoResultsMessage>
+                      <NoResults>{searchTerm}</NoResults>
+                      <NoResultsText>에 대한 검색결과가 없습니다.</NoResultsText>
+                    </NoResultsMessage>
+                    <BirdsContainer>
+                      <NoResultsBirdImage src={BirdIcon2} alt="새" />
+                    
+                    </BirdsContainer>
+                  </NoResultsContainer>
+                  {/* 하트 블로팅 버튼 (메인화면과 동일한 위치) */}
+                  <GoHeartImg 
+                    src={Goheart} 
+                    alt="하트 블로팅" 
+                    onClick={handleHeartClick}
+                    style={{ cursor: "pointer" }}
+                  />
+                </>
               )}
 
             {/* 추천 섹션 */}
