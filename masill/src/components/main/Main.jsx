@@ -4,7 +4,7 @@ import Btn from "../../assets/logo/mainImg/rightbutton.svg";
 
 import Comment from "../../assets/logo/mainImg/commant.png";
 import Fullheart from "../../assets/logo/mainImg/fullheart.png";
-import Heart from "../../assets/logo/mainImg/Heart.png";
+import Heart from "../../assets/logo/mainImg/heart.png";
 import Goheart from "../../assets/logo/mainImg/goheart.png";
 import Recommand from "../../assets/logo/main/main-sort.svg";
 import SetLocation from "../../assets/logo/main/main-location.svg";
