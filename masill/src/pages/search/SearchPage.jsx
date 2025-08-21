@@ -9,7 +9,7 @@ import SearchArrowRight from "@logo/search/search-arrowright.svg";
 import { fetchAllBoards, fetchAllBoardsForSearch } from "../../api/boardApi";
 import dayjs from "dayjs";
 import Fullheart from "@logo/mainImg/fullheart.png";
-import Heart from "@logo/mainImg/Heart.png";
+import Heart from "@logo/mainImg/heart.png";
 import Comment from "@logo/mainImg/commant.png";
 import SetLocation from "@logo/mainImg/set.png";
 import Recommand from "@logo/mainImg/recommand.png";
