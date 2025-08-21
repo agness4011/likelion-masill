@@ -726,7 +726,7 @@ const HeartImg = styled.img`
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
-  opacity: 0.5;
+  
 `;
 
 const CommentImg = styled.img`
@@ -736,7 +736,7 @@ const CommentImg = styled.img`
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
-  opacity: 0.5;
+  
 `;
 
 const MemberLogo = styled.img`
