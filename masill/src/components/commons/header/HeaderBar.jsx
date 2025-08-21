@@ -29,7 +29,7 @@ function HeadLeft() {
         style={{ cursor: "pointer" }}
       >
         <Logo src={LogoImg} alt="로고" />
-        <LogoMasill src={MainImg} alt="메인페이지" />
+        {/* <LogoMasill src={MainImg} alt="메인페이지" /> */}
       </div>
     </Left>
   );
@@ -61,6 +61,7 @@ const Right = styled.div`
   align-items: center;
   gap: 12px; /* 아이콘들 간격 12px */
   margin-top: 8px;
+  margin-right: 10px;
 `;
 
 const MyHome = styled.img`

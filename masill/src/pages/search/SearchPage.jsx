@@ -679,7 +679,7 @@ const SearchPage = () => {
   };
 
   const handleRecommendation = () => {
-    navigate("/chat/7");
+    navigate("/chat/AI");
   };
 
   const handleResultClick = (eventId) => {

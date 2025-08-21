@@ -121,6 +121,7 @@ export const ToggleLoctionDiv = styled.div`
   cursor: pointer;
   margin-bottom: 10px;
   margin-top: 18px;
+  margin-left: 24px;
 `;
 export const ToggleP = styled.p`
   cursor: pointer;

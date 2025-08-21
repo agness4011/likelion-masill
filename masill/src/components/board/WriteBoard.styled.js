@@ -5,6 +5,7 @@ export const BackBtn = styled.img`
   height: 30px;
   flex-shrink: 0;
   aspect-ratio: 1/1;
+  cursor: pointer;
 `;
 export const HeadTitle = styled.h2`
   color: var(--Dark-Text, #060d1d);
