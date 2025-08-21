@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 import { uploadProfileImage } from '../../api/userService';
-import AlarmIcon from '@logo/myhome/alarm.svg';
+
 import ChatIcon from '@logo/myhome/chat.svg'; 
 import HomeIcon from '@logo/myhome/home.svg';
 import WriteIcon from '@logo/myhome/write.svg';
@@ -315,9 +315,7 @@ const MyHomePage = () => {
     navigate('/board');
   };
 
-  const handleNotifications = () => {
-    console.log('알림');
-  };
+  
 
   const handleChat = () => {
     navigate('/chat');
@@ -373,15 +371,17 @@ const MyHomePage = () => {
       const result = await uploadProfileImage(file);
       console.log('프로필 이미지 업로드 성공:', result);
       
-      // 업로드 성공 시 localStorage에 이미지 URL 저장
+      // 업로드 성공 시 응답에서 profileImageUrl 사용
       if (result && result.success) {
-        const imageUrl = result.data?.imageUrl;
-        if (imageUrl) {
-          localStorage.setItem('userProfileImage', imageUrl);
-          setProfileImage(imageUrl);
+        const profileImageUrl = result.data?.profileImageUrl;
+        if (profileImageUrl) {
+          console.log('서버에서 받은 프로필 이미지 URL:', profileImageUrl);
+          localStorage.setItem('userProfileImage', profileImageUrl);
+          setProfileImage(profileImageUrl);
           // UserContext 업데이트
-          updateProfileImage(imageUrl);
+          updateProfileImage(profileImageUrl);
         } else {
+          console.warn('서버 응답에 profileImageUrl이 없습니다:', result);
           // API에서 URL을 반환하지 않는 경우, 파일을 base64로 변환하여 저장
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -393,6 +393,7 @@ const MyHomePage = () => {
           reader.readAsDataURL(file);
         }
       } else {
+        console.warn('프로필 이미지 업로드 API 실패:', result);
         // API 실패 시에도 base64로 저장하여 임시 사용
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -445,9 +446,7 @@ const MyHomePage = () => {
           <IconButton onClick={handleEditProfile}>
             <IconImage src={WriteIcon} alt="편집" />
           </IconButton>
-          <IconButton onClick={handleNotifications}>
-            <IconImage src={AlarmIcon} alt="알림" />
-          </IconButton>
+         
           <IconButton onClick={handleChat}>
             <IconImage src={ChatIcon} alt="채팅" />
           </IconButton>
@@ -461,7 +460,7 @@ const MyHomePage = () => {
       <ProfileSection>
         <AvatarContainer>
           <AvatarImage 
-            src={profileImage || getCurrentAvatarIcon()} 
+            src={userData?.profileImage || profileImage || getCurrentAvatarIcon()} 
             alt="프로필" 
           />
           {isUploading && (

@@ -1,10 +1,10 @@
 import { useNavigate, Link } from "react-router-dom";
 
 import MainImg from "../../../assets/logo/mainImg/logomasill.png";
-import ChatImg from "../../../assets/logo/mainImg/chat.png";
-import MyHomeImg from "../../../assets/logo/mainImg/home.png";
-import LogoImg from "../../../assets/logo/mainImg/logo.png";
-import BoardImg from "../../../assets/logo/mainImg/boardwrite.png";
+import ChatImg from "../../../assets/logo/main/main-chat.svg";
+import MyHomeImg from "../../../assets/logo/main/main-home.svg";
+import LogoImg from "../../../assets/logo/main/main-logo.svg";
+import BoardImg from "../../../assets/logo/main/main-write.svg";
 import styled from "styled-components";
 
 export default function HeaderBar({ children }) {

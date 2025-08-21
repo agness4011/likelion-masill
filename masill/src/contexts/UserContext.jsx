@@ -31,17 +31,19 @@ export const UserProvider = ({ children }) => {
       console.log('userNickname:', userNickname);
       
       return {
+        id: currentUser.userId,
         username: userNickname,
         nickname: userNickname,
         email: currentUser.email || "user@example.com",
         isSajangVerified: false,
         avatarId: null,
-        profileImage: localStorage.getItem('userProfileImage') || null
+        profileImage: currentUser.profileImageUrl || localStorage.getItem('userProfileImage') || null
       };
     }
     
     // 로그인되지 않은 경우 기본값
     return {
+      id: null,
       username: "user",
       nickname: "user",
       email: "user@example.com",

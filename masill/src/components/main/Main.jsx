@@ -1,13 +1,13 @@
 import BackGround from "../../assets/logo/mainImg/highback.png";
-import SearchGlass from "../../assets/logo/mainImg/glass.png";
-import Btn from "../../assets/logo/mainImg/button.png";
+import SearchGlass from "../../assets/logo/main/main-search.svg";
+import Btn from "../../assets/logo/mainImg/rightbutton.svg";
 
 import Comment from "../../assets/logo/mainImg/commant.png";
 import Fullheart from "../../assets/logo/mainImg/fullheart.png";
 import Heart from "../../assets/logo/mainImg/Heart.png";
 import Goheart from "../../assets/logo/mainImg/goheart.png";
-import Recommand from "../../assets/logo/mainImg/recommand.png";
-import SetLocation from "../../assets/logo/mainImg/set.png";
+import Recommand from "../../assets/logo/main/main-sort.svg";
+import SetLocation from "../../assets/logo/main/main-location.svg";
 
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -584,7 +584,7 @@ const BoardContanier = styled.div`
 const PostWrapper = styled.div`
   padding: 0 0 8px 0;
   cursor: pointer;
-  border-top: 2px solid var(--Gray-500, #c1cae0);
+  border-top: 0.5px solid var(--Gray-500, #c1cae0);
   &:hover {
     background-color: #fafafa;
   }
@@ -677,7 +677,7 @@ const RightContent = styled.div`
 const HeartArea = styled.div`
   position: absolute;
   top: 0; /* 제목과 같은 높이 */
-  right: 0;
+  right: -10px;
   display: flex;
   align-items: center;
   padding-right: 28px; /* 아이콘 자리 확보 */
@@ -687,7 +687,7 @@ const HeartArea = styled.div`
 const CommentArea = styled.div`
   position: absolute;
   top: 30px; /* 위치와 날짜 중간 지점 (수치 조절 가능) */
-  right: 0;
+  right: -10px;
   display: flex;
   align-items: center;
   padding-right: 28px;
@@ -695,7 +695,7 @@ const CommentArea = styled.div`
 `;
 
 const TextStyle = styled.p`
-  color: var(--Gray-900, #727c94);
+  color: var(--Gray-900,rgb(57, 62, 74));
   font-family: Pretendard;
   font-size: 12px;
   font-weight: 400;
@@ -703,24 +703,27 @@ const TextStyle = styled.p`
   letter-spacing: -0.12px;
   margin: 0;
   white-space: nowrap; /* 줄바꿈 방지 */
+  opacity: 0.5;
 `;
 
 const HeartImg = styled.img`
   position: absolute;
-  right: 0;
+  right: -2px;
   top: 50%;
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
+  opacity: 0.5;
 `;
 
 const CommentImg = styled.img`
   position: absolute;
-  right: 0;
+  right: -2px;
   top: 50%;
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
+  opacity: 0.5;
 `;
 
 const MemberLogo = styled.img`
@@ -824,7 +827,8 @@ const SearchInput = styled.input`
   height: 42px;
   border-radius: 18px;
   background: var(--BG, #fbfcff);
-  box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.4) inset;
+  border: none;
+  outline: none;
   padding-left: 16px;
 `;
 const SearchImg = styled.img`

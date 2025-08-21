@@ -908,6 +908,8 @@ function UserChat() {
 
 function AddCommentMessage({ eventId, onCommentAdded }) {
   const [comment, setComment] = useState("");
+  const { userData } = useUser(); // 현재 로그인한 사용자 정보
+  
   const handleAddComment = async () => {
     if (!comment.trim()) return;
     try {
@@ -918,24 +920,33 @@ function AddCommentMessage({ eventId, onCommentAdded }) {
       console.error("댓글 작성 실패", error);
     }
   };
+  
   return (
     <div>
-      {" "}
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+        {/* 본인 프로필 이미지 */}
+        <CommentUserImg
+          src={userData?.profileImage || "https://via.placeholder.com/32x32?text=?"}
+          alt="내 프로필"
+          style={{ width: "32px", height: "32px", borderRadius: "50%" }}
+        />
+        <span style={{ fontSize: "14px", color: "#666" }}>{userData?.nickname || "사용자"}</span>
+      </div>
       <KeyboardDiv>
-        {" "}
         <KeyboardInput
           type="text"
           placeholder="댓글을 입력하세요"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-        />{" "}
-        <KeyboardBtn src={KeyboardButton} onClick={handleAddComment} />{" "}
-      </KeyboardDiv>{" "}
+        />
+        <KeyboardBtn src={KeyboardButton} onClick={handleAddComment} />
+      </KeyboardDiv>
     </div>
   );
 }
 function AddReplyMessage({ eventId, parentCommentId, onReplyAdded, onCancel }) {
   const [content, setContent] = useState("");
+  const { userData } = useUser(); // 현재 로그인한 사용자 정보
 
   const handleAddReply = async () => {
     if (!content.trim()) return;
@@ -952,6 +963,15 @@ function AddReplyMessage({ eventId, parentCommentId, onReplyAdded, onCancel }) {
 
   return (
     <div style={{ marginLeft: "40px", marginTop: "6px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+        {/* 본인 프로필 이미지 */}
+        <CommentUserImg
+          src={userData?.profileImage || "https://via.placeholder.com/32x32?text=?"}
+          alt="내 프로필"
+          style={{ width: "28px", height: "28px", borderRadius: "50%" }}
+        />
+        <span style={{ fontSize: "13px", color: "#666" }}>{userData?.nickname || "사용자"}</span>
+      </div>
       <ReplyKeyboardDiv>
         <ReplyKeyboard
           type="text"

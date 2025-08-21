@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { getChatMessages, sendMessage as sendHttpMessage, fetchChatRoom, getMyChatRooms } from '../../api/chatService';
 import { useUser } from '../../contexts/UserContext';
@@ -9,7 +9,7 @@ import Avatar3Icon from '../../assets/logo/profile/avatar3.svg';
 import Avatar4Icon from '../../assets/logo/profile/avatar4.svg';
 import Avatar5Icon from '../../assets/logo/profile/avatar5.svg';
 import Avatar6Icon from '../../assets/logo/profile/avatar6.svg';
-import { connectWebSocket, sendChatMessage, subscribeChatRoom, markChatAsRead, isConnected } from '../../utils/websocket';
+import { connectWebSocket, sendChatMessage, subscribeChatRoom, markChatAsRead, isConnected, sendUnreadNotification } from '../../utils/websocket';
 import chatsendIcon from '../../assets/logo/chat/chatsend.svg';
 import MainArrowLeftIcon from '../../assets/logo/main/main-arrowleft.svg';
 
@@ -261,7 +261,12 @@ const EmptyContainer = styled.div`
 function ChatRoomDetailPage() {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { userData } = useUser();
+  
+  // URL 파라미터에서 프로필 이미지 가져오기
+  const urlParams = new URLSearchParams(location.search);
+  const profileImageFromUrl = urlParams.get('profileImage');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -272,7 +277,15 @@ function ChatRoomDetailPage() {
   const messageContainerRef = useRef(null);
   
   // 사용자 ID 가져오기 (최적화)
-  const userId = userData?.id || localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')).id : null;
+  const userId = userData?.id || userData?.userId || (localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')).userId : null) || localStorage.getItem('currentUserId');
+  
+  // 디버깅을 위한 로그
+  console.log('[ChatRoomDetailPage] 사용자 정보:', {
+    userData,
+    userId,
+    currentUserFromStorage: localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')) : null,
+    currentUserIdFromStorage: localStorage.getItem('currentUserId')
+  });
 
   // 타겟 사용자 정보 조회 (최적화)
   const fetchTargetUser = useCallback(async () => {
@@ -282,29 +295,12 @@ function ChatRoomDetailPage() {
       if (response?.success && response.data) {
         const chatRoomData = response.data;
         
-        // 채팅방 데이터에서 상대방 정보 추출
+        // 새로운 API 응답 구조에 맞춰 상대방 정보 추출
         let targetUserInfo = {
-          username: chatRoomData.targetUsername || chatRoomData.targetUserNickname || chatRoomData.username || chatRoomData.userNickname || '사용자',
-          userImage: chatRoomData.targetUserImage || chatRoomData.targetUserProfileImage || chatRoomData.userImage || chatRoomData.userProfileImage || null,
-          userId: chatRoomData.targetUserId || chatRoomData.userId
+          username: chatRoomData.targetUserNickname || '사용자',
+          userImage: profileImageFromUrl || chatRoomData.targetUserProfileImageUrl || null,
+          userId: chatRoomData.targetUserId
         };
-        
-        // 기본 닉네임과 아바타 설정
-        if (targetUserInfo.userId) {
-          const defaultUserInfo = {
-            116: { nickname: 'test1', avatarId: 3 },
-            119: { nickname: 'test2', avatarId: 2 }
-          };
-          if (defaultUserInfo[targetUserInfo.userId] && targetUserInfo.username === '사용자') {
-            targetUserInfo.username = defaultUserInfo[targetUserInfo.userId].nickname;
-            if (!targetUserInfo.userImage) {
-              const avatarIcons = {
-                1: Avatar1Icon, 2: Avatar2Icon, 3: Avatar3Icon, 4: Avatar4Icon, 5: Avatar5Icon, 6: Avatar6Icon
-              };
-              targetUserInfo.userImage = avatarIcons[defaultUserInfo[targetUserInfo.userId].avatarId] || Avatar1Icon;
-            }
-          }
-        }
         
         setTargetUser(targetUserInfo);
         return targetUserInfo; // 반환값 추가
@@ -340,7 +336,7 @@ function ChatRoomDetailPage() {
       
       // 메시지에서 상대방 senderId 찾기 (targetUser가 아직 설정되지 않은 경우)
       if (messagesArray.length > 0 && !targetUserInfo?.userId) {
-        const currentUserId = localStorage.getItem('currentUserId');
+        const currentUserId = userId || localStorage.getItem('currentUserId');
         const otherSenderId = messagesArray.find(msg => 
           msg.senderId && msg.senderId.toString() !== currentUserId?.toString()
         )?.senderId;
@@ -372,16 +368,27 @@ function ChatRoomDetailPage() {
       }
       
       // API 메시지를 일관된 형식으로 변환 (최적화)
+      const currentUserId = userId || localStorage.getItem('currentUserId');
       const formattedMessages = messagesArray
         .map(msg => {
           const messageText = msg.content || msg.text || msg.message || '';
           const messageTime = msg.createdAt || msg.sentAt || msg.time || new Date().toISOString();
           const senderId = msg.senderId || msg.userId || msg.authorId;
+          const isFromMe = senderId && currentUserId && senderId.toString() === currentUserId.toString();
+          
+          // 디버깅을 위한 로그
+          console.log('[ChatRoomDetailPage] 메시지 처리:', {
+            messageText,
+            senderId,
+            currentUserId,
+            isFromMe,
+            originalMsg: msg
+          });
           
           return {
             id: msg.id || msg.messageId || Date.now(),
             text: messageText,
-            fromMe: senderId && userId && senderId.toString() === userId.toString(),
+            fromMe: isFromMe,
             time: formatMessageTime(messageTime),
             originalData: msg
           };
@@ -469,15 +476,41 @@ function ChatRoomDetailPage() {
         if (success) {
           // WebSocket으로 전송 성공 시 즉시 UI에 메시지 추가
           const currentTime = new Date();
+          const currentUserId = userId || localStorage.getItem('currentUserId');
           const newMsg = {
             id: currentTime.getTime(),
             text: newMessage.trim(),
             fromMe: true,
             time: formatMessageTime(currentTime),
-            originalData: { content: newMessage.trim(), senderId: userId }
+            originalData: { content: newMessage.trim(), senderId: currentUserId }
           };
           setMessages(prev => [...prev, newMsg]);
           setNewMessage('');
+          
+          // 상대방에게 안읽은 수 증가 알림 전송
+          if (targetUser?.userId) {
+            console.log('[ChatRoomDetailPage] 안읽은 수 증가 알림 전송:', {
+              roomId,
+              messageContent: newMessage.trim(),
+              targetUserId: targetUser.userId
+            });
+            sendUnreadNotification(roomId, newMessage.trim(), targetUser.userId);
+            
+            // 로컬 스토리지를 통한 즉시 업데이트 (다른 탭/창에서)
+            const updateData = {
+              type: 'chatMessageSent',
+              roomId: roomId,
+              messageContent: newMessage.trim(),
+              timestamp: new Date().toISOString(),
+              targetUserId: targetUser.userId
+            };
+            localStorage.setItem('chatRoomUpdate', JSON.stringify(updateData));
+            
+            // 커스텀 이벤트 발생 (같은 탭에서)
+            window.dispatchEvent(new CustomEvent('chatMessageSent', {
+              detail: updateData
+            }));
+          }
         } else {
           alert('메시지 전송에 실패했습니다. WebSocket 연결을 확인해주세요.');
         }
@@ -549,7 +582,8 @@ function ChatRoomDetailPage() {
               }
               
               // 메시지 추가 (자신이 보낸 메시지도 포함)
-              const isFromMe = messageSenderId && userId && messageSenderId.toString() === userId.toString();
+              const currentUserId = userId || localStorage.getItem('currentUserId');
+              const isFromMe = messageSenderId && currentUserId && messageSenderId.toString() === currentUserId.toString();
               const currentTime = new Date();
               const newMsg = {
                 id: currentTime.getTime(),
@@ -628,15 +662,17 @@ function ChatRoomDetailPage() {
         <Header>
           <BackButton onClick={() => navigate(-1)}>←</BackButton>
                   <UserProfile>
-          <ProfileImage 
-            src={targetUser?.userImage || "https://via.placeholder.com/40x40?text=?"} 
-            alt="프로필"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
-          />
-          <UserAvatar>
+          {targetUser?.userImage ? (
+            <ProfileImage 
+              src={targetUser.userImage} 
+              alt="프로필"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <UserAvatar style={{ display: targetUser?.userImage ? 'none' : 'flex' }}>
             {targetUser?.username ? targetUser.username.charAt(0) : '?'}
           </UserAvatar>
           <UserInfo>
@@ -661,15 +697,17 @@ function ChatRoomDetailPage() {
           <img src={MainArrowLeftIcon} alt="뒤로가기" />
         </BackButton>
         <UserProfile>
-          <ProfileImage 
-            src={targetUser?.userImage || "https://via.placeholder.com/40x40?text=?"} 
-            alt="프로필"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
-          />
-          <UserAvatar>
+          {targetUser?.userImage ? (
+            <ProfileImage 
+              src={targetUser.userImage} 
+              alt="프로필"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <UserAvatar style={{ display: targetUser?.userImage ? 'none' : 'flex' }}>
             {targetUser?.username ? targetUser.username.charAt(0) : '?'}
           </UserAvatar>
           <UserInfo>
