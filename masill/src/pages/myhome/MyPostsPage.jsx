@@ -5,7 +5,7 @@ import ArrowLeftIcon from "@assets/logo/main/main-arrowleft.svg";
 import HeartIcon from "@logo/myhome/heart.svg";
 import ChatIcon from "@logo/myhome/chat.svg";
 import Fullheart from "@assets/logo/mainImg/fullheart.png";
-import Heart from "@assets/logo/mainImg/Heart.png";
+import Heart from "@assets/logo/mainImg/heart.png";
 import Comment from "@assets/logo/mainImg/commant.png";
 import PromotionIcon from "@logo/myhome/promotion.svg";
 import dayjs from "dayjs";
@@ -232,14 +232,14 @@ const MyPostsPage = () => {
         // 실제 데이터 구조에 맞게 접근
         const content = res?.data?.content || [];
         console.log("내가 작성한 게시글 content:", content);
-        
+
         // postType별로 게시글 분류
-        const clubPosts = content.filter(post => post.postType === "CLUB");
-        const eventPosts = content.filter(post => post.postType === "EVENT");
-        
+        const clubPosts = content.filter((post) => post.postType === "CLUB");
+        const eventPosts = content.filter((post) => post.postType === "EVENT");
+
         console.log("소모임 게시글:", clubPosts);
         console.log("이벤트 게시글:", eventPosts);
-        
+
         if (content.length > 0) {
           console.log("첫 번째 게시글 구조:", content[0]);
         }
@@ -265,7 +265,7 @@ const MyPostsPage = () => {
   const handlePostClick = (post) => {
     try {
       console.log("클릭된 게시글:", post);
-      
+
       // postType에 따라 다른 경로로 이동
       if (post.postType === "CLUB" && post.clubId) {
         // 소모임 게시글: /events/{eventId}/clubs/{clubId}
@@ -380,32 +380,43 @@ const MyPostsPage = () => {
                         <BoardTitleH1>
                           {post.title}
                           {post.postType === "CLUB" && (
-                            <span style={{
-                              fontSize: '12px',
-                              color: '#154ad0',
-                              marginLeft: '8px',
-                              fontWeight: 'normal'
-                            }}>
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#154ad0",
+                                marginLeft: "8px",
+                                fontWeight: "normal",
+                              }}
+                            >
                               [소모임]
                             </span>
                           )}
                           {post.postType === "EVENT" && (
-                            <span style={{
-                              fontSize: '12px',
-                              color: '#ff6b35',
-                              marginLeft: '8px',
-                              fontWeight: 'normal'
-                            }}>
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#ff6b35",
+                                marginLeft: "8px",
+                                fontWeight: "normal",
+                              }}
+                            >
                               [이벤트]
                             </span>
                           )}
                         </BoardTitleH1>
                         <BoardLocationP>{post.location}</BoardLocationP>
                         <BoardDateP>
-                          {post.endAt 
-                            ? `${dayjs(post.startAt).format("YYYY.MM.DD.(dd)")} ~ ${dayjs(post.endAt).format("YYYY.MM.DD.(dd)")} ${dayjs(post.startAt).format("HH:mm")}~${dayjs(post.endAt).format("HH:mm")}`
-                            : `${dayjs(post.startAt).format("YYYY.MM.DD.(dd)")} ${dayjs(post.startAt).format("HH:mm")}`
-                          }
+                          {post.endAt
+                            ? `${dayjs(post.startAt).format(
+                                "YYYY.MM.DD.(dd)"
+                              )} ~ ${dayjs(post.endAt).format(
+                                "YYYY.MM.DD.(dd)"
+                              )} ${dayjs(post.startAt).format("HH:mm")}~${dayjs(
+                                post.endAt
+                              ).format("HH:mm")}`
+                            : `${dayjs(post.startAt).format(
+                                "YYYY.MM.DD.(dd)"
+                              )} ${dayjs(post.startAt).format("HH:mm")}`}
                         </BoardDateP>
                       </TextInfo>
                     </LeftContent>
