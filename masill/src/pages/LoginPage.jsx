@@ -285,6 +285,29 @@ export default function LoginPage() {
           localStorage.setItem("accessToken", at);
         }
 
+        // 사용자 정보 저장
+        const userData = response?.data;
+        let currentUser = null;
+        if (userData) {
+          currentUser = {
+            userId: userData.userId,
+            nickname: userData.nickname,
+            email: userData.email,
+            profileImageUrl: userData.profileImageUrl,
+            regionId: userData.regionId,
+            role: userData.role
+          };
+          localStorage.setItem("currentUser", JSON.stringify(currentUser));
+          localStorage.setItem("currentUserId", userData.userId);
+          
+          // 프로필 이미지가 있으면 별도로 저장
+          if (userData.profileImageUrl) {
+            localStorage.setItem("userProfileImage", userData.profileImageUrl);
+          }
+          
+          console.log("[LoginPage] 사용자 정보 저장:", currentUser);
+        }
+
         // 닉네임 갱신은 유지 (여러 경로 시도)
         const nick =
           response?.data?.nickname ??
@@ -303,6 +326,11 @@ export default function LoginPage() {
           "[LoginPage] 최종 accessToken:",
           localStorage.getItem("accessToken")
         );
+
+        // UserContext 업데이트를 위한 커스텀 이벤트 발생
+        window.dispatchEvent(new CustomEvent('userLogin', { 
+          detail: { userData: currentUser } 
+        }));
 
         alert("로그인 성공!");
         nav("/main");

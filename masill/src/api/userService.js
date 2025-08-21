@@ -422,6 +422,7 @@ export const uploadProfileImage = async (imageFile) => {
 
     // multipartAPI 사용
     const res = await multipartAPI.private.post("/users/me/profile-image", formData);
+    console.log('프로필 이미지 업로드 API 응답:', res.data);
     return res.data;
   } catch (error) {
     console.error("프로필 이미지 업로드 에러:", error);
@@ -441,13 +442,13 @@ export const uploadProfileImage = async (imageFile) => {
       
       return await new Promise((resolve) => {
         setTimeout(() => {
-          // 더미 성공 응답 - imageUrl을 null로 반환하여 프론트엔드에서 base64 처리하도록 함
+          // 더미 성공 응답 - profileImageUrl을 null로 반환하여 프론트엔드에서 base64 처리하도록 함
           resolve({
             success: true,
             code: 200,
             message: '프로필 이미지 업로드가 완료되었습니다. (더미)',
             data: {
-              imageUrl: null // null로 반환하여 프론트엔드에서 base64 처리
+              profileImageUrl: null // null로 반환하여 프론트엔드에서 base64 처리
             }
           });
         }, 600);
@@ -458,41 +459,6 @@ export const uploadProfileImage = async (imageFile) => {
   }
 };
 
-// 상대방 사용자 정보 조회 API
-export const getUserInfo = async (userId) => {
-  try {
-    const res = await privateAPI.get(`/users/${userId}`);
-    return res.data;
-  } catch (error) {
-    console.error("사용자 정보 조회 에러:", error);
-    
-    // API 실패 시 더미 데이터 사용
-    const status = error.response?.status;
-    if ([400, 404, 500].includes(status)) {
-      console.warn(`${status} 오류로 인해 더미 사용자 정보 사용`);
-      
-      return await new Promise((resolve) => {
-        setTimeout(() => {
-          // 더미 사용자 정보
-          const dummyUserInfo = {
-            success: true,
-            code: 200,
-            message: '사용자 정보 조회 완료 (더미)',
-            data: {
-              userId: userId,
-              nickname: userId === '116' ? 'test1' : userId === '119' ? 'test2' : `사용자${userId}`,
-              profileImage: null, // 실제 프로필 이미지는 별도로 처리
-              avatarId: userId === '116' ? 3 : userId === '119' ? 2 : 1
-            }
-          };
-          resolve(dummyUserInfo);
-        }, 300);
-      });
-    }
-    
-    throw error;
-  }
-};
 
 // 지역 API
 export const getRegions = async () => {

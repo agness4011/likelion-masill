@@ -105,7 +105,9 @@ export const sendMessage = (destination, message) => {
   }
 
   try {
-    console.log('메시지 전송 시도:', destination, message);
+    console.log('=== 메시지 전송 시도 ===');
+    console.log('목적지:', destination);
+    console.log('메시지:', message);
     
     // 메시지 크기 제한 확인
     const messageStr = JSON.stringify(message);
@@ -123,6 +125,7 @@ export const sendMessage = (destination, message) => {
     });
     
     console.log('메시지 전송 성공:', destination);
+    console.log('========================');
     return true;
   } catch (error) {
     console.error('메시지 전송 실패:', error);
@@ -180,6 +183,40 @@ export const markChatAsRead = (roomId) => {
     return true;
   } catch (error) {
     console.error('채팅방 읽음 처리 실패:', error);
+    return false;
+  }
+};
+
+// 상대방에게 안 읽음 수 증가 알림 전송
+export const sendUnreadNotification = (roomId, messageContent, targetUserId) => {
+  if (!stompClient || !stompClient.connected) {
+    console.error('WebSocket이 연결되지 않았습니다.');
+    return false;
+  }
+
+  try {
+    const destination = `/app/chat/rooms/${roomId}/unread`;
+    const payload = {
+      roomId: roomId,
+      content: messageContent,
+      targetUserId: targetUserId,
+      timestamp: new Date().toISOString()
+    };
+    
+    console.log('안 읽음 수 증가 알림 전송:', destination, payload);
+    
+    stompClient.publish({
+      destination,
+      body: JSON.stringify(payload),
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
+    
+    console.log('안 읽음 수 증가 알림 전송 성공:', destination);
+    return true;
+  } catch (error) {
+    console.error('안 읽음 수 증가 알림 전송 실패:', error);
     return false;
   }
 };
@@ -250,18 +287,28 @@ export const subscribe = (destination, callback) => {
   }
 
   try {
-    console.log('구독 시도:', destination);
+    console.log('=== 구독 시도 ===');
+    console.log('목적지:', destination);
+    
     const subscription = stompClient.subscribe(destination, (message) => {
-      console.log('메시지 수신:', destination, message);
+      console.log('=== 메시지 수신 ===');
+      console.log('목적지:', destination);
+      console.log('원본 메시지:', message);
+      
       try {
         const body = JSON.parse(message.body);
+        console.log('파싱된 메시지:', body);
         callback(body);
       } catch (error) {
         console.error('메시지 파싱 실패:', error);
+        console.log('원본 메시지 바디:', message.body);
         callback(message.body);
       }
+      console.log('==================');
     });
+    
     console.log('구독 성공:', destination);
+    console.log('==================');
     return subscription;
   } catch (error) {
     console.error('구독 실패:', error);

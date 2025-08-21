@@ -309,6 +309,8 @@ export const fetchMyFavorites = async (
   }
 };
 
+
+
 // boardApi.js
 export const eventTypeBoards = async (eventType, regionId) => {
   try {

@@ -117,6 +117,10 @@ export default function App() {
               element={<SmallGroupPage />}
             />
             <Route
+              path="smallgroup/:eventId/:clubId"
+              element={<SmallGroupPage />}
+            />
+            <Route
               path="writeSmallGroup/:eventId"
               element={<WriteSmallPage />}
             />
