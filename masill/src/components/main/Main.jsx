@@ -214,14 +214,13 @@ function Post() {
   const [posts, setPosts] = useState([]);
   const [myRegion, setMyRegion] = useState("");
 
-  const [searchResults, setSearchResults] = useState(null); // 검색 결과 상태 추가
-  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태 추가
+  const [searchResults, setSearchResults] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const { isSearchActive, setIsSearchActive } = useOutletContext(); // 🔽 MainPage에서 내려준 함수 받기
+  const { isSearchActive, setIsSearchActive } = useOutletContext();
 
   const regionId = JSON.parse(localStorage.getItem("currentUser"))?.regionId;
-  console.log("currentUser///////////", localStorage.getItem("currentUser"));
-  console.log("regionId//////////////////////////", regionId);
+
   const CATEGORY_MAP = {
     market: "FLEA_MARKET",
     art: "CULTURE_ART",
@@ -233,84 +232,124 @@ function Post() {
     etc: "ETC",
   };
 
-  // 검색 결과가 전달되었는지 확인
-  useEffect(() => {
-    if (location.state?.searchResults) {
-      setSearchResults(location.state.searchResults);
-      setSearchTerm(location.state.searchTerm || "");
-      setIsSearchActive(true); // MainPage에 알림
-    } else {
-      setSearchResults(null);
-      setSearchTerm("");
-      setIsSearchActive(false); // MainPage에 알림
-    }
-  }, [location.state, setIsSearchActive]);
+  const navigate = useNavigate();
+  const options = ["AI 추천순", "댓글순", "인기순", "날짜순"];
 
+  // posts 불러오기
+  // posts 불러오기 useEffect
   useEffect(() => {
     const loadPosts = async () => {
       try {
+        console.log("🔹 일반 게시물 로드 시작");
         const regionName = await getMyRegionName(regionId);
         setMyRegion(regionName);
+        console.log("현재 지역:", regionName);
 
         let content = [];
         const today = dayjs().startOf("day");
         const endOfToday = dayjs().endOf("day");
 
         if (!category) {
-          // 전체 게시글 + 종료일 필터
-          const res = await fetchAllBoards(regionId); // regionId 쿼리 포함
+          const res = await fetchAllBoards(regionId);
           const allPosts = res?.data?.content || [];
+          console.log("전체 게시물 개수:", allPosts.length);
 
           content = allPosts.filter((post) =>
             dayjs(post.endAt).endOf("day").isSameOrAfter(today)
           );
+          console.log("종료일 필터 후 개수:", content.length);
         } else if (category === "event") {
-          // 오늘 포함 이벤트
           const res = await fetchAllBoards(regionId);
           const allPosts = res?.data?.content || [];
+          console.log("전체 이벤트 게시물 개수:", allPosts.length);
 
           content = allPosts.filter((post) => {
             const start = dayjs(post.startAt).startOf("day");
             const end = dayjs(post.endAt).endOf("day");
-
             return start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today);
           });
+          console.log("기간 필터 후 개수:", content.length);
         } else {
-          // 특정 카테고리 + 종료일 필터
           const eventType = CATEGORY_MAP[category];
           const res = await eventTypeBoards(eventType, regionId);
           const allPosts = res?.data?.content || [];
+          console.log(`${category} 게시물 전체 개수:`, allPosts.length);
 
           content = allPosts.filter((post) =>
             dayjs(post.endAt).endOf("day").isSameOrAfter(today)
           );
+          console.log("종료일 필터 후 개수:", content.length);
         }
 
-        // ✅ 서버에서 내려주는 favorite 값 반영
         setPosts(
           content.map((post) => ({
             ...post,
-            isHeartClicked: post.liked ?? false, // liked 값 반영
+            isHeartClicked: post.liked ?? false,
           }))
+        );
+        console.log(
+          "최종 posts 상태:",
+          content.map((p) => p.eventId)
         );
       } catch (err) {
         console.error("게시물 불러오기 실패", err);
       }
     };
 
-    // 검색 결과가 없을 때만 게시글을 로드
-    if (!searchResults) {
-      loadPosts();
-    }
+    if (!searchResults) loadPosts();
   }, [category, regionId, searchResults]);
 
-  // 검색 결과가 있으면 검색 결과를, 없으면 일반 게시글을 표시
-  const displayPosts = searchResults || posts;
+  // AI 추천 게시물 useEffect
+  useEffect(() => {
+    const loadAiPosts = async () => {
+      try {
+        console.log("🔹 AI 추천 게시물 로드 시작");
+        const regionName = await getMyRegionName(regionId);
+        setMyRegion(regionName);
 
-  // 디버깅용 로그
-  console.log("검색 결과:", searchResults);
-  console.log("일반 게시글:", posts);
-  console.log("표시할 게시글:", displayPosts);
+        if (location.state?.eventIds) {
+          const eventIds = location.state.eventIds;
+          console.log("AI 추천 eventIds:", eventIds);
+
+          const res = await fetchAllBoards(
+            regionId,
+            1,
+            100,
+            "createdAt",
+            "desc"
+          );
+          const allPosts = res?.data?.content || [];
+          console.log("전체 게시물 개수:", allPosts.length);
+
+          const aiPosts = allPosts.filter((post) =>
+            eventIds.includes(post.eventId)
+          );
+          console.log("AI 추천 필터 후 개수:", aiPosts.length);
+          console.log(
+            "AI 추천 eventIds 결과:",
+            aiPosts.map((p) => p.eventId)
+          );
+
+          setSearchResults(
+            aiPosts.map((post) => ({
+              ...post,
+              isHeartClicked: post.liked ?? false,
+            }))
+          );
+          setSearchTerm("AI 추천 전체보기");
+          setIsSearchActive(true);
+          return;
+        }
+      } catch (err) {
+        console.error("AI 추천 게시물 로드 실패", err);
+      }
+    };
+
+    loadAiPosts();
+  }, [category, regionId, location.state]);
+
+  // 검색 결과가 있으면 검색 결과, 없으면 일반 posts
+  const displayPosts = searchResults || posts;
 
   // 정렬
   const sortedPosts = [...displayPosts].sort((a, b) => {
@@ -322,72 +361,55 @@ function Post() {
     return 0;
   });
 
-  const navigate = useNavigate();
-  const options = ["AI 추천순", "댓글순", "인기순", "날짜순"];
-
   const toggleOpen = () => setIsOpen((prev) => !prev);
   const handleSelect = (type) => {
     setSortType(type);
     setIsOpen(false);
   };
 
-  // 지역 정보 클릭 시 검색 초기화 또는 지역 변경
   const handleRegionClick = () => {
     if (isSearchActive) {
-      // 검색이 활성화된 상태면 검색 초기화
       setSearchResults(null);
       setSearchTerm("");
       setIsSearchActive(false);
-      // 검색 초기화 후 원래 메인화면으로 이동
       navigate("/main", { replace: true });
     } else {
-      // 검색이 비활성화된 상태면 지역 변경 페이지로 이동
       navigate("/changeRegion");
     }
   };
-  // 검색 초기화 버튼
+
   const handleClearSearch = () => {
     setSearchResults(null);
     setSearchTerm("");
-    setIsSearchActive(false); // MainPage에 알림
+    setIsSearchActive(false);
     navigate("/main", { replace: true });
   };
 
-  // Heart 클릭 함수
+  // 하트 클릭
   const clickHeart = async (eventId) => {
     try {
       const res = await privateAPI.post(`/events/${eventId}/favorites`);
       const { favoriteCount, favorite } = res.data.data;
 
-      // posts 상태 업데이트
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
+      setPosts((prev) =>
+        prev.map((post) =>
           post.eventId === eventId
-            ? {
-                ...post,
-                isHeartClicked: favorite, // 서버 값 반영
-                favoriteCount: favoriteCount,
-              }
+            ? { ...post, isHeartClicked: favorite, favoriteCount }
             : post
         )
       );
 
-      // 검색 결과가 있을 때도 업데이트
       if (searchResults) {
-        setSearchResults((prevResults) =>
-          prevResults.map((post) =>
+        setSearchResults((prev) =>
+          prev.map((post) =>
             post.eventId === eventId
-              ? {
-                  ...post,
-                  isHeartClicked: favorite,
-                  favoriteCount: favoriteCount,
-                }
+              ? { ...post, isHeartClicked: favorite, favoriteCount }
               : post
           )
         );
       }
-    } catch (error) {
-      console.error("clickHeart 에러:", error);
+    } catch (err) {
+      console.error("clickHeart 에러:", err);
     }
   };
 
@@ -418,8 +440,6 @@ function Post() {
         )}
       </ToggleLoctionDiv>
 
-      {/* 검색 결과 표시 */}
-      {/* 검색 결과 표시 */}
       {searchResults && (
         <SearchResultHeader>
           <SearchResultText>
@@ -442,18 +462,11 @@ function Post() {
           sortedPosts.map((item) => {
             const now = dayjs();
             const eventEnd = dayjs(item.endAt);
-
             const diffDays = eventEnd
               .startOf("day")
               .diff(now.startOf("day"), "day");
             const isClosingSoon = diffDays >= 0 && diffDays <= 3;
-
-            let deadline = "";
-            if (diffDays === 0) {
-              deadline = "오늘";
-            } else {
-              deadline = `D-${diffDays}`;
-            }
+            const deadline = diffDays === 0 ? "오늘" : `D-${diffDays}`;
 
             return (
               <PostWrapper
@@ -501,7 +514,7 @@ function Post() {
                       <HeartArea
                         onClick={(e) => {
                           e.stopPropagation();
-                          clickHeart(item.eventId); // 상태 업데이트는 clickHeart 안에서 처리
+                          clickHeart(item.eventId);
                         }}
                       >
                         <TextStyle>{item.favoriteCount}</TextStyle>
