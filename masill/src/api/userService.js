@@ -19,11 +19,23 @@ export const login = async (loginData) => {
 
     // 1) 토큰/유저 추출
     const accessToken = body?.data?.accessToken ?? null;
+    // 회원가입된 사용자의 닉네임을 우선적으로 사용
+    const dummyUsers = JSON.parse(localStorage.getItem('dummyUsers') || '[]');
+    const savedUser = dummyUsers.find(u => u.email === body.data.email);
+    const savedNickname = savedUser ? savedUser.nickname : null;
+    
+    console.log('=== 실제 로그인 닉네임 처리 ===');
+    console.log('body.data:', body.data);
+    console.log('dummyUsers:', dummyUsers);
+    console.log('savedUser:', savedUser);
+    console.log('savedNickname:', savedNickname);
+    console.log('================================');
+    
     const user = body?.data
       ? {
           id: body.data.userId,
           email: body.data.email,
-          nickname: body.data.nickname || body.data.username || (body.data.email === 'test1@gmail.com' ? 'test1' : 'test2'),
+          nickname: savedNickname || body.data.nickname || body.data.username || body.data.email.split('@')[0],
           regionId: body.data.regionId ?? null,
           role: body.data.role ?? null,
           expirationTime: body.data.expirationTime ?? null,
@@ -39,6 +51,16 @@ export const login = async (loginData) => {
     localStorage.setItem('accessToken', accessToken);
     if (user) {
       localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      // localStorage nickname도 업데이트 (회원가입 시 설정한 닉네임 우선)
+      if (user.nickname) {
+        localStorage.setItem('nickname', user.nickname);
+      }
+      
+      console.log('=== 실제 로그인 사용자 정보 저장 ===');
+      console.log('저장된 currentUser:', user);
+      console.log('nickname:', user.nickname);
+      console.log('====================================');
     }
     
     // UserContext 업데이트를 위한 커스텀 이벤트 발생
@@ -68,22 +90,41 @@ export const login = async (loginData) => {
     // === 개발 중 더미 응답 분기: JWT처럼 보이지 않게 ===
     return await new Promise((resolve) => {
       setTimeout(() => {
+        // 회원가입된 사용자 정보와 기본 사용자 정보 조합
         const dummyUsers = JSON.parse(localStorage.getItem('dummyUsers') || '[]');
-        const validCredentials = [
+        const defaultUsers = [
           { email: 'test1@gmail.com', password: 'masill@1', nickname: 'test1' },
           { email: 'test2@gmail.com', password: 'masill@1', nickname: 'test2' },
-          ...dummyUsers,
         ];
+        
+        console.log('=== 사용자 정보 확인 ===');
+        console.log('dummyUsers:', dummyUsers);
+        console.log('defaultUsers:', defaultUsers);
+        console.log('==========================');
 
-        const matched = validCredentials.find(
+        // 먼저 dummyUsers에서 매칭 확인 (회원가입된 사용자 우선)
+        let matched = dummyUsers.find(
           (cred) => cred.email === loginData.email && cred.password === loginData.password
         );
-
+        
+        // dummyUsers에서 매칭되지 않으면 defaultUsers에서 확인
+        if (!matched) {
+          matched = defaultUsers.find(
+            (cred) => cred.email === loginData.email && cred.password === loginData.password
+          );
+        }
+        
+        // 매칭된 사용자가 있으면 해당 닉네임 사용, 없으면 이메일 기반으로 생성
         if (matched) {
+          console.log('=== 기존 사용자 로그인 ===');
+          console.log('매칭된 사용자:', matched);
+          console.log('사용할 닉네임:', matched.nickname);
+          console.log('========================');
+          
           const fake = {
             success: true,
             message: '로그인 성공 (더미)',
-            accessToken: `dummy_${Date.now()}`,          // ★ 보호 API 차단용
+            accessToken: `dummy_${Date.now()}`,
             user: {
               id: Math.floor(Math.random() * 10000) + 1,
               email: loginData.email,
@@ -94,20 +135,56 @@ export const login = async (loginData) => {
           localStorage.setItem('accessToken', fake.accessToken);
           localStorage.setItem('currentUser', JSON.stringify(fake.user));
           
-          // 채팅용 사용자 ID 저장 (test1: 116, test2: 119)
-          const currentUserId = matched.email === 'test1@gmail.com' ? '116' : '119';
-          localStorage.setItem('currentUserId', currentUserId);
+          // localStorage nickname도 업데이트 (회원가입 시 설정한 닉네임 우선)
+          localStorage.setItem('nickname', matched.nickname);
           
-          // 강제로 확인 로그 추가
-          console.log('=== 사용자 ID 설정 확인 ===');
-          console.log('이메일:', matched.email);
-          console.log('설정된 ID:', currentUserId);
-          console.log('저장된 ID:', localStorage.getItem('currentUserId'));
-          console.log('========================');
+          // 채팅용 사용자 ID 저장 (임의의 ID 생성)
+          const currentUserId = Math.floor(Math.random() * 1000) + 100;
+          localStorage.setItem('currentUserId', currentUserId.toString());
           
-          console.log('[login:dummy] 저장된 토큰:', fake.accessToken);
-          console.log('[login:dummy] 저장된 nickname:', matched.nickname);
-          console.log('[login:dummy] 저장된 currentUserId:', currentUserId);
+          console.log('=== 더미 로그인 사용자 정보 저장 ===');
+          console.log('저장된 currentUser:', fake.user);
+          console.log('nickname:', matched.nickname);
+          console.log('====================================');
+          
+          // UserContext 업데이트를 위한 커스텀 이벤트 발생
+          window.dispatchEvent(new CustomEvent('userLogin'));
+
+          resolve(fake);
+        } else if (loginData.password === 'masill@1') {
+          const emailPrefix = loginData.email.split('@')[0];
+          const generatedNickname = emailPrefix;
+          
+          console.log('=== 이메일 기반 닉네임 생성 ===');
+          console.log('이메일:', loginData.email);
+          console.log('생성된 닉네임:', generatedNickname);
+          console.log('=============================');
+          
+          const fake = {
+            success: true,
+            message: '로그인 성공 (더미)',
+            accessToken: `dummy_${Date.now()}`,
+            user: {
+              id: Math.floor(Math.random() * 10000) + 1,
+              email: loginData.email,
+              nickname: generatedNickname,
+            },
+          };
+
+          localStorage.setItem('accessToken', fake.accessToken);
+          localStorage.setItem('currentUser', JSON.stringify(fake.user));
+          
+          // localStorage nickname도 업데이트 (이메일 기반 생성된 닉네임)
+          localStorage.setItem('nickname', generatedNickname);
+          
+          // 채팅용 사용자 ID 저장 (임의의 ID 생성)
+          const currentUserId = Math.floor(Math.random() * 1000) + 100;
+          localStorage.setItem('currentUserId', currentUserId.toString());
+          
+          console.log('=== 더미 로그인 사용자 정보 저장 ===');
+          console.log('저장된 currentUser:', fake.user);
+          console.log('nickname:', generatedNickname);
+          console.log('====================================');
           
           // UserContext 업데이트를 위한 커스텀 이벤트 발생
           window.dispatchEvent(new CustomEvent('userLogin'));
@@ -175,12 +252,23 @@ export const signUp = async (userData) => {
                  district: userData.district || '',
                  regionId: userData.regionId || null
                };
+               
+               console.log('=== 회원가입 사용자 정보 저장 ===');
+               console.log('userData:', userData);
+               console.log('설정된 nickname:', nickname);
+               console.log('저장할 newUser:', newUser);
+               console.log('================================');
              
              const idx = dummyUsers.findIndex((u) => u.email === newUser.email);
              if (idx >= 0) dummyUsers[idx] = newUser;
              else dummyUsers.push(newUser);
 
              localStorage.setItem('dummyUsers', JSON.stringify(dummyUsers));
+             
+             console.log('=== 회원가입 완료 ===');
+             console.log('생성된 닉네임:', nickname);
+             console.log('저장된 사용자:', newUser);
+             console.log('========================');
 
              resolve({
                success: true,
@@ -363,6 +451,42 @@ export const uploadProfileImage = async (imageFile) => {
             }
           });
         }, 600);
+      });
+    }
+    
+    throw error;
+  }
+};
+
+// 상대방 사용자 정보 조회 API
+export const getUserInfo = async (userId) => {
+  try {
+    const res = await privateAPI.get(`/users/${userId}`);
+    return res.data;
+  } catch (error) {
+    console.error("사용자 정보 조회 에러:", error);
+    
+    // API 실패 시 더미 데이터 사용
+    const status = error.response?.status;
+    if ([400, 404, 500].includes(status)) {
+      console.warn(`${status} 오류로 인해 더미 사용자 정보 사용`);
+      
+      return await new Promise((resolve) => {
+        setTimeout(() => {
+          // 더미 사용자 정보
+          const dummyUserInfo = {
+            success: true,
+            code: 200,
+            message: '사용자 정보 조회 완료 (더미)',
+            data: {
+              userId: userId,
+              nickname: userId === '116' ? 'test1' : userId === '119' ? 'test2' : `사용자${userId}`,
+              profileImage: null, // 실제 프로필 이미지는 별도로 처리
+              avatarId: userId === '116' ? 3 : userId === '119' ? 2 : 1
+            }
+          };
+          resolve(dummyUserInfo);
+        }, 300);
       });
     }
     

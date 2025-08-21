@@ -19,11 +19,16 @@ export const UserProvider = ({ children }) => {
       // currentUser에 nickname이 있으면 그것을 사용, 없으면 이메일 기반으로 설정
       let userNickname = currentUser.nickname;
       if (!userNickname && currentUser.email) {
-        userNickname = currentUser.email === 'test1@gmail.com' ? 'test1' : 'test2';
+        // 이메일의 @ 앞부분을 닉네임으로 사용
+        userNickname = currentUser.email.split('@')[0];
       }
       if (!userNickname) {
-        userNickname = "test1"; // 기본값
+        userNickname = "user"; // 기본값
       }
+      
+      console.log('=== UserContext getCurrentUser ===');
+      console.log('currentUser from localStorage:', currentUser);
+      console.log('userNickname:', userNickname);
       
       return {
         username: userNickname,
@@ -37,8 +42,8 @@ export const UserProvider = ({ children }) => {
     
     // 로그인되지 않은 경우 기본값
     return {
-      username: "test1",
-      nickname: "test1",
+      username: "user",
+      nickname: "user",
       email: "user@example.com",
       isSajangVerified: false,
       avatarId: null,
@@ -52,6 +57,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const savedAvatarId = localStorage.getItem('userAvatarId');
     const savedNickname = localStorage.getItem('nickname');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
     
     if (!savedAvatarId) {
       // 아바타가 설정되지 않은 경우 랜덤으로 할당
@@ -69,14 +75,29 @@ export const UserProvider = ({ children }) => {
       }));
     }
     
-    // 저장된 닉네임이 있는 경우 로드
-    if (savedNickname) {
+    // currentUser의 닉네임만 사용 (localStorage nickname 무시)
+    if (currentUser?.nickname) {
+      console.log('=== currentUser 닉네임 사용 ===');
+      console.log('사용할 닉네임:', currentUser.nickname);
+      console.log('============================');
+      
       setUserData(prev => ({
         ...prev,
-        username: savedNickname,
-        nickname: savedNickname
+        username: currentUser.nickname,
+        nickname: currentUser.nickname
       }));
+    } else {
+      console.log('=== currentUser에 nickname이 없음 ===');
+      console.log('currentUser:', currentUser);
+      console.log('==============================');
     }
+    
+    console.log('=== UserContext 초기화 ===');
+    console.log('currentUser nickname:', currentUser?.nickname);
+    console.log('localStorage nickname:', savedNickname);
+    console.log('전체 currentUser 객체:', currentUser);
+    console.log('dummyUsers:', JSON.parse(localStorage.getItem('dummyUsers') || '[]'));
+    console.log('========================');
   }, []);
 
   // localStorage 변경 감지 및 커스텀 이벤트 감지
@@ -120,7 +141,17 @@ export const UserProvider = ({ children }) => {
 
   const updateNickname = (newNickname) => {
     console.log('UserContext: 닉네임 업데이트:', newNickname);
+    
+    // currentUser 업데이트
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    if (currentUser) {
+      currentUser.nickname = newNickname;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    }
+    
+    // localStorage nickname도 업데이트
     localStorage.setItem('nickname', newNickname);
+    
     setUserData(prev => ({
       ...prev,
       username: newNickname,

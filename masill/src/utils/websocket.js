@@ -184,6 +184,64 @@ export const markChatAsRead = (roomId) => {
   }
 };
 
+// 타이핑 시작 이벤트 전송
+export const sendTypingStart = (roomId) => {
+  if (!stompClient || !stompClient.connected) {
+    console.error('WebSocket이 연결되지 않았습니다.');
+    return false;
+  }
+
+  try {
+    const destination = `/app/chat/rooms/${roomId}/typing`;
+    const payload = { type: 'START' };
+    
+    console.log('타이핑 시작 전송:', destination, payload);
+    
+    stompClient.publish({
+      destination,
+      body: JSON.stringify(payload),
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
+    
+    console.log('타이핑 시작 전송 성공:', destination);
+    return true;
+  } catch (error) {
+    console.error('타이핑 시작 전송 실패:', error);
+    return false;
+  }
+};
+
+// 타이핑 종료 이벤트 전송
+export const sendTypingStop = (roomId) => {
+  if (!stompClient || !stompClient.connected) {
+    console.error('WebSocket이 연결되지 않았습니다.');
+    return false;
+  }
+
+  try {
+    const destination = `/app/chat/rooms/${roomId}/typing`;
+    const payload = { type: 'STOP' };
+    
+    console.log('타이핑 종료 전송:', destination, payload);
+    
+    stompClient.publish({
+      destination,
+      body: JSON.stringify(payload),
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
+    
+    console.log('타이핑 종료 전송 성공:', destination);
+    return true;
+  } catch (error) {
+    console.error('타이핑 종료 전송 실패:', error);
+    return false;
+  }
+};
+
 // 구독
 export const subscribe = (destination, callback) => {
   if (!stompClient || !stompClient.connected) {
