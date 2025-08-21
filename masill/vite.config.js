@@ -5,16 +5,16 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   define: {
-    global: 'globalThis',
+    global: "globalThis",
   },
   server: {
     proxy: {
-      '/api': {
-        target: 'http://43.202.247.99:8080',
+      "/api": {
+        target: "https://hyunjun.store",
         changeOrigin: true,
         secure: false,
-      }
-    }
+      },
+    },
   },
   resolve: {
     alias: [
