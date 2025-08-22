@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Edit, Bell, MessageCircle, User, Heart, CheckCircle } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
 
 const MyHomeContainer = styled.div`
   
@@ -206,11 +207,8 @@ const Bird = styled.div`
 `;
 
 const MyHomePage = () => {
-  // 임시 사용자 데이터 (나중에 API에서 가져올 수 있음)
-  const userData = {
-    username: "masill_love1", // 회원가입 시 입력한 닉네임
-    email: "user@example.com"
-  };
+  const { userData } = useUser();
+  const isBusinessVerified = userData.isSajangVerified;
 
   const handleEditProfile = () => {
     console.log('프로필 편집');
@@ -237,7 +235,12 @@ const MyHomePage = () => {
   };
 
   const handleVerifyManager = () => {
-    console.log('사장님 인증하기');
+    if (!isBusinessVerified) {
+      // 사업자 인증 페이지로 이동
+      window.location.href = '/myhome/sajang';
+    } else {
+      alert('이미 사업자 인증이 완료되었습니다.');
+    }
   };
 
   const handleNicknameChange = () => {
@@ -309,9 +312,11 @@ const MyHomePage = () => {
         
         <MenuItem onClick={handleVerifyManager}>
           <MenuIcon>
-            <CheckCircle size={20} />
+            <CheckCircle size={20} color={isBusinessVerified ? "#4CAF50" : "#007bff"} />
           </MenuIcon>
-          <MenuText>사장님 인증하기</MenuText>
+          <MenuText style={{color: isBusinessVerified ? "#4CAF50" : "#333"}}>
+            {isBusinessVerified ? "사업자 인증 완료" : "사장님 인증하기"}
+          </MenuText>
         </MenuItem>
       </MenuSection>
 

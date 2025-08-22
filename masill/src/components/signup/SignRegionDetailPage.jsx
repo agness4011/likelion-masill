@@ -286,15 +286,16 @@ export default function SignRegionDetailPage() {
       // 1초 후 자동으로 다음 페이지로 이동
       setTimeout(() => {
         console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
-        nav("/signup/complete");
-      }, 1000);
+        nav("/login");
+      }, 500);
     } catch (error) {
       console.error("지역 ID 조회 실패:", error);
       // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
       setTimeout(() => {
         console.log("지역 ID 조회 실패, 기본값으로 이동:", district);
-        nav("/signup/complete");
-      }, 1000);
+        alert("지역 정보 조회에 실패했습니다. 잠시 후 시도해주세요.");
+        nav("/signup");
+      }, 500);
     }
   };
 

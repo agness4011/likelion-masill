@@ -14,6 +14,7 @@ export const UserProvider = ({ children }) => {
   // 로그인된 사용자 정보 가져오기
   const getCurrentUser = () => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    const isBusinessVerified = localStorage.getItem('isBusinessVerified') === 'true';
     
     if (currentUser) {
       // currentUser에 nickname이 있으면 그것을 사용, 없으면 이메일 기반으로 설정
@@ -29,13 +30,14 @@ export const UserProvider = ({ children }) => {
       console.log('=== UserContext getCurrentUser ===');
       console.log('currentUser from localStorage:', currentUser);
       console.log('userNickname:', userNickname);
+      console.log('isBusinessVerified:', isBusinessVerified);
       
       return {
         id: currentUser.userId,
         username: userNickname,
         nickname: userNickname,
         email: currentUser.email || "user@example.com",
-        isSajangVerified: false,
+        isSajangVerified: isBusinessVerified,
         avatarId: null,
         profileImage: currentUser.profileImageUrl || localStorage.getItem('userProfileImage') || null
       };
@@ -47,7 +49,7 @@ export const UserProvider = ({ children }) => {
       username: "user",
       nickname: "user",
       email: "user@example.com",
-      isSajangVerified: false,
+      isSajangVerified: isBusinessVerified,
       avatarId: null,
       profileImage: localStorage.getItem('userProfileImage') || null
     };
@@ -116,6 +118,13 @@ export const UserProvider = ({ children }) => {
               const newUserData = getCurrentUser();
               setUserData(newUserData);
             }
+            // 사업자 인증 상태가 변경되면 업데이트
+            if (e.key === 'isBusinessVerified') {
+              setUserData(prev => ({
+                ...prev,
+                isSajangVerified: e.newValue === 'true'
+              }));
+            }
           };
 
     const handleProfileImageUpdate = (e) => {
@@ -163,10 +172,15 @@ export const UserProvider = ({ children }) => {
   };
 
   const verifySajang = () => {
+    // localStorage에 사업자 인증 상태 저장
+    localStorage.setItem('isBusinessVerified', 'true');
+    
     setUserData(prev => ({
       ...prev,
       isSajangVerified: true
     }));
+    
+    console.log('사업자 인증 완료 - localStorage에 저장됨');
   };
 
   const updateAvatar = (avatarId) => {
