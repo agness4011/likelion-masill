@@ -6,17 +6,9 @@ export const BackBtn = styled.img`
   flex-shrink: 0;
   aspect-ratio: 1/1;
   cursor: pointer;
+  margin-left: 24px;
 `;
-export const HeadTitle = styled.h2`
-  color: var(--Dark-Text, #060d1d);
-  /* Heading 02 */
-  font-family: Pretendard;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 140%; /* 25.2px */
-  letter-spacing: 0.36px;
-`;
+
 export const HeadBoardImg = styled.img`
   width: 24px;
   height: 24px;
@@ -24,19 +16,31 @@ export const HeadBoardImg = styled.img`
   margin-right: 15px; /* 오른쪽 여백 */
 `;
 export const HeadDiv = styled.div`
+  position: relative;
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   width: 393px;
   background: var(--White, #fff);
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
   height: 110px;
-  padding: 10px 24px 16.768px 0; /* 오른쪽에 24px 여백 */
-  gap: 16.768px;
+  padding: 10px 24px 16.768px 0;
   flex-shrink: 0;
-  margin-left: 15px;
 `;
+
+export const HeadTitle = styled.h2`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--Dark-Text, #060d1d);
+  font-family: Pretendard;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: 0.36px;
+`;
+
 export const Formdiv = styled.div`
   background: var(--BG, #fbfcff);
   overflow-y: auto;
@@ -267,7 +271,8 @@ export const TextStyle = styled.p`
   font-weight: 500;
   line-height: 140%; /* 22.4px */
   letter-spacing: 0.32px;
-  margin-left: 24px;
+
+  margin: 0 0 8px 24px;
 `;
 
 export const InputStyle = styled.input`
@@ -297,6 +302,7 @@ export const InputStyle = styled.input`
   letter-spacing: 0.32px;
 
   margin-left: 24px;
+  padding-left: 15px;
 `;
 
 export const InputWrapper = styled.div`
@@ -347,6 +353,7 @@ export const DateDiv = styled.div`
 export const DetailDiv = styled.div`
   position: relative;
   width: 346px; /* TextArea 너비와 맞춤 */
+  margin-bottom: 10px;
 `;
 
 export const TextArea = styled.textarea`
@@ -414,9 +421,9 @@ export const SubmitBtn = styled.button`
   writing-mode: horizontal-tb;
 
   background-color: ${({ disabled }) =>
-    disabled ? "var(--Gray-500, #c1cae0)" : "var(--Primary, #1B409C)"};
+    disabled ? "var(--Gray-500, #C1CAE0)" : "var(--Primary, #1B409C)"};
   color: ${({ disabled }) =>
-    disabled ? "var(--Gray-900, #727c94)" : "#ffffff"};
+    disabled ? "var(--Gray-900, #727C94)" : "#ffffff"};
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 `;
 
@@ -495,4 +502,5 @@ export const BirdImg = styled.img`
   height: 124px;
   flex-shrink: 0;
   margin-left: 130px;
+  margin-top: 30px;
 `;

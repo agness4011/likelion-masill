@@ -8,7 +8,7 @@ import { changeRegion } from "../../api/boardApi";
 
 const Container = styled.div`
   width: 100%;
-  
+
   background: #fff;
   padding: 0;
   display: flex;
@@ -257,13 +257,16 @@ export default function ChangeRegionDetail() {
 
     fetchDistricts();
   }, [selectedRegion]);
-  const itemsPerPage = Math.ceil(districts.length / 2); // 2페이지로 정확히 나누기
-  const totalPages = 2; // 고정 2페이지
+  const itemsPerPage = 20;
+
+  // ✅ 총 페이지 수를 districts 길이에 따라 자동 계산
+  const totalPages = Math.ceil(districts.length / itemsPerPage);
+
+  // ✅ 현재 페이지의 아이템만 슬라이스
   const currentDistricts = districts.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
   );
-
   const handleDistrictSelect = async (district) => {
     console.log("구/군 선택됨:", district);
     setSelectedDistrict(district);
@@ -397,8 +400,9 @@ export default function ChangeRegionDetail() {
         )}
 
         <PaginationDots>
-          <Dot active={currentPage === 0} />
-          <Dot active={currentPage === 1} />
+          {Array.from({ length: totalPages }).map((_, idx) => (
+            <Dot key={idx} active={currentPage === idx} />
+          ))}
         </PaginationDots>
       </ContentSection>
     </Container>

@@ -112,7 +112,6 @@ export const CategoryMark = styled.p`
 `;
 export const TitleP = styled.p`
   color: var(--Dark-Text, #060d1d);
-  /* Heading 01-1 B */
   font-family: Pretendard;
   font-size: 26px;
   font-style: normal;
@@ -120,7 +119,13 @@ export const TitleP = styled.p`
   line-height: 140%; /* 36.4px */
   letter-spacing: 0.52px;
   margin: 0 0 5px 0;
+
+  /* 길면 자동 줄바꿈 */
+  word-break: break-word;
+  white-space: normal;
+  max-width: 270px;
 `;
+
 export const LoccationP = styled.p`
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -395,6 +400,7 @@ export const CommentUserImg = styled.img`
   flex-shrink: 0;
   border-radius: 50%;
   cursor: pointer;
+  margin-top: 10px;
 `;
 export const CommentUserName = styled.p`
   display: -webkit-box;
@@ -797,3 +803,50 @@ export const LowWrapper = styled.div`
   margin-left: 24px;
   margin-top: 10px;
 `;
+export const Wrapper = styled.div`
+  position: relative;
+  padding-bottom: 60px;
+`;
+
+export const CommentWrapper = styled.div`
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  width: 393px;
+  flex-shrink: 0;
+  min-height: 124px;
+`;
+
+export const CommentContentWrapper = styled.div`
+  flex: 1;
+`;
+
+export const UserNameRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+`;
+
+export const ReplyWrapper = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  margin-left: 40px;
+`;
+
+export const FixedInputBox = styled.div`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  padding: 8px 16px;
+  border-top: 1px solid #ddd;
+`;
+
+export const InputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+export const CancelBtn = styled.button``;
