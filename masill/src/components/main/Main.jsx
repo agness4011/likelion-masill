@@ -897,8 +897,8 @@ const SearchInput = styled.input`
 `;
 const SearchImg = styled.img`
   position: absolute;
-  right: calc(50% - 172px + 10px);
-  top: 50%;
+  right: 35px;
+  top: 22px;
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
