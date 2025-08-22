@@ -25,7 +25,7 @@ export const connectWebSocket = (onConnect, onError, onDisconnect) => {
   }
 
   const token = localStorage.getItem('accessToken') || '';
-  const url = `http://43.202.247.99:8080/api/websocket/chat?access_token=${encodeURIComponent(token)}`;
+  const url = `https://hyunjun.store/api/swagger-ui/index.html`;
   
   const client = new Client({
     webSocketFactory: () => new SockJS(url),

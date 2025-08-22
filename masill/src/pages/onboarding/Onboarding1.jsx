@@ -14,8 +14,11 @@ export default function OnboardingPage() {
   const [showSecond, setShowSecond] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowSecond(true), 1500);
-    return () => clearTimeout(t);
+    const interval = setInterval(() => {
+      setShowSecond(prev => !prev);
+    }, 1500);
+    
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -24,17 +27,19 @@ export default function OnboardingPage() {
         <CircleTopRight />
         <CircleBottomLeft />
 
-        {/* 같은 위치에서 교차 페이드 */}
-        <ChatImage
-          src={chatonboarding1}
-          alt="chatonboarding1"
-          style={{ opacity: showSecond ? 0 : 1 }}
-        />
-        <ChatImage
-          src={chatonboarding2}
-          alt="chatonboarding2"
-          style={{ opacity: showSecond ? 1 : 0 }}
-        />
+        {/* 조건부 렌더링으로 이미지 전환 */}
+        {!showSecond && (
+          <ChatImage
+            src={chatonboarding1}
+            alt="chatonboarding1"
+          />
+        )}
+        {showSecond && (
+          <ChatImage
+            src={chatonboarding2}
+            alt="chatonboarding2"
+          />
+        )}
 
         <BottomGradient />
 
@@ -94,7 +99,7 @@ const CircleTopRight = styled.div`
 const CircleBottomLeft = styled.div`
   position: absolute;
   left: -120px;
-  bottom: 270px;
+  bottom: 330px;
   width: 320px;
   height: 320px;
   border-radius: 50%;
@@ -106,14 +111,13 @@ const CircleBottomLeft = styled.div`
   );
 `;
 
-/* 전환 애니메이션(두 이미지 같은 좌표에 포개기) */
+/* 이미지 스타일 */
 const ChatImage = styled.img`
   position: absolute;
   top: 50px;
   left: 50%;
   transform: translateX(-50%);
   width: 200px;
-  transition: opacity 0.8s ease-in-out;
   pointer-events: none;
 `;
 
