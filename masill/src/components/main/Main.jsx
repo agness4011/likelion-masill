@@ -316,14 +316,34 @@ function Post() {
           console.log("종료일 필터 후 개수:", content.length);
         }
 
+        // 디버깅: 첫 번째 게시글의 구조 확인
+        if (content.length > 0) {
+          console.log("🔍 게시글 데이터 구조 확인:", content[0]);
+          console.log("🔍 게시글 작성자 정보:", content[0].user);
+          console.log("🔍 사업자 인증 상태 (user):", content[0].user?.isSajangVerified);
+          console.log("🔍 사업자 인증 상태 (post):", content[0].isSajangVerified);
+          console.log("🔍 작성자 ID:", content[0].userId);
+          console.log("🔍 작성자 username:", content[0].username);
+          console.log("🔍 작성자 nickname:", content[0].nickname);
+        }
+
         setPosts(
-          content.map((post) => ({
-            ...post,
-            isHeartClicked: post.liked ?? false,
-            // 현재 로그인한 사용자가 작성한 게시물이고 사업자 인증이 되어있는 경우만 모자 표시
-            isBusinessVerified: userData.isSajangVerified && 
-              (post.username === userData.username || post.username === userData.nickname),
-          }))
+          content.map((post) => {
+            // 서버에서 받아온 businessVerified 필드 사용
+            const isVerified = post.businessVerified || false;
+            
+            console.log(`게시글 ${post.eventId} 사업자 인증 상태:`, {
+              작성자: post.username,
+              businessVerified: post.businessVerified,
+              최종인증상태: isVerified
+            });
+            
+            return {
+              ...post,
+              isHeartClicked: post.liked ?? false,
+              isBusinessVerified: isVerified,
+            };
+          })
         );
         console.log(
           "최종 posts 상태:",
@@ -343,13 +363,16 @@ function Post() {
       // ✅ searchResults가 없을 때만 세팅
       console.log("AI 추천 posts 직접 전달받음:", location.state.aiPosts);
       setSearchResults(
-        location.state.aiPosts.map((post) => ({
-          ...post,
-          isHeartClicked: post.liked ?? false,
-          // 현재 로그인한 사용자가 작성한 게시물이고 사업자 인증이 되어있는 경우만 모자 표시
-          isBusinessVerified: userData.isSajangVerified && 
-            (post.username === userData.username || post.username === userData.nickname),
-        }))
+        location.state.aiPosts.map((post) => {
+          // 서버에서 받아온 businessVerified 필드 사용
+          const isVerified = post.businessVerified || false;
+          
+          return {
+            ...post,
+            isHeartClicked: post.liked ?? false,
+            isBusinessVerified: isVerified,
+          };
+        })
       );
       setSearchTerm("AI 추천 전체보기");
       setIsSearchActive(true);
@@ -375,13 +398,16 @@ function Post() {
           console.log("AI 추천 API 결과 개수:", aiPosts.length);
 
           setPosts(
-            aiPosts.map((post) => ({
-              ...post,
-              isHeartClicked: post.liked ?? false,
-              // 현재 로그인한 사용자가 작성한 게시물이고 사업자 인증이 되어있는 경우만 모자 표시
-              isBusinessVerified: userData.isSajangVerified && 
-                (post.username === userData.username || post.username === userData.nickname),
-            }))
+            aiPosts.map((post) => {
+              // 서버에서 받아온 businessVerified 필드 사용
+              const isVerified = post.businessVerified || false;
+              
+              return {
+                ...post,
+                isHeartClicked: post.liked ?? false,
+                isBusinessVerified: isVerified,
+              };
+            })
           );
         }
       } catch (err) {
@@ -459,8 +485,7 @@ function Post() {
                   isHeartClicked: favorite, 
                   favoriteCount,
                   // 사업자 인증 상태 유지
-                  isBusinessVerified: userData.isSajangVerified && 
-                    (post.username === userData.username || post.username === userData.nickname)
+                  isBusinessVerified: post.businessVerified || false
                 }
               : post
           )
