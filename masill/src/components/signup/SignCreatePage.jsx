@@ -193,7 +193,34 @@ const PasswordInputGroup = styled.div`
 `;
 
 const PasswordInput = styled(Input)`
-  width: calc(100% - 32px);
+  width: 100%;
+  
+  /* 모든 브라우저의 기본 비밀번호 표시/숨기기 버튼 완전 제거 */
+  &::-ms-reveal,
+  &::-ms-clear,
+  &::-webkit-credentials-auto-fill-button,
+  &::-webkit-contacts-auto-fill-button,
+  &::-webkit-strong-password-auto-fill-button,
+  &::-moz-credentials-auto-fill-button {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    pointer-events: none !important;
+  }
+  
+  /* 추가적인 Webkit 스타일 완전 제거 */
+  &::-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  }
+  
+  /* Safari 특별 처리 */
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration {
+    display: none !important;
+  }
 `;
 
 const TogglePasswordBtn = styled.button`

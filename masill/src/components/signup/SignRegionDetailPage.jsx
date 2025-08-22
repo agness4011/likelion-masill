@@ -87,10 +87,12 @@ const RegionGrid = styled.div`
   max-width: 340px;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(8, 1fr);
   gap: 12px;
   flex: 1;
   overflow: hidden;
   padding-bottom: 20px;
+  min-height: 400px;
 `;
 
 const RegionButton = styled.button`
@@ -257,8 +259,8 @@ export default function SignRegionDetailPage() {
 
     fetchDistricts();
   }, [selectedRegion]);
-  const itemsPerPage = Math.ceil(districts.length / 2); // 2페이지로 정확히 나누기
-  const totalPages = 2; // 고정 2페이지
+  const itemsPerPage = 16; // 2개씩 8줄 = 16개
+  const totalPages = Math.ceil(districts.length / itemsPerPage);
   const currentDistricts = districts.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
@@ -342,43 +344,49 @@ export default function SignRegionDetailPage() {
           </div>
         ) : (
           <RegionGrid>
-            {currentDistricts.map((district) => (
-              <RegionButton
-                key={district}
-                selected={selectedDistrict === district}
-                onClick={() => {
-                  if (district && district.trim() !== "") {
-                    console.log("구/군 버튼 클릭:", district);
-                    handleDistrictSelect(district);
-                  }
-                }}
-                style={{
-                  visibility:
-                    district && district.trim() !== "" ? "visible" : "hidden",
-                }}
-              >
-                {district}
-              </RegionButton>
-            ))}
+            {Array.from({ length: 16 }, (_, index) => {
+              const district = currentDistricts[index];
+              return (
+                <RegionButton
+                  key={index}
+                  selected={selectedDistrict === district}
+                  onClick={() => {
+                    if (district && district.trim() !== "") {
+                      console.log("구/군 버튼 클릭:", district);
+                      handleDistrictSelect(district);
+                    }
+                  }}
+                  style={{
+                    visibility:
+                      district && district.trim() !== "" ? "visible" : "hidden",
+                  }}
+                >
+                  {district || ""}
+                </RegionButton>
+              );
+            })}
           </RegionGrid>
         )}
 
-        {currentPage > 0 && (
+        {totalPages > 1 && currentPage > 0 && (
           <ArrowLeftBtn onClick={handlePrevPage}>
             <ArrowIcon src={ArrowLeft} alt="이전" />
           </ArrowLeftBtn>
         )}
 
-        {currentPage < totalPages - 1 && (
+        {totalPages > 1 && currentPage < totalPages - 1 && (
           <ArrowRightBtn onClick={handleNextPage}>
             <ArrowIcon src={ArrowRight} alt="다음" />
           </ArrowRightBtn>
         )}
 
-        <PaginationDots>
-          <Dot active={currentPage === 0} />
-          <Dot active={currentPage === 1} />
-        </PaginationDots>
+        {totalPages > 1 && (
+          <PaginationDots>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <Dot key={index} active={currentPage === index} />
+            ))}
+          </PaginationDots>
+        )}
       </ContentSection>
     </Container>
   );
