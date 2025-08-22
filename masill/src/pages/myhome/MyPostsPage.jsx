@@ -10,6 +10,7 @@ import Comment from "@assets/logo/mainImg/commant.png";
 import PromotionIcon from "@logo/myhome/promotion.svg";
 import dayjs from "dayjs";
 import { fetchMyPosts } from "../../api/boardApi";
+import { privateAPI } from "../../api/axios";
 import {
   BoardTitleH1,
   BoardLocationP,
@@ -247,7 +248,12 @@ const MyPostsPage = () => {
         if (content.length > 0) {
        
         }
-        setPosts(content);
+        setPosts(
+          content.map((post) => ({
+            ...post,
+            isHeartClicked: post.liked ?? false,
+          }))
+        );
       } catch (err) {
         console.error("내가 작성한 게시물 불러오기 실패", err);
         setError(err);
@@ -284,6 +290,36 @@ const MyPostsPage = () => {
       }
     } catch (error) {
       console.error("게시글 클릭 처리 중 오류:", error);
+    }
+  };
+
+  // 하트 클릭 함수 (관심목록과 달리 게시물이 사라지지 않음)
+  const clickHeart = async (post, e) => {
+    e.stopPropagation(); // 게시글 클릭 이벤트 방지
+    
+    try {
+      let res;
+      
+      // 소모임과 이벤트의 API 엔드포인트 구분
+      if (post.postType === "CLUB") {
+        // 소모임의 경우 clubId를 사용
+        res = await privateAPI.post(`/events/${post.eventId}/clubs/${post.clubId}/favorites`);
+      } else {
+        // 이벤트의 경우 기존 엔드포인트 사용
+        res = await privateAPI.post(`/events/${post.eventId}/favorites`);
+      }
+      
+      const { favoriteCount, favorite } = res.data.data;
+
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.eventId === post.eventId
+            ? { ...p, isHeartClicked: favorite, favoriteCount }
+            : p
+        )
+      );
+    } catch (err) {
+      console.error("clickHeart 에러:", err);
     }
   };
 
@@ -425,10 +461,10 @@ const MyPostsPage = () => {
                     </LeftContent>
 
                     <RightContent>
-                      <HeartArea>
+                      <HeartArea onClick={(e) => clickHeart(post, e)}>
                         <TextStyle>{formatLikes(post.favoriteCount)}</TextStyle>
                         <HeartImg
-                          src={Heart}
+                          src={post.isHeartClicked ? Fullheart : Heart}
                           alt="하트"
                           style={{ width: "24px", height: "24px" }}
                         />
