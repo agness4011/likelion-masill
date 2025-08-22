@@ -7,7 +7,7 @@ import { getDistricts, getRegionId } from "../../api/userService";
 
 const Container = styled.div`
   width: 100%;
-  
+
   background: #fff;
   padding: 0;
   display: flex;
@@ -256,8 +256,13 @@ export default function SelectRegionDetail() {
 
     fetchDistricts();
   }, [selectedRegion]);
-  const itemsPerPage = Math.ceil(districts.length / 2); // 2페이지로 정확히 나누기
-  const totalPages = 2; // 고정 2페이지
+  // ✅ 한 페이지에 표시할 항목 개수 (원하는 만큼 조정 가능)
+  const itemsPerPage = 20;
+
+  // ✅ 총 페이지 수를 districts 길이에 따라 자동 계산
+  const totalPages = Math.ceil(districts.length / itemsPerPage);
+
+  // ✅ 현재 페이지의 아이템만 슬라이스
   const currentDistricts = districts.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
@@ -284,7 +289,7 @@ export default function SelectRegionDetail() {
       // 1초 후 자동으로 다음 페이지로 이동
       setTimeout(() => {
         console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
-        
+
         // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
         const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
         if (editPageReturnUrl) {
@@ -300,7 +305,7 @@ export default function SelectRegionDetail() {
       // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
       setTimeout(() => {
         console.log("지역 ID 조회 실패, 기본값으로 이동:", district);
-        
+
         // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
         const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
         if (editPageReturnUrl) {
@@ -317,7 +322,7 @@ export default function SelectRegionDetail() {
   const handleNext = () => {
     if (selectedDistrict) {
       localStorage.setItem("selectedDistrict", selectedDistrict);
-      
+
       // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
       const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
       if (editPageReturnUrl) {
@@ -400,8 +405,9 @@ export default function SelectRegionDetail() {
         )}
 
         <PaginationDots>
-          <Dot active={currentPage === 0} />
-          <Dot active={currentPage === 1} />
+          {Array.from({ length: totalPages }).map((_, idx) => (
+            <Dot key={idx} active={currentPage === idx} />
+          ))}
         </PaginationDots>
       </ContentSection>
     </Container>

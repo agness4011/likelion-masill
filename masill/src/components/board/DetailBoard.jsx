@@ -112,6 +112,8 @@ import {
   ButtonWrapper,
   BorderLine,
   ModalMain,
+  CancelBtn,
+  CommentWrapper,
 } from "./Detail.styled";
 
 export default function DetailBoard({ children }) {
@@ -689,6 +691,23 @@ function UserChat() {
     };
     fetchComments();
   }, [eventId]);
+  // 대댓글이 추가될 때 댓글 배열의 replyCommentCount 업데이트
+  useEffect(() => {
+    if (!replies) return;
+
+    setComments((prevComments) =>
+      prevComments.map((comment) => {
+        if (replies[comment.commentId]) {
+          // 현재 대댓글 배열 길이 반영
+          return {
+            ...comment,
+            replyCommentCount: replies[comment.commentId].length,
+          };
+        }
+        return comment;
+      })
+    );
+  }, [replies]);
 
   const handleCommentAdded = (newComment) => {
     setComments((prev) => [...prev, newComment]);
@@ -701,11 +720,19 @@ function UserChat() {
     }));
   };
 
+  // 로컬에서 로그인한 사용자 닉네임 가져오기
+  const currentNickname = localStorage.getItem("nickname"); // 또는 로그인 정보에 맞는 key 사용
+
   const handleProfileClick = (user, commentId) => {
     console.log("=== handleProfileClick 호출 ===");
     console.log("user:", user);
     console.log("commentId:", commentId);
-    console.log("commentId 타입:", typeof commentId);
+
+    // 자기 자신이면 모달 열지 않음
+    if (user.username === currentNickname) {
+      console.log("자기 자신 프로필 클릭: 모달 미표시");
+      return;
+    }
 
     setSelectedUser({ ...user, commentId });
     setChatModalOpen(true);
@@ -756,151 +783,129 @@ function UserChat() {
   if (loading) return <p>로딩 중...</p>;
 
   return (
-    <div style={{ position: "relative", paddingBottom: "60px" }}>
+    <div
+      style={{
+        position: "relative",
+        paddingBottom: "150px", // 입력창 높이 + 여유 공간
+      }}
+    >
       {comments.length === 0 ? (
         <p>작성된 댓글이 없습니다.</p>
       ) : (
         comments.map((comment) => (
-          <div
-            key={comment.commentId}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "14px",
-              marginBottom: "12px",
-              borderBottom: "1px solid #e0e0e0",
-            }}
-          >
+          <CommentWrapper key={comment.commentId}>
             {/* 프로필 클릭 시 모달 */}
-            <CommentUserImg
-              src={comment.userProfileImageUrl}
-              alt={comment.username}
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                console.log("=== 댓글 프로필 클릭 ===");
-                console.log("comment 객체:", comment);
-                console.log("comment.commentId:", comment.commentId);
+            <div style={{ marginTop: "26px", display: "flex", gap: "14px" }}>
+              <CommentUserImg
+                src={comment.userProfileImageUrl}
+                alt={comment.username}
+                onClick={() =>
+                  handleProfileClick(
+                    {
+                      username: comment.username,
+                      userProfileImageUrl: comment.userProfileImageUrl,
+                    },
+                    comment.commentId
+                  )
+                }
+              />
 
-                handleProfileClick(
-                  {
-                    username: comment.username,
-                    userProfileImageUrl: comment.userProfileImageUrl,
-                  },
-                  comment.commentId
-                );
-              }}
-            />
-
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  height: "20px",
-                }}
-              >
-                <CommentUserName>{comment.username}</CommentUserName>
-                <CommentWriteTime>
-                  • {formatRelativeTime(comment.createdAt)}
-                </CommentWriteTime>
-              </div>
-
-              <CommentContent>{comment.content}</CommentContent>
-
-              {/* 답글 영역 */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  marginTop: "6px",
-                  gap: "4px",
-                }}
-              >
-                <AdditionReply
-                  onClick={() => setReplyTarget(comment.commentId)}
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    height: "20px",
+                  }}
                 >
-                  답글달기
-                </AdditionReply>
+                  <CommentUserName>{comment.username}</CommentUserName>
+                  <CommentWriteTime>
+                    • {formatRelativeTime(comment.createdAt)}
+                  </CommentWriteTime>
+                </div>
 
-                {replyTarget === comment.commentId && (
-                  <AddReplyMessage
-                    eventId={eventId}
-                    parentCommentId={comment.commentId}
-                    onReplyAdded={handleReplyAdded}
-                    onCancel={() => setReplyTarget(null)}
-                  />
-                )}
+                <CommentContent>{comment.content}</CommentContent>
 
-                {/* 대댓글 렌더링 */}
-                {replies[comment.commentId] &&
-                  replies[comment.commentId].map((reply) => (
-                    <div
-                      key={reply.replyId || reply.commentId}
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: "12px",
-                        marginTop: "10px",
-                        marginLeft: "40px",
-                      }}
-                    >
-                      <CommentUserImg
-                        src={reply.userProfileImageUrl}
-                        alt={reply.username}
-                        style={{ cursor: "pointer" }}
-                        onClick={() => {
-                          console.log("=== 대댓글 프로필 클릭 ===");
-                          console.log("reply 객체:", reply);
-                          console.log("reply.replyId:", reply.replyId);
-                          console.log("reply.commentId:", reply.commentId);
-                          console.log(
-                            "사용할 ID:",
-                            reply.replyId || reply.commentId
-                          );
+                {/* 답글 영역 */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    marginTop: "6px",
+                    gap: "4px",
+                  }}
+                >
+                  {/* 댓글 영역에서 AddReplyMessage 제거 */}
+                  <AdditionReply
+                    onClick={() => setReplyTarget(comment.commentId)}
+                  >
+                    답글달기
+                  </AdditionReply>
 
-                          handleProfileClick(
-                            {
-                              username: reply.username,
-                              userProfileImageUrl: reply.userProfileImageUrl,
-                            },
-                            reply.replyId || reply.commentId
-                          );
+                  {/* 대댓글 렌더링 */}
+                  {replies[comment.commentId] &&
+                    replies[comment.commentId].map((reply) => (
+                      <div
+                        key={reply.replyId || reply.commentId}
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: "12px",
+                          marginTop: "10px",
+                          marginLeft: "40px",
                         }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            height: "20px",
-                          }}
-                        >
-                          <CommentUserName>{reply.username}</CommentUserName>
-                          <CommentWriteTime>
-                            • {formatRelativeTime(reply.createdAt)}
-                          </CommentWriteTime>
+                      >
+                        <CommentUserImg
+                          src={reply.userProfileImageUrl} // reply 객체 사용
+                          alt={reply.username} // reply 객체 사용
+                          style={{ cursor: "pointer" }}
+                          onClick={() =>
+                            handleProfileClick(
+                              {
+                                username: reply.username, // reply 객체
+                                userProfileImageUrl: reply.userProfileImageUrl, // reply 객체
+                              },
+                              reply.replyId || reply.commentId // reply 고유 ID
+                            )
+                          }
+                        />
+
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              height: "20px",
+                            }}
+                          >
+                            <CommentUserName>{reply.username}</CommentUserName>
+                            <CommentWriteTime>
+                              • {formatRelativeTime(reply.createdAt)}
+                            </CommentWriteTime>
+                          </div>
+                          <CommentContent>{reply.content}</CommentContent>
                         </div>
-                        <CommentContent>{reply.content}</CommentContent>
                       </div>
-                    </div>
-                  ))}
-                {comment.replyCommentCount > 0 && (
-                  <ShowReply onClick={() => clickReply(comment.commentId)}>
-                    <img src={Aply} alt="reply icon" />
-                    {replies[comment.commentId]
-                      ? "답글 숨기기"
-                      : `답글 ${comment.replyCommentCount}개 더보기`}
-                  </ShowReply>
-                )}
+                    ))}
+                  {comment.replyCommentCount > 0 && (
+                    <ShowReply onClick={() => clickReply(comment.commentId)}>
+                      <img src={Aply} alt="reply icon" />
+                      {replies[comment.commentId]
+                        ? "답글 숨기기"
+                        : `답글 ${comment.replyCommentCount}개 더보기`}
+                    </ShowReply>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </CommentWrapper>
         ))
       )}
 
       {/* 댓글 입력 */}
+      {/* 하단 입력창 하나만 사용 */}
       <div
         style={{
           position: "fixed",
@@ -916,6 +921,9 @@ function UserChat() {
         <AddCommentMessage
           eventId={eventId}
           onCommentAdded={handleCommentAdded}
+          parentCommentId={replyTarget} // null이면 댓글, 숫자면 대댓글
+          onReplyAdded={handleReplyAdded}
+          onCancel={() => setReplyTarget(null)} // 취소 시 일반 댓글 모드
         />
       </div>
 
@@ -931,44 +939,79 @@ function UserChat() {
   );
 }
 
-function AddCommentMessage({ eventId, onCommentAdded }) {
+function AddCommentMessage({
+  eventId,
+  onCommentAdded,
+  parentCommentId,
+  onReplyAdded,
+  onCancel,
+}) {
   const [comment, setComment] = useState("");
-  const { userData } = useUser(); // 현재 로그인한 사용자 정보
-  
-  const handleAddComment = async () => {
+  const { userData } = useUser();
+
+  const handleAdd = async () => {
     if (!comment.trim()) return;
+
     try {
-      const newComment = await addComment(eventId, comment);
+      if (parentCommentId) {
+        // 대댓글 작성
+        const newReply = await addReply(eventId, parentCommentId, comment);
+        if (onReplyAdded) onReplyAdded(newReply, parentCommentId);
+      } else {
+        // 일반 댓글 작성
+        const newComment = await addComment(eventId, comment);
+        if (onCommentAdded) onCommentAdded(newComment);
+      }
       setComment("");
-      if (onCommentAdded) onCommentAdded(newComment);
+      if (onCancel && parentCommentId) onCancel(); // 대댓글 작성 후 입력창 초기화
     } catch (error) {
-      console.error("댓글 작성 실패", error);
+      console.error(
+        parentCommentId ? "대댓글 작성 실패" : "댓글 작성 실패",
+        error
+      );
     }
   };
-  
+
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-        {/* 본인 프로필 이미지 */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          marginBottom: "8px",
+        }}
+      >
         <CommentUserImg
-          src={userData?.profileImage || "https://via.placeholder.com/32x32?text=?"}
+          src={
+            userData?.profileImage || "https://via.placeholder.com/32x32?text=?"
+          }
           alt="내 프로필"
           style={{ width: "32px", height: "32px", borderRadius: "50%" }}
         />
-        <span style={{ fontSize: "14px", color: "#666" }}>{userData?.nickname || "사용자"}</span>
+        <span style={{ fontSize: "14px", color: "#666" }}>
+          {userData?.nickname || "사용자"}
+        </span>
       </div>
+
       <KeyboardDiv>
         <KeyboardInput
           type="text"
-          placeholder="댓글을 입력하세요"
+          placeholder={
+            parentCommentId ? "대댓글을 입력하세요" : "댓글을 입력하세요"
+          }
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
-        <KeyboardBtn src={KeyboardButton} onClick={handleAddComment} />
+        <KeyboardBtn src={KeyboardButton} onClick={handleAdd} />
+        {parentCommentId && (
+          <CancelBtn onClick={onCancel}>취소</CancelBtn> // 취소 버튼
+        )}
       </KeyboardDiv>
     </div>
   );
 }
+
 function AddReplyMessage({ eventId, parentCommentId, onReplyAdded, onCancel }) {
   const [content, setContent] = useState("");
   const { userData } = useUser(); // 현재 로그인한 사용자 정보
@@ -988,14 +1031,25 @@ function AddReplyMessage({ eventId, parentCommentId, onReplyAdded, onCancel }) {
 
   return (
     <div style={{ marginLeft: "40px", marginTop: "6px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          marginBottom: "8px",
+        }}
+      >
         {/* 본인 프로필 이미지 */}
         <CommentUserImg
-          src={userData?.profileImage || "https://via.placeholder.com/32x32?text=?"}
+          src={
+            userData?.profileImage || "https://via.placeholder.com/32x32?text=?"
+          }
           alt="내 프로필"
           style={{ width: "28px", height: "28px", borderRadius: "50%" }}
         />
-        <span style={{ fontSize: "13px", color: "#666" }}>{userData?.nickname || "사용자"}</span>
+        <span style={{ fontSize: "13px", color: "#666" }}>
+          {userData?.nickname || "사용자"}
+        </span>
       </div>
       <ReplyKeyboardDiv>
         <ReplyKeyboard

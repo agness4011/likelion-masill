@@ -924,3 +924,11 @@ export const ReadMoreBtn = styled.button`
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
 `;
+export const CommentWrapper = styled.div`
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  width: 393px;
+  flex-shrink: 0;
+  min-height: 124px;
+`;
+export const CancelBtn = styled.button``;
