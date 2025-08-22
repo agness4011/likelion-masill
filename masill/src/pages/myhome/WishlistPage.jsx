@@ -84,16 +84,15 @@ const PostCard = styled.div`
 `;
 
 const ImageScrollWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding-bottom: 4px;
-  max-height: 140px;
-  overflow-y: auto;
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  padding-bottom: 10px;
+  margin-top: 20px;
 
-  /* 스크롤바 스타일 */
+  /* 스크롤바 스타일 (선택) */
   &::-webkit-scrollbar {
-    width: 6px;
+    height: 6px;
   }
   &::-webkit-scrollbar-thumb {
     background: #ccc;
@@ -102,10 +101,12 @@ const ImageScrollWrapper = styled.div`
 `;
 
 const BoardImage = styled.img`
-  width: 100%;
+  width: 140px;
   height: 140px;
+  flex-shrink: 0;
   border-radius: 6px;
-  object-fit: cover;
+  background: url(<path-to-image>);
+  gap: 4px;
 `;
 
 const ContentWrapper = styled.div`
@@ -363,15 +364,14 @@ const WishlistPage = () => {
               <React.Fragment key={post.postId}>
                 <PostCard onClick={() => handlePostClick(post)}>
                   <ImageScrollWrapper>
-                    {Array.isArray(post.images) && post.images.length > 0
-                      ? post.images.map((img, idx) => (
-                          <BoardImage
-                            key={idx}
-                            src={img.imageUrl}
-                            alt={`${post.title}-${idx}`}
-                          />
-                        ))
-                      : null}
+                    {Array.isArray(post.images) &&
+                      post.images.map((img, idx) => (
+                        <BoardImage
+                          key={idx}
+                          src={img.imageUrl}
+                          alt={`${post.title}-${idx}`}
+                        />
+                      ))}
                   </ImageScrollWrapper>
 
                   <ContentWrapper>

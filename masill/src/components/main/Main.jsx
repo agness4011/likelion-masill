@@ -247,7 +247,6 @@ function Post() {
   // SearchPage에서 전달받은 검색 결과 처리
   useEffect(() => {
     if (location.state?.searchResults !== undefined) {
-      console.log("SearchPage에서 검색 결과 받음:", location.state);
       setSearchResults(location.state.searchResults);
       setSearchTerm(location.state.searchTerm || "");
       setIsSearchActive(true);
@@ -275,10 +274,8 @@ function Post() {
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        console.log("🔹 일반 게시물 로드 시작");
         const regionName = await getMyRegionName(regionId);
         setMyRegion(regionName);
-        console.log("현재 지역:", regionName);
 
         let content = [];
         const today = dayjs().startOf("day");
@@ -287,44 +284,27 @@ function Post() {
         if (!category) {
           const res = await fetchAllBoards(regionId);
           const allPosts = res?.data?.content || [];
-          console.log("전체 게시물 개수:", allPosts.length);
 
           content = allPosts.filter((post) =>
             dayjs(post.endAt).endOf("day").isSameOrAfter(today)
           );
-          console.log("종료일 필터 후 개수:", content.length);
         } else if (category === "event") {
           const res = await fetchAllBoards(regionId);
           const allPosts = res?.data?.content || [];
-          console.log("전체 이벤트 게시물 개수:", allPosts.length);
 
           content = allPosts.filter((post) => {
             const start = dayjs(post.startAt).startOf("day");
             const end = dayjs(post.endAt).endOf("day");
             return start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today);
           });
-          console.log("기간 필터 후 개수:", content.length);
         } else {
           const eventType = CATEGORY_MAP[category];
           const res = await eventTypeBoards(eventType, regionId);
           const allPosts = res?.data?.content || [];
-          console.log(`${category} 게시물 전체 개수:`, allPosts.length);
 
           content = allPosts.filter((post) =>
             dayjs(post.endAt).endOf("day").isSameOrAfter(today)
           );
-          console.log("종료일 필터 후 개수:", content.length);
-        }
-
-        // 디버깅: 첫 번째 게시글의 구조 확인
-        if (content.length > 0) {
-          console.log("🔍 게시글 데이터 구조 확인:", content[0]);
-          console.log("🔍 게시글 작성자 정보:", content[0].user);
-          console.log("🔍 사업자 인증 상태 (user):", content[0].user?.isSajangVerified);
-          console.log("🔍 사업자 인증 상태 (post):", content[0].isSajangVerified);
-          console.log("🔍 작성자 ID:", content[0].userId);
-          console.log("🔍 작성자 username:", content[0].username);
-          console.log("🔍 작성자 nickname:", content[0].nickname);
         }
 
         setPosts(
@@ -332,22 +312,12 @@ function Post() {
             // 서버에서 받아온 businessVerified 필드 사용
             const isVerified = post.businessVerified || false;
             
-            console.log(`게시글 ${post.eventId} 사업자 인증 상태:`, {
-              작성자: post.username,
-              businessVerified: post.businessVerified,
-              최종인증상태: isVerified
-            });
-            
             return {
               ...post,
               isHeartClicked: post.liked ?? false,
               isBusinessVerified: isVerified,
             };
           })
-        );
-        console.log(
-          "최종 posts 상태:",
-          content.map((p) => p.eventId)
         );
       } catch (err) {
         console.error("게시물 불러오기 실패", err);
@@ -361,7 +331,6 @@ function Post() {
   useEffect(() => {
     if (location.state?.aiPosts && !searchResults) {
       // ✅ searchResults가 없을 때만 세팅
-      console.log("AI 추천 posts 직접 전달받음:", location.state.aiPosts);
       setSearchResults(
         location.state.aiPosts.map((post) => {
           // 서버에서 받아온 businessVerified 필드 사용
@@ -384,8 +353,6 @@ function Post() {
     const loadAiRecommendations = async () => {
       try {
         if (sortType === "AI 추천순") {
-          console.log(`🔹 ${category || "전체"} AI 추천 게시물 API 호출 시작`);
-
           // today 판단
           const isTodayEvent = category === "event";
 
@@ -394,8 +361,6 @@ function Post() {
 
           // 안전하게 API 호출
           const aiPosts = await AiRecommend(eventType, isTodayEvent, 1, 100);
-
-          console.log("AI 추천 API 결과 개수:", aiPosts.length);
 
           setPosts(
             aiPosts.map((post) => {
@@ -452,7 +417,6 @@ function Post() {
   };
   useEffect(() => {
     if (location.state?.clearSearch) {
-      console.log("로고 클릭으로 검색 초기화");
       setSearchResults(null);
       setSearchTerm("");
       setIsSearchActive(false);

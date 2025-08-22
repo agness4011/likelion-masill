@@ -208,10 +208,10 @@ export const ImageContainer = styled.div`
 
 export const OwnerHatOverlay = styled.img`
   position: absolute;
-  top: 5px;
-  left: 15px;
-  width: 28px;
-  height: 26px;
+  top: 2px;
+  left: 13px;
+  width: 37px;
+  height: 37px;
   z-index: 20;
 
   border-radius: 50%;
