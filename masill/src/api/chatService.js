@@ -256,3 +256,86 @@ export async function startCommentChat(commentId) {
     throw error;
   }
 }
+
+// 8) 모임 작성자와 채팅 시작
+export async function startClubChat(eventId, clubId) {
+  console.log('=== 모임 채팅방 생성 시작 ===');
+  console.log('eventId:', eventId);
+  console.log('clubId:', clubId);
+  
+  // 현재 로그인한 사용자 ID 가져오기
+  const currentUserId = localStorage.getItem('currentUserId');
+  console.log('현재 사용자 ID:', currentUserId);
+  
+  try {
+    // 1. 모임 작성자 ID 조회
+    console.log('모임 작성자 ID 조회 중...');
+    let targetUserId;
+    
+    try {
+      console.log('API 요청 파라미터:', { 
+        contextType: 'CLUB_POST',
+        contextId: clubId 
+      });
+      console.log('API 요청 URL:', `/chats/target-user?contextType=CLUB_POST&contextId=${clubId}`);
+      
+      const targetUserRes = await privateAPI.get('/chats/target-user', {
+        params: { 
+          contextType: 'CLUB_POST',
+          contextId: clubId 
+        }
+      });
+      targetUserId = targetUserRes.data.data?.targetUserId;
+      console.log('모임 작성자 ID 조회 결과:', targetUserId);
+    } catch (error) {
+      console.error('모임 작성자 ID 조회 실패:', error);
+      throw new Error('모임 작성자 ID를 찾을 수 없습니다.');
+    }
+    
+    // 2. targetUserId가 여전히 없는 경우 에러
+    if (!targetUserId) {
+      throw new Error('모임 작성자 ID를 찾을 수 없습니다.');
+    }
+    
+    // 3. 자신과는 채팅방을 만들 수 없음
+    if (parseInt(currentUserId) === parseInt(targetUserId)) {
+      throw new Error('자신과는 채팅방을 만들 수 없습니다.');
+    }
+    
+    // 4. 채팅방 생성 요청 데이터 (범용 API 사용)
+    const requestData = {
+      contextType: "CLUB_POST",
+      contextId: parseInt(clubId),
+      targetUserId: parseInt(targetUserId)
+    };
+    
+    console.log('모임 채팅방 생성 요청 데이터:', requestData);
+    console.log('요청 데이터 타입:', {
+      contextType: typeof requestData.contextType,
+      contextId: typeof requestData.contextId,
+      targetUserId: typeof requestData.targetUserId
+    });
+    
+    // 5. POST /api/chats/rooms 호출하여 서버에서 roomId 받기
+    const res = await privateAPI.post('/chats/rooms', requestData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('=== 모임 채팅방 생성 API 응답 성공 ===');
+    console.log('응답 상태:', res.status);
+    console.log('응답 데이터:', res.data);
+    console.log('==============================');
+    return res.data;
+  } catch (error) {
+    console.error('=== 모임 채팅방 생성 과정 실패 ===');
+    console.error('에러 객체:', error);
+    console.error('에러 메시지:', error.message);
+    console.error('에러 응답:', error.response);
+    console.error('에러 상태:', error.response?.status);
+    console.error('에러 데이터:', error.response?.data);
+    console.error('============================');
+    throw error;
+  }
+}

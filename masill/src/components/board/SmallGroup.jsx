@@ -32,7 +32,7 @@ import {
   detailBoard,
 } from "../../api/boardApi";
 import { privateAPI } from "../../api/axios";
-import { startCommentChat } from "../../api/chatService";
+import { startCommentChat, startClubChat } from "../../api/chatService";
 
 import {
   BackBtn,
@@ -363,9 +363,11 @@ function BodyMiddle({ children }) {
 }
 function MiddleWho() {
   const { eventId, clubId } = useParams();
+  const navigate = useNavigate();
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [club, setClub] = useState(null);
+  const [chatLoading, setChatLoading] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -389,13 +391,38 @@ function MiddleWho() {
   if (loading) return <p>로딩 중...</p>;
   if (!eventData) return <p>데이터를 찾을 수 없습니다.</p>;
 
+  // 대화하기 버튼 클릭 핸들러
+  const handleStartChat = async () => {
+    if (chatLoading) return;
+    
+    try {
+      setChatLoading(true);
+      console.log('모임 작성자와 채팅 시작:', { eventId, clubId });
+      
+      const response = await startClubChat(eventId, clubId);
+      console.log('채팅방 생성 성공:', response);
+      
+      if (response?.data?.roomId) {
+        navigate(`/chat/room/${response.data.roomId}`);
+      } else {
+        console.error('채팅방 ID를 찾을 수 없습니다:', response);
+        alert('채팅방 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('채팅방 생성 실패:', error);
+      alert(error.message || '채팅방 생성에 실패했습니다.');
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
   return (
     <UserDiv>
       <UserImg src={eventData.userImage} alt="유저 이미지" />
       <UserNickName>{eventData.username}</UserNickName>
-      {club?.author || (
-        <ChatBtn>
-          대화하기
+      {!club?.author && (
+        <ChatBtn onClick={handleStartChat} disabled={chatLoading}>
+          {chatLoading ? '생성 중...' : '대화하기'}
           <ChatImg src={Chat} />
         </ChatBtn>
       )}
