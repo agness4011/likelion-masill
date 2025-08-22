@@ -106,7 +106,6 @@ export default function OnboardingPage() {
         <BtnArea>
           <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
           <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
-          <LookAround onClick={() => nav("/main")}>둘러보기</LookAround>
         </BtnArea>
       </Wrap>
     </div>
