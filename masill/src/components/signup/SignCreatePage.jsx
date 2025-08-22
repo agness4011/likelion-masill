@@ -9,7 +9,7 @@ import { useUser } from "../../contexts/UserContext";
 
 const Container = styled.div`
   width: 100%;
-  height: 100vh;
+  
   background: #fff;
   padding: 0;
   display: flex;
@@ -67,7 +67,7 @@ const ContentSection = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 0 20px;
+  padding: 0 20px 200px 20px;
   box-sizing: border-box;
   overflow: hidden;
 `;
@@ -97,7 +97,9 @@ const InputsContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  overflow: hidden;
+  overflow-y: auto;
+  padding-bottom: 100px;
+  max-height: calc(100vh - 300px);
 `;
 
 const InputBox = styled.div`
@@ -105,8 +107,8 @@ const InputBox = styled.div`
   max-width: 340px;
   background:#ECF1FF;
   border-radius: 16px;
-  padding: 18px 16px 8px 16px;
-  margin-bottom: 16px;
+  padding: 18px 16px 5px 16px;
+  margin-bottom: 15px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -196,13 +198,13 @@ const PasswordInput = styled(Input)`
 
 const TogglePasswordBtn = styled.button`
   position: absolute;
-  right: 8px;
+  right: 5px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   width: 30px;
-  height: 30px;
+  height: 25px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -232,6 +234,12 @@ const ButtonContainer = styled.div`
   justify-content: center;
   padding: 20px 0;
   flex-shrink: 0;
+  position: fixed;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  background: white;
+  z-index: 10;
 `;
 
 const NextButton = styled.button`
@@ -256,10 +264,10 @@ export default function SignCreatePage() {
   const [currentStep, setCurrentStep] = useState(1); // 1: 이메일, 2: 닉네임, 3: 비밀번호, 4: 완료
   
   // 입력값 상태
-  const [emailId, setEmailId] = useState("ABC123");
+  const [emailId, setEmailId] = useState("");
   const [emailDomain, setEmailDomain] = useState("gmail.com");
-  const [nickname, setNickname] = useState("masill_love");
-  const [password, setPassword] = useState("masill@1");
+  const [nickname, setNickname] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   
   // 각 단계별 완료 상태
@@ -346,9 +354,9 @@ export default function SignCreatePage() {
   
   // 비밀번호 유효성 검사
   const isPasswordValid = () => {
-    if (password.length < 8) return false;
+    if (password.length < 6) return false;
     
-    // 영문, 숫자, 특수문자 중 3가지 조합 확인
+    // 영문, 숫자, 특수문자 중 2가지 조합 확인
     const hasLetter = /[a-zA-Z]/.test(password);
     const hasNumber = /\d/.test(password);
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
@@ -356,11 +364,11 @@ export default function SignCreatePage() {
     const conditions = [hasLetter, hasNumber, hasSpecial];
     const validConditions = conditions.filter(Boolean).length;
     
-    return validConditions >= 3;
+    return validConditions >= 2;
   };
 
   const passwordValidationMessage = () => {
-    if (password.length === 0) return "영문,특수문자,숫자 3가지 조합 8자 이상";
+    if (password.length === 0) return "영문,특수문자,숫자 중 2가지 조합 6자 이상";
     if (isPasswordValid()) return "사용가능한 비밀번호입니다.";
     return "유효하지 않은 비밀번호입니다.";
   };

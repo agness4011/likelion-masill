@@ -7,7 +7,7 @@ import { useUser } from "../../contexts/UserContext";
 
 const Container = styled.div`
   width: 100%;
-  height: 100vh;
+  
   background: #fff;
   padding: 0;
   display: flex;
@@ -88,7 +88,7 @@ const NicknameText = styled.span`
 const MessageText = styled.div`
   font-size: 20px;
   font-weight: 700;
-  color: #222;
+  color: #000000;
   line-height: 1.5;
   white-space: nowrap;
 `;
@@ -97,7 +97,7 @@ const ButtonContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 20px 0;
+  padding: 580px 0 40px 0;
   flex-shrink: 0;
 `;
 
@@ -123,6 +123,7 @@ export default function SignCompletePage() {
   const nav = useNavigate();
   const { updateNickname } = useUser();
   const [nickname, setNickname] = useState("");
+  const [displayNickname, setDisplayNickname] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [error, setError] = useState(null);
@@ -131,6 +132,20 @@ export default function SignCompletePage() {
     // 회원가입 진행
     handleSignUp();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 닉네임 상태 디버깅을 위한 useEffect 추가
+  useEffect(() => {
+    console.log('닉네임 상태 변경:', nickname);
+  }, [nickname]);
+
+  // 컴포넌트 마운트 시 닉네임 설정
+  useEffect(() => {
+    const savedNickname = localStorage.getItem('signupNickname') || localStorage.getItem('nickname');
+    if (savedNickname) {
+      setDisplayNickname(savedNickname);
+      console.log('초기 닉네임 설정:', savedNickname);
+    }
+  }, []);
 
   const handleSignUp = async () => {
     try {
@@ -185,7 +200,6 @@ export default function SignCompletePage() {
         email: email,
         password: password,
         username: savedNickname,
-        phoneNumber: "01012345678",
         regionId: regionId,
         region: selectedRegion,
         district: selectedDistrict
@@ -217,17 +231,20 @@ export default function SignCompletePage() {
       
       // API 응답 구조에 맞춰 처리
       if (response && response.success) {
-        // 성공 시 닉네임을 localStorage에 저장하고 UserContext 업데이트
-        const finalNickname = response.data?.nickname || savedNickname;
-        localStorage.setItem('nickname', finalNickname);
-        updateNickname(finalNickname);
-        setNickname(finalNickname);
-        setSignupSuccess(true);
+                 // 성공 시 닉네임을 localStorage에 저장하고 UserContext 업데이트
+         const finalNickname = response.data?.nickname || savedNickname;
+         console.log('설정할 닉네임:', finalNickname);
+         localStorage.setItem('nickname', finalNickname);
+         updateNickname(finalNickname);
+         setNickname(finalNickname);
+         setDisplayNickname(finalNickname);
+         setSignupSuccess(true);
+         console.log('닉네임 상태 설정 완료:', finalNickname);
         
-        // 회원가입 완료 후 localStorage 정리
-        localStorage.removeItem('signupEmail');
-        localStorage.removeItem('signupNickname');
-        localStorage.removeItem('signupPassword');
+                 // 회원가입 완료 후 localStorage 정리 (닉네임은 나중에 정리)
+         localStorage.removeItem('signupEmail');
+         // localStorage.removeItem('signupNickname'); // 닉네임은 나중에 정리
+         localStorage.removeItem('signupPassword');
         localStorage.removeItem('selectedRegion');
         localStorage.removeItem('selectedDistrict');
         localStorage.removeItem('selectedRegionId');
@@ -263,9 +280,14 @@ export default function SignCompletePage() {
   };
 
   const handleLogin = () => {
+    // 회원가입 완료 후 닉네임 정리
+    localStorage.removeItem('signupNickname');
     // 로그인 페이지로 이동
     nav("/login");
   };
+
+  // 현재 상태 로깅
+  console.log('현재 상태:', { nickname, displayNickname, isLoading, signupSuccess, error });
 
   return (
     <Container>
@@ -283,11 +305,11 @@ export default function SignCompletePage() {
             <MessageText>
               회원가입을 진행하고 있습니다...
             </MessageText>
-          ) : signupSuccess ? (
-            <MessageText>
-              <NicknameText>{nickname}</NicknameText>님의<br />
-              회원가입이 완료되었습니다.
-            </MessageText>
+                     ) : signupSuccess ? (
+             <MessageText>
+               <NicknameText>{displayNickname || '로딩중...'}</NicknameText>님의<br />
+               회원가입이 완료되었습니다.
+             </MessageText>
           ) : error ? (
             <MessageText>
               {error}

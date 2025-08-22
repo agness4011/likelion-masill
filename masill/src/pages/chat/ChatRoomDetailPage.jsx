@@ -17,7 +17,7 @@ import MainArrowLeftIcon from '../../assets/logo/main/main-arrowleft.svg';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   background-color: #f5f5f5;
 `;
 
@@ -183,7 +183,7 @@ const InputContainer = styled.div`
   background-color: white;
   border-top: 1px solid #f0f0f0;
   position: relative;
-  height: 0px;
+  height: 60px;
 `;
 
 const MessageInput = styled.input`
@@ -191,7 +191,7 @@ const MessageInput = styled.input`
   min-width: 300px;
   padding: 12px 16px;
   padding-right: 30px;
-  margin-top: 40px;
+  margin-top: 0px;
   border: 1px solid #F4F7FF;
   border-radius: 24px;
   font-size: 16px;
@@ -212,7 +212,7 @@ const MessageInput = styled.input`
 const SendButton = styled.button`
   position: absolute;
   right: 20px;
-  top: 33px;
+  top: 30px;
   transform: translateY(-50%);
   width: 46px;
   height: 46px;
@@ -316,7 +316,7 @@ function ChatRoomDetailPage() {
       setTargetUser(defaultTarget);
       return defaultTarget;
     }
-  }, [roomId]);
+  }, [roomId, profileImageFromUrl]);
 
   // 메시지 목록 조회 (최적화)
   const fetchMessages = useCallback(async (targetUserInfo = null) => {
@@ -376,15 +376,6 @@ function ChatRoomDetailPage() {
           const messageTime = msg.createdAt || msg.sentAt || msg.time || new Date().toISOString();
           const senderId = msg.senderId || msg.userId || msg.authorId;
           const isFromMe = senderId && currentUserId && senderId.toString() === currentUserId.toString();
-          
-          // 디버깅을 위한 로그
-          console.log('[ChatRoomDetailPage] 메시지 처리:', {
-            messageText,
-            senderId,
-            currentUserId,
-            isFromMe,
-            originalMsg: msg
-          });
           
           return {
             id: msg.id || msg.messageId || Date.now(),
@@ -624,7 +615,7 @@ function ChatRoomDetailPage() {
 
     // WebSocket 연결 시도 (즉시)
     connectToWebSocket();
-  }, [roomId, userId]);
+  }, [roomId]); // userId 제거
 
   // 컴포넌트 마운트 시 데이터 로드 (최적화)
   useEffect(() => {
@@ -642,7 +633,7 @@ function ChatRoomDetailPage() {
     };
     
     loadData();
-  }, [roomId, fetchTargetUser, fetchMessages]);
+  }, [roomId]); // fetchTargetUser, fetchMessages 제거
 
   // HTTP 기반 채팅을 위한 주기적 새로고침 (WebSocket 연결 안 될 때만)
   useEffect(() => {
@@ -650,12 +641,12 @@ function ChatRoomDetailPage() {
       if (!websocketConnected && targetUser) {
         fetchMessages();
       }
-    }, 2000);
+    }, 5000); // 2초에서 5초로 변경
     
     return () => {
       clearInterval(interval);
     };
-  }, [websocketConnected, targetUser, fetchMessages]);
+  }, [websocketConnected, targetUser]); // fetchMessages 제거
 
   if (loading) {
     return (

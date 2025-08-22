@@ -22,7 +22,7 @@ import MasilLogoIcon from '@assets/masill-logo1.svg';
 import Plusbutton from '@logo/myhome/plusbutton.svg';
 
 const MyHomeContainer = styled.div`
-  min-height: 100vh;
+  min-height: 100%;
   background: white;
   padding: 0;
   margin: 0;

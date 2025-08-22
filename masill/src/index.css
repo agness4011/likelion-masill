@@ -4,9 +4,54 @@
 html,
 body,
 #root {
-  height: 100%;
   margin: 0;
   padding: 0;
+}
+
+/* 전역 스크롤바 숨기기 */
+html {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+
+html::-webkit-scrollbar {
+  display: none !important; /* Chrome/Safari/Opera */
+  width: 0 !important;
+  height: 0 !important;
+}
+
+body {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+
+body::-webkit-scrollbar {
+  display: none !important; /* Chrome/Safari/Opera */
+  width: 0 !important;
+  height: 0 !important;
+}
+
+#root {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+
+#root::-webkit-scrollbar {
+  display: none !important; /* Chrome/Safari/Opera */
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* 모든 요소에 대해 스크롤바 숨기기 */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 * {
@@ -18,11 +63,7 @@ body {
   font-family: "Noto Sans KR", system-ui, Avenir, Helvetica, Arial, sans-serif;
   background-color: #f0f0f0;
   color: #242424;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-width: 320px;
-  min-height: 100dvh; /* iOS 대응 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -30,8 +71,6 @@ body {
 /* root 요소 내부 앱은 Wrapper에서 max-width 관리 */
 #root {
   width: 100%;
-  display: flex;
-  justify-content: center;
 }
 
 /* 텍스트 요소 */

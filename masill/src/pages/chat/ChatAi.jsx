@@ -8,7 +8,7 @@ import MainArrowLeftIcon from "../../assets/logo/main/main-arrowleft.svg";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   background-color: #f5f5f5;
 `;
 
@@ -98,7 +98,7 @@ const InputContainer = styled.div`
   background-color: white;
   border-top: 1px solid #f0f0f0;
   position: relative;
-  height: 0px;
+  height: 60px;
 `;
 
 const MessageInput = styled.input`
@@ -106,7 +106,7 @@ const MessageInput = styled.input`
   min-width: 300px;
   padding: 12px 16px;
   padding-right: 30px;
-  margin-top: 40px;
+  margin-top: 0px;
   border: 1px solid #f4f7ff;
   border-radius: 24px;
   font-size: 16px;
@@ -127,7 +127,7 @@ const MessageInput = styled.input`
 const SendButton = styled.button`
   position: absolute;
   right: 20px;
-  top: 33px;
+  top: 30px;
   transform: translateY(-50%);
   width: 46px;
   height: 46px;
