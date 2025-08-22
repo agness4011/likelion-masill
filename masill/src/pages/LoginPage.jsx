@@ -332,7 +332,6 @@ export default function LoginPage() {
           detail: { userData: currentUser } 
         }));
 
-        alert("로그인 성공!");
         nav("/main");
       } else {
         console.log("[LoginPage] 로그인 실패:", response?.message);

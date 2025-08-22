@@ -16,7 +16,7 @@ export default function SelectRegion() {
       try {
         setLoading(true);
         const regionData = await getRegions();
-        console.log("가져온 지역 데이터:", regionData);
+     
         setRegions(regionData);
       } catch (error) {
         console.error("지역 데이터 가져오기 실패:", error);
@@ -30,11 +30,11 @@ export default function SelectRegion() {
   }, []);
 
   const handleRegionSelect = (region) => {
-    console.log("지역 선택됨:", region);
+  
     setSelectedRegion(region);
     // 지역 선택 시 바로 다음 페이지로 이동
     localStorage.setItem("selectedRegion", region);
-    console.log("localStorage에 selectedRegion 저장:", region);
+   
     nav("/board/reigon/detail");
   };
 

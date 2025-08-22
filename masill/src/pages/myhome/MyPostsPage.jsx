@@ -84,18 +84,29 @@ const PostCard = styled.div`
 `;
 
 const ImageScrollWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding-bottom: 4px;
-  max-height: 140px;
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  padding-bottom: 10px;
+  margin-top: 20px;
+
+  /* 스크롤바 스타일 (선택) */
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
 `;
 
 const BoardImage = styled.img`
-  width: 100%;
+  width: 140px;
   height: 140px;
+  flex-shrink: 0;
   border-radius: 6px;
-  object-fit: cover;
+  background: url(<path-to-image>);
+  gap: 4px;
 `;
 
 const ContentWrapper = styled.div`
@@ -223,25 +234,18 @@ const MyPostsPage = () => {
       try {
         setLoading(true);
         const res = await fetchMyPosts();
-        console.log("내가 작성한 게시글:", res);
-        console.log(
-          "내가 작성한 게시글 데이터 구조:",
-          JSON.stringify(res, null, 2)
-        );
+     
 
         // 실제 데이터 구조에 맞게 접근
         const content = res?.data?.content || [];
-        console.log("내가 작성한 게시글 content:", content);
+  
 
         // postType별로 게시글 분류
         const clubPosts = content.filter((post) => post.postType === "CLUB");
         const eventPosts = content.filter((post) => post.postType === "EVENT");
 
-        console.log("소모임 게시글:", clubPosts);
-        console.log("이벤트 게시글:", eventPosts);
-
         if (content.length > 0) {
-          console.log("첫 번째 게시글 구조:", content[0]);
+       
         }
         setPosts(content);
       } catch (err) {
@@ -264,16 +268,16 @@ const MyPostsPage = () => {
 
   const handlePostClick = (post) => {
     try {
-      console.log("클릭된 게시글:", post);
+     
 
       // postType에 따라 다른 경로로 이동
       if (post.postType === "CLUB" && post.clubId) {
         // 소모임 게시글: /events/{eventId}/clubs/{clubId}
-        console.log("소모임 게시글 클릭:", post.clubId);
+     
         navigate(`/smallgroup/${post.eventId}/${post.clubId}`);
       } else if (post.postType === "EVENT") {
         // 이벤트 게시글: /events/{eventId}
-        console.log("이벤트 게시글 클릭:", post.eventId);
+
         navigate(`/detail/${post.eventId}`);
       } else {
         console.error("게시글 타입을 확인할 수 없습니다:", post);
@@ -362,15 +366,14 @@ const MyPostsPage = () => {
               <React.Fragment key={post.eventId}>
                 <PostCard onClick={() => handlePostClick(post)}>
                   <ImageScrollWrapper>
-                    {Array.isArray(post.images) && post.images.length > 0
-                      ? post.images.map((image, idx) => (
-                          <BoardImage
-                            key={idx}
-                            src={image.imageUrl}
-                            alt={`${post.title}-${idx}`}
-                          />
-                        ))
-                      : null}
+                    {Array.isArray(post.images) &&
+                      post.images.map((img, idx) => (
+                        <BoardImage
+                          key={idx}
+                          src={img.imageUrl}
+                          alt={`${post.title}-${idx}`}
+                        />
+                      ))}
                   </ImageScrollWrapper>
 
                   <ContentWrapper>
@@ -438,15 +441,15 @@ const MyPostsPage = () => {
                     </RightContent>
                   </ContentWrapper>
 
-                  {/* PromotionIcon을 마지막 게시물이 아닌 경우에만 표시 */}
-                  {index < posts.length - 1 && (
-                    <PromotionContainer>
-                      <PromotionIconImg
-                        src={PromotionIcon}
-                        alt="프로모션 아이콘"
-                      />
-                    </PromotionContainer>
-                  )}
+                                     {/* PromotionIcon을 소모임이 아닌 경우에만 표시 (마지막 게시글이 이벤트인 경우에도 표시) */}
+                   {post.postType !== "CLUB" && (
+                     <PromotionContainer>
+                       <PromotionIconImg
+                         src={PromotionIcon}
+                         alt="프로모션 아이콘"
+                       />
+                     </PromotionContainer>
+                   )}
                 </PostCard>
               </React.Fragment>
             ))}

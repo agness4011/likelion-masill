@@ -184,3 +184,37 @@ export const BoardDiv = styled.div`
     background: transparent;
   }
 `;
+
+export const OwnerHatIcon = styled.img`
+  width: 16px;
+  height: 14px;
+  margin-left: 4px;
+  position: absolute;
+  top: -2px;
+  right: -60px;
+`;
+
+export const MemberLogoContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+export const ImageContainer = styled.div`
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+`;
+
+export const OwnerHatOverlay = styled.img`
+  position: absolute;
+  top: 2px;
+  left: 13px;
+  width: 37px;
+  height: 37px;
+  z-index: 20;
+
+  border-radius: 50%;
+  padding: 4px;
+`;

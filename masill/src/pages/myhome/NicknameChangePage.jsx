@@ -7,13 +7,14 @@ import ArrowLeftIcon from '@logo/main/main-arrowleft.svg';
 import BirdIcon from '@logo/bird1.svg';
 
 const Container = styled.div`
-  min-height: 100%;
+  height: 100%;
   background: white;
   padding: 0;
   margin: 0;
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 `;
 
 const Header = styled.div`
@@ -48,12 +49,13 @@ const Title = styled.h1`
 `;
 
 const Content = styled.div`
-  padding: 150px 20px 40px 20px;
+  padding: 100px 20px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 400px;
+  flex: 1;
+  overflow: hidden;
 `;
 
 const BirdContainer = styled.div`
@@ -160,11 +162,8 @@ const ChangeButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  margin-top: 40px;
-  position: absolute;
-  bottom: -50px;
-  left: 50%;
-  transform: translateX(-50%);
+  margin-top: 350px;
+  position: relative;
   
   ${props => props.disabled ? `
     background: #e9ecef;
@@ -211,7 +210,7 @@ const NicknameChangePage = () => {
 
     try {
       const response = await checkNicknameDuplicate(nickname);
-      console.log('닉네임 중복 확인 결과:', response);
+      
       
       if (response.available) {
         setDuplicateStatus('available');
@@ -236,7 +235,7 @@ const NicknameChangePage = () => {
       
       try {
         const response = await updateNickname(nickname);
-        console.log('닉네임 변경 결과:', response);
+      
         
         if (response.success) {
           // UserContext 업데이트

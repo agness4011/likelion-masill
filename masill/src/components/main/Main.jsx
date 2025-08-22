@@ -9,6 +9,7 @@ import Goheart from "../../assets/logo/mainImg/goheart.png";
 import Recommand from "../../assets/logo/main/main-sort.svg";
 import SetLocation from "../../assets/logo/main/main-location.svg";
 import BirdIcon2 from "../../assets/logo/search/twobird.svg";
+import OwnerHat from "../../assets/logo/main/owner-hat.svg";
 
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -31,6 +32,7 @@ import {
   useLocation,
   useOutletContext,
 } from "react-router-dom";
+import { useUser } from "../../contexts/UserContext";
 import {
   LocationDiv,
   LocationImg,
@@ -43,6 +45,8 @@ import {
   ToggleP,
   ToggleOpenDiv,
   BoardDiv,
+  ImageContainer,
+  OwnerHatOverlay,
 } from "./MainStyles.styled";
 import styled from "styled-components";
 
@@ -224,6 +228,7 @@ dayjs.locale("ko");
 // 게시글 목록
 function Post() {
   const location = useLocation();
+  const { userData } = useUser();
   const category =
     location.pathname === "/main"
       ? null
@@ -242,7 +247,6 @@ function Post() {
   // SearchPage에서 전달받은 검색 결과 처리
   useEffect(() => {
     if (location.state?.searchResults !== undefined) {
-      console.log("SearchPage에서 검색 결과 받음:", location.state);
       setSearchResults(location.state.searchResults);
       setSearchTerm(location.state.searchTerm || "");
       setIsSearchActive(true);
@@ -270,10 +274,8 @@ function Post() {
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        console.log("🔹 일반 게시물 로드 시작");
         const regionName = await getMyRegionName(regionId);
         setMyRegion(regionName);
-        console.log("현재 지역:", regionName);
 
         let content = [];
         const today = dayjs().startOf("day");
@@ -282,44 +284,40 @@ function Post() {
         if (!category) {
           const res = await fetchAllBoards(regionId);
           const allPosts = res?.data?.content || [];
-          console.log("전체 게시물 개수:", allPosts.length);
 
           content = allPosts.filter((post) =>
             dayjs(post.endAt).endOf("day").isSameOrAfter(today)
           );
-          console.log("종료일 필터 후 개수:", content.length);
         } else if (category === "event") {
           const res = await fetchAllBoards(regionId);
           const allPosts = res?.data?.content || [];
-          console.log("전체 이벤트 게시물 개수:", allPosts.length);
 
           content = allPosts.filter((post) => {
             const start = dayjs(post.startAt).startOf("day");
             const end = dayjs(post.endAt).endOf("day");
             return start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today);
           });
-          console.log("기간 필터 후 개수:", content.length);
         } else {
           const eventType = CATEGORY_MAP[category];
           const res = await eventTypeBoards(eventType, regionId);
           const allPosts = res?.data?.content || [];
-          console.log(`${category} 게시물 전체 개수:`, allPosts.length);
 
           content = allPosts.filter((post) =>
             dayjs(post.endAt).endOf("day").isSameOrAfter(today)
           );
-          console.log("종료일 필터 후 개수:", content.length);
         }
 
         setPosts(
-          content.map((post) => ({
-            ...post,
-            isHeartClicked: post.liked ?? false,
-          }))
-        );
-        console.log(
-          "최종 posts 상태:",
-          content.map((p) => p.eventId)
+          content.map((post) => {
+            // 서버에서 받아온 businessVerified 필드 사용
+            const isVerified = post.businessVerified || false;
+            
+            return {
+              ...post,
+              isHeartClicked: post.liked ?? false,
+              isBusinessVerified: isVerified,
+            };
+          })
         );
       } catch (err) {
         console.error("게시물 불러오기 실패", err);
@@ -333,12 +331,17 @@ function Post() {
   useEffect(() => {
     if (location.state?.aiPosts && !searchResults) {
       // ✅ searchResults가 없을 때만 세팅
-      console.log("AI 추천 posts 직접 전달받음:", location.state.aiPosts);
       setSearchResults(
-        location.state.aiPosts.map((post) => ({
-          ...post,
-          isHeartClicked: post.liked ?? false,
-        }))
+        location.state.aiPosts.map((post) => {
+          // 서버에서 받아온 businessVerified 필드 사용
+          const isVerified = post.businessVerified || false;
+          
+          return {
+            ...post,
+            isHeartClicked: post.liked ?? false,
+            isBusinessVerified: isVerified,
+          };
+        })
       );
       setSearchTerm("AI 추천 전체보기");
       setIsSearchActive(true);
@@ -350,8 +353,6 @@ function Post() {
     const loadAiRecommendations = async () => {
       try {
         if (sortType === "AI 추천순") {
-          console.log(`🔹 ${category || "전체"} AI 추천 게시물 API 호출 시작`);
-
           // today 판단
           const isTodayEvent = category === "event";
 
@@ -361,13 +362,17 @@ function Post() {
           // 안전하게 API 호출
           const aiPosts = await AiRecommend(eventType, isTodayEvent, 1, 100);
 
-          console.log("AI 추천 API 결과 개수:", aiPosts.length);
-
           setPosts(
-            aiPosts.map((post) => ({
-              ...post,
-              isHeartClicked: post.liked ?? false,
-            }))
+            aiPosts.map((post) => {
+              // 서버에서 받아온 businessVerified 필드 사용
+              const isVerified = post.businessVerified || false;
+              
+              return {
+                ...post,
+                isHeartClicked: post.liked ?? false,
+                isBusinessVerified: isVerified,
+              };
+            })
           );
         }
       } catch (err) {
@@ -412,7 +417,6 @@ function Post() {
   };
   useEffect(() => {
     if (location.state?.clearSearch) {
-      console.log("로고 클릭으로 검색 초기화");
       setSearchResults(null);
       setSearchTerm("");
       setIsSearchActive(false);
@@ -440,7 +444,13 @@ function Post() {
         setSearchResults((prev) =>
           prev.map((post) =>
             post.eventId === eventId
-              ? { ...post, isHeartClicked: favorite, favoriteCount }
+              ? { 
+                  ...post, 
+                  isHeartClicked: favorite, 
+                  favoriteCount,
+                  // 사업자 인증 상태 유지
+                  isBusinessVerified: post.businessVerified || false
+                }
               : post
           )
         );
@@ -505,15 +515,19 @@ function Post() {
                 key={item.eventId}
                 onClick={() => navigate(`/detail/${item.eventId}`)}
               >
+                {item.isBusinessVerified && (
+                  <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
+                )}
                 <div style={{ marginLeft: "24px" }}>
                   <ImageScrollWrapper>
                     {Array.isArray(item.images) &&
                       item.images.map((img, idx) => (
-                        <BoardImage
-                          key={idx}
-                          src={img.imageUrl}
-                          alt={`${item.title}-${idx}`}
-                        />
+                        <ImageContainer key={idx}>
+                          <BoardImage
+                            src={img.imageUrl}
+                            alt={`${item.title}-${idx}`}
+                          />
+                        </ImageContainer>
                       ))}
                   </ImageScrollWrapper>
 
@@ -654,6 +668,7 @@ const BoardContanier = styled.div`
   overflow: hidden; /* 최상위 스크롤 제거 */
 `;
 const PostWrapper = styled.div`
+  position: relative;
   padding: 0 0 8px 0;
   cursor: pointer;
   border-top: 0.5px solid var(--Gray-500, #c1cae0);

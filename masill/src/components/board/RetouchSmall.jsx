@@ -371,7 +371,7 @@ function InputForm() {
 
       const result = await retouchSmallGroup(eventId, clubId, payload);
 
-      console.log("서버 응답:", result);
+     
 
       navigate(`/detail/${eventId}`); // 🔥 소모임 생성 후 본행사 상세 페이지로 이동
     } catch (error) {

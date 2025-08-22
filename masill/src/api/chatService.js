@@ -6,9 +6,9 @@ import { privateAPI } from "./axios";
 // 1) 채팅방 목록 조회
 export async function fetchChatRooms() {
   try {
-    console.log('채팅방 목록 조회 API 호출');
+
     const res = await privateAPI.get('/chats/rooms');
-    console.log('채팅방 목록 조회 API 응답 성공:', res.data);
+
     return res.data;
   } catch (error) {
     console.error('채팅방 목록 조회 API 실패:', error);
@@ -19,14 +19,14 @@ export async function fetchChatRooms() {
 // 1-1) 내 채팅방 목록 조회 (페이징 지원)
 export async function getMyChatRooms({ page = 1, size = 200, sortBy = 'lastMessageAt', sortDir = 'desc' }) {
   try {
-    console.log('채팅방 목록 조회 API 호출:', { page, size, sortBy, sortDir });
+ 
     
     // 실제 API 호출
     const res = await privateAPI.get('/chats/rooms', {
       params: { page, size, sortBy, sortDir }
     });
     
-    console.log('채팅방 목록 조회 API 응답 성공:', res.data);
+   
     return res.data;
   } catch (error) {
     console.error('채팅방 목록 조회 API 실패:', error);
@@ -37,10 +37,10 @@ export async function getMyChatRooms({ page = 1, size = 200, sortBy = 'lastMessa
 // 2) 특정 채팅방 정보 조회
 export async function fetchChatRoom(roomId) {
   try {
-    console.log('채팅방 정보 조회 API 호출:', roomId);
+ 
     // GET 요청으로 채팅방 조회 (새로운 API)
     const res = await privateAPI.get(`/chats/room/${roomId}`);
-    console.log('채팅방 정보 조회 API 응답 성공:', res.data);
+  
     return res.data;
   } catch (error) {
     console.error('채팅방 정보 조회 API 실패:', error);
@@ -51,7 +51,7 @@ export async function fetchChatRoom(roomId) {
 // 3) 특정 채팅방 메시지 조회 (페이징 지원)
 export async function fetchMessages(chatId, page = 1, pageSize = 200) {
   try {
-    console.log('채팅 메시지 조회 API 호출:', { chatId, page, pageSize });
+
     const res = await privateAPI.get(`/chats/rooms/${chatId}/messages`, {
       params: { 
         page, 
@@ -60,8 +60,7 @@ export async function fetchMessages(chatId, page = 1, pageSize = 200) {
         sortDir: 'asc' // 오래된 메시지부터 가져오기
       }
     });
-    console.log('채팅 메시지 조회 API 응답 성공:', res.data);
-    console.log('실제 받은 메시지 수:', res.data?.data?.content?.length || res.data?.length || 0);
+
     return res.data;
   } catch (error) {
     console.error('채팅 메시지 조회 API 실패:', error);
@@ -77,9 +76,9 @@ export function getChatMessages(chatId, page = 1, pageSize = 200) {
 // 4) 메시지 전송
 export async function sendMessage(chatId, text) {
   try {
-    console.log('채팅 메시지 전송 API 호출:', { chatId, text });
+  
     const res = await privateAPI.post(`/chats/rooms/${chatId}/messages`, { text });
-    console.log('채팅 메시지 전송 API 응답 성공:', res.data);
+   
     return res.data;
   } catch (error) {
     console.error('채팅 메시지 전송 API 실패:', error);
@@ -90,9 +89,9 @@ export async function sendMessage(chatId, text) {
 // 5) 읽음 처리
 export async function markAsRead(chatId) {
   try {
-    console.log('채팅방 읽음 처리 API 호출:', chatId);
+
     const res = await privateAPI.put(`/chats/rooms/${chatId}/read`);
-    console.log('채팅방 읽음 처리 API 응답 성공:', res.data);
+
     return res.data;
   } catch (error) {
     console.error('채팅방 읽음 처리 API 실패:', error);
@@ -107,15 +106,15 @@ export async function markAsRead(chatId) {
 
 // 6) 이벤트 채팅방 생성
 export async function startEventChat(eventId) {
-  console.log('채팅방 생성 API 호출:', { eventId });
+ 
   
   // 현재 로그인한 사용자 ID 가져오기
   const currentUserId = localStorage.getItem('currentUserId');
-  console.log('현재 사용자 ID:', currentUserId);
+ 
   
   try {
     // 1. targetUserId 조회 (서버 오류로 인해 임시로 하드코딩)
-    console.log('작성자 ID 조회 중...');
+  
     let targetUserId;
     
     try {
@@ -126,13 +125,13 @@ export async function startEventChat(eventId) {
         }
       });
       targetUserId = targetUserRes.data.data?.targetUserId;
-      console.log('작성자 ID 조회 결과:', targetUserId);
+
     } catch (error) {
       console.error('작성자 ID 조회 실패:', error);
-      console.log('서버 오류로 인해 임시 값 사용...');
+  
       // 임시로 test1의 ID 사용 (eventId 93은 test1이 작성한 게시글)
       targetUserId = 116; // test1의 ID
-      console.log('임시 작성자 ID 사용:', targetUserId);
+    
     }
     
     // 2. targetUserId가 여전히 없는 경우 에러
@@ -151,13 +150,7 @@ export async function startEventChat(eventId) {
       contextId: parseInt(eventId), // eventPostId (eventId와 동일)
       targetUserId: parseInt(targetUserId) // 이벤트 작성자 ID
     };
-    
-    console.log('채팅방 생성 요청 데이터:', requestData);
-    console.log('요청 데이터 타입:', {
-      contextType: typeof requestData.contextType,
-      contextId: typeof requestData.contextId,
-      targetUserId: typeof requestData.targetUserId
-    });
+
     
     // 5. POST /api/chats/rooms 호출하여 서버에서 roomId 받기
     const res = await privateAPI.post('/chats/rooms', requestData, {
@@ -166,7 +159,7 @@ export async function startEventChat(eventId) {
       }
     });
     
-    console.log('채팅방 생성 API 응답 성공:', res.data);
+
     return res.data;
   } catch (error) {
     console.error('채팅방 생성 과정 실패:', error);
@@ -176,25 +169,20 @@ export async function startEventChat(eventId) {
 
 // 7) 댓글 작성자와 채팅 시작
 export async function startCommentChat(commentId) {
-  console.log('=== 댓글 채팅방 생성 시작 ===');
-  console.log('commentId:', commentId);
-  console.log('commentId 타입:', typeof commentId);
+
   
   // 현재 로그인한 사용자 ID 가져오기
   const currentUserId = localStorage.getItem('currentUserId');
-  console.log('현재 사용자 ID:', currentUserId);
+
   
   try {
     // 1. 댓글 작성자 ID 조회
-    console.log('댓글 작성자 ID 조회 중...');
+  
     let targetUserId;
     
     try {
-      console.log('API 요청 파라미터:', { 
-        contextType: 'COMMENT',
-        contextId: commentId 
-      });
-      console.log('API 요청 URL:', `/chats/target-user?contextType=COMMENT&contextId=${commentId}`);
+     
+
       
       const targetUserRes = await privateAPI.get('/chats/target-user', {
         params: { 
@@ -203,7 +191,7 @@ export async function startCommentChat(commentId) {
         }
       });
       targetUserId = targetUserRes.data.data?.targetUserId;
-      console.log('댓글 작성자 ID 조회 결과:', targetUserId);
+ 
     } catch (error) {
       console.error('댓글 작성자 ID 조회 실패:', error);
       throw new Error('댓글 작성자 ID를 찾을 수 없습니다.');
@@ -225,14 +213,7 @@ export async function startCommentChat(commentId) {
       contextId: parseInt(commentId),
       targetUserId: parseInt(targetUserId)
     };
-    
-    console.log('댓글 채팅방 생성 요청 데이터:', requestData);
-    console.log('요청 데이터 타입:', {
-      contextType: typeof requestData.contextType,
-      contextId: typeof requestData.contextId,
-      targetUserId: typeof requestData.targetUserId
-    });
-    
+ 
     // 5. POST /api/chats/rooms 호출하여 서버에서 roomId 받기
     const res = await privateAPI.post('/chats/rooms', requestData, {
       headers: {
@@ -240,10 +221,7 @@ export async function startCommentChat(commentId) {
       }
     });
     
-    console.log('=== 댓글 채팅방 생성 API 응답 성공 ===');
-    console.log('응답 상태:', res.status);
-    console.log('응답 데이터:', res.data);
-    console.log('==============================');
+
     return res.data;
   } catch (error) {
     console.error('=== 댓글 채팅방 생성 과정 실패 ===');
@@ -259,26 +237,20 @@ export async function startCommentChat(commentId) {
 
 // 8) 모임 작성자와 채팅 시작
 export async function startClubChat(eventId, clubId) {
-  console.log('=== 모임 채팅방 생성 시작 ===');
-  console.log('eventId:', eventId);
-  console.log('clubId:', clubId);
+
   
   // 현재 로그인한 사용자 ID 가져오기
   const currentUserId = localStorage.getItem('currentUserId');
-  console.log('현재 사용자 ID:', currentUserId);
+
   
   try {
     // 1. 모임 작성자 ID 조회
-    console.log('모임 작성자 ID 조회 중...');
+   
     let targetUserId;
     
     try {
-      console.log('API 요청 파라미터:', { 
-        contextType: 'CLUB_POST',
-        contextId: clubId 
-      });
-      console.log('API 요청 URL:', `/chats/target-user?contextType=CLUB_POST&contextId=${clubId}`);
-      
+
+  
       const targetUserRes = await privateAPI.get('/chats/target-user', {
         params: { 
           contextType: 'CLUB_POST',
@@ -286,7 +258,7 @@ export async function startClubChat(eventId, clubId) {
         }
       });
       targetUserId = targetUserRes.data.data?.targetUserId;
-      console.log('모임 작성자 ID 조회 결과:', targetUserId);
+
     } catch (error) {
       console.error('모임 작성자 ID 조회 실패:', error);
       throw new Error('모임 작성자 ID를 찾을 수 없습니다.');
@@ -309,12 +281,7 @@ export async function startClubChat(eventId, clubId) {
       targetUserId: parseInt(targetUserId)
     };
     
-    console.log('모임 채팅방 생성 요청 데이터:', requestData);
-    console.log('요청 데이터 타입:', {
-      contextType: typeof requestData.contextType,
-      contextId: typeof requestData.contextId,
-      targetUserId: typeof requestData.targetUserId
-    });
+ 
     
     // 5. POST /api/chats/rooms 호출하여 서버에서 roomId 받기
     const res = await privateAPI.post('/chats/rooms', requestData, {
@@ -323,10 +290,7 @@ export async function startClubChat(eventId, clubId) {
       }
     });
     
-    console.log('=== 모임 채팅방 생성 API 응답 성공 ===');
-    console.log('응답 상태:', res.status);
-    console.log('응답 데이터:', res.data);
-    console.log('==============================');
+  
     return res.data;
   } catch (error) {
     console.error('=== 모임 채팅방 생성 과정 실패 ===');

@@ -107,8 +107,8 @@ const InputBox = styled.div`
   max-width: 340px;
   background:#ECF1FF;
   border-radius: 16px;
-  padding: 18px 16px 5px 16px;
-  margin-bottom: 15px;
+  padding: 20px 28px 10px 20px;
+  margin-bottom: 25px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -246,7 +246,7 @@ const InfoText = styled.div`
   width: 90%;
   max-width: 340px;
   margin-top: -8px;
-  margin-bottom: 16px;
+  margin-bottom: -10px;
   min-height: 20px;
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   max-height: ${({ $visible }) => ($visible ? '20px' : '0')};
@@ -324,7 +324,8 @@ export default function SignCreatePage() {
       // API 응답에 따라 처리
       if (response.available) {
         setNicknameCompleted(true);
-        alert(response.message || "사용 가능한 닉네임입니다.");
+        // 중복확인 성공 시 자동으로 다음 단계로 이동
+        setCurrentStep(3);
       } else {
         alert(response.message || "이미 사용 중인 닉네임입니다.");
         setNicknameCompleted(false);
@@ -337,14 +338,7 @@ export default function SignCreatePage() {
 
   const handleNicknameNext = () => {
     if (nickname.length > 0) {
-      // 중복확인을 하지 않았으면 경고 메시지 표시
-      if (!nicknameCompleted) {
-        if (confirm("닉네임 중복확인을 하지 않았습니다. 계속 진행하시겠습니까?")) {
-          setCurrentStep(3);
-        }
-      } else {
-        setCurrentStep(3);
-      }
+      setCurrentStep(3);
     }
   };
 

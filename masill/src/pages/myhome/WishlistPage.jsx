@@ -7,9 +7,10 @@ import ChatIcon from "@logo/myhome/chat.svg";
 import Fullheart from "@assets/logo/mainImg/fullheart.png";
 import Heart from "@assets/logo/mainImg/heart.png";
 import Comment from "@assets/logo/mainImg/commant.png";
-import PromotionIcon from "@logo/myhome/promotion.svg";
+
 import dayjs from "dayjs";
 import { fetchMyFavorites } from "../../api/boardApi";
+import { privateAPI } from "../../api/axios";
 import {
   BoardTitleH1,
   BoardLocationP,
@@ -84,16 +85,15 @@ const PostCard = styled.div`
 `;
 
 const ImageScrollWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding-bottom: 4px;
-  max-height: 140px;
-  overflow-y: auto;
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  padding-bottom: 10px;
+  margin-top: 20px;
 
-  /* 스크롤바 스타일 */
+  /* 스크롤바 스타일 (선택) */
   &::-webkit-scrollbar {
-    width: 6px;
+    height: 6px;
   }
   &::-webkit-scrollbar-thumb {
     background: #ccc;
@@ -102,10 +102,12 @@ const ImageScrollWrapper = styled.div`
 `;
 
 const BoardImage = styled.img`
-  width: 100%;
+  width: 140px;
   height: 140px;
+  flex-shrink: 0;
   border-radius: 6px;
-  object-fit: cover;
+  background: url(<path-to-image>);
+  gap: 4px;
 `;
 
 const ContentWrapper = styled.div`
@@ -209,19 +211,7 @@ const MemberLogo = styled.img`
   border-radius: 24px;
 `;
 
-const PromotionContainer = styled.div`
-  margin: 12px 0;
-  margin-left: -160px;
-  text-align: left;
-  display: flex;
-  justify-content: flex-end;
-`;
 
-const PromotionIconImg = styled.img`
-  width: 80%;
-  height: 100px;
-  border-radius: 20px;
-`;
 
 // 더미 데이터 제거 - 실제 좋아요한 게시물을 사용
 
@@ -237,21 +227,16 @@ const WishlistPage = () => {
       try {
         setLoading(true);
         const res = await fetchMyFavorites();
-        console.log("관심있는 게시글:", res);
-        console.log(
-          "관심있는 게시글 데이터 구조:",
-          JSON.stringify(res, null, 2)
-        );
-
+      
         // 실제 데이터 구조에 맞게 접근
         const content = res?.data?.content || [];
-        console.log("관심있는 게시글 content:", content);
+     
         if (content.length > 0) {
-          console.log("첫 번째 관심 게시글 구조:", content[0]);
+
         }
         setLikedPosts(content);
       } catch (err) {
-        console.error("관심있는 게시물 불러오기 실패", err);
+      
         setError(err);
       } finally {
         setLoading(false);
@@ -278,10 +263,61 @@ const WishlistPage = () => {
     }
   };
 
+  // 하트 클릭 (메인화면과 동일한 로직)
+  const clickHeart = async (eventId) => {
+    try {
+      const res = await privateAPI.post(`/events/${eventId}/favorites`);
+      const { favoriteCount, favorite } = res.data.data;
+
+      // 하트가 해제되면 목록에서 제거
+      if (!favorite) {
+        setLikedPosts(prevPosts => {
+
+          const filteredPosts = prevPosts.filter(post => {
+            const postId = post.eventId || post.postId || post.id;
+            const shouldKeep = postId !== eventId;
+            if (!shouldKeep) {
+
+            }
+            return shouldKeep;
+          });
+      
+          return filteredPosts;
+        });
+      } else {
+        // 하트가 다시 눌려지면 상태 업데이트
+        setLikedPosts(prevPosts => prevPosts.map(post => {
+          const postId = post.eventId || post.postId || post.id;
+          if (postId === eventId) {
+            return { ...post, isHeartClicked: favorite, favoriteCount };
+          }
+          return post;
+        }));
+      }
+    } catch (err) {
+      console.error("clickHeart 에러:", err);
+      
+      // 500 에러나 다른 서버 오류의 경우, 로컬에서만 제거
+      if (err.response?.status >= 500 || err.response?.status === 0) {
+       
+        setLikedPosts(prevPosts => {
+          const filteredPosts = prevPosts.filter(post => {
+            const postId = post.eventId || post.postId || post.id;
+            return postId !== eventId;
+          });
+       
+          return filteredPosts;
+        });
+      } else {
+        // 다른 에러의 경우 사용자에게 알림
+        alert("하트 해제 중 오류가 발생했습니다. 다시 시도해주세요.");
+      }
+    }
+  };
+
   const handleRemoveFromWishlist = (postId, e) => {
     e.stopPropagation();
-    // TODO: API를 통해 관심 목록에서 제거하는 로직 추가
-    console.log("관심 목록에서 제거:", postId);
+    clickHeart(postId);
   };
 
   if (loading) {
@@ -359,19 +395,18 @@ const WishlistPage = () => {
           </div>
         ) : (
           <div style={{ padding: "0 24px 0 24px" }}>
-            {likedPosts.map((post, index) => (
-              <React.Fragment key={post.postId}>
+                         {likedPosts.map((post, index) => (
+               <React.Fragment key={post.eventId || post.postId || post.id}>
                 <PostCard onClick={() => handlePostClick(post)}>
                   <ImageScrollWrapper>
-                    {Array.isArray(post.images) && post.images.length > 0
-                      ? post.images.map((img, idx) => (
-                          <BoardImage
-                            key={idx}
-                            src={img.imageUrl}
-                            alt={`${post.title}-${idx}`}
-                          />
-                        ))
-                      : null}
+                    {Array.isArray(post.images) &&
+                      post.images.map((img, idx) => (
+                        <BoardImage
+                          key={idx}
+                          src={img.imageUrl}
+                          alt={`${post.title}-${idx}`}
+                        />
+                      ))}
                   </ImageScrollWrapper>
 
                   <ContentWrapper>
@@ -393,11 +428,11 @@ const WishlistPage = () => {
                     </LeftContent>
 
                     <RightContent>
-                      <HeartArea
-                        onClick={(e) =>
-                          handleRemoveFromWishlist(post.postId, e)
-                        }
-                      >
+                                             <HeartArea
+                         onClick={(e) =>
+                           handleRemoveFromWishlist(post.eventId, e)
+                         }
+                       >
                         <TextStyle>{post.favoriteCount}</TextStyle>
                         <HeartImg
                           src={Fullheart}
@@ -413,15 +448,7 @@ const WishlistPage = () => {
                     </RightContent>
                   </ContentWrapper>
 
-                  {/* PromotionIcon을 마지막 게시물이 아닌 경우에만 표시 */}
-                  {index < likedPosts.length - 1 && (
-                    <PromotionContainer>
-                      <PromotionIconImg
-                        src={PromotionIcon}
-                        alt="프로모션 아이콘"
-                      />
-                    </PromotionContainer>
-                  )}
+
                 </PostCard>
               </React.Fragment>
             ))}

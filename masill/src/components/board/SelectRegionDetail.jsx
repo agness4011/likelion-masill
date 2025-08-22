@@ -242,7 +242,7 @@ export default function SelectRegionDetail() {
       try {
         setLoading(true);
         const districtData = await getDistricts(selectedRegion);
-        console.log("가져온 구/군 데이터:", districtData);
+        
         setDistricts(districtData);
       } catch (error) {
         console.error("구/군 데이터 가져오기 실패:", error);
@@ -269,34 +269,35 @@ export default function SelectRegionDetail() {
   );
 
   const handleDistrictSelect = async (district) => {
-    console.log("구/군 선택됨:", district);
+
     setSelectedDistrict(district);
 
     // 선택된 구/군을 즉시 저장
     localStorage.setItem("selectedDistrict", district);
-    console.log("localStorage에 selectedDistrict 저장:", district);
+  
 
     try {
       // 지역 ID 조회
-      console.log("지역 ID 조회 시작:", { selectedRegion, district });
+     
       const regionId = await getRegionId(selectedRegion, district);
-      console.log("조회된 지역 ID:", regionId);
+      
 
       // 지역 ID도 저장
       localStorage.setItem("selectedRegionId", regionId);
-      console.log("localStorage에 selectedRegionId 저장:", regionId);
+   
 
       // 1초 후 자동으로 다음 페이지로 이동
       setTimeout(() => {
+
         console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
 
         // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
         const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
         if (editPageReturnUrl) {
-          console.log("수정 페이지로 돌아가기:", editPageReturnUrl);
+        
           nav(editPageReturnUrl);
         } else {
-          console.log("새 게시글 작성 페이지로 이동");
+      
           nav("/board");
         }
       }, 1000);
@@ -309,10 +310,10 @@ export default function SelectRegionDetail() {
         // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
         const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
         if (editPageReturnUrl) {
-          console.log("수정 페이지로 돌아가기:", editPageReturnUrl);
+
           nav(editPageReturnUrl);
         } else {
-          console.log("새 게시글 작성 페이지로 이동");
+        
           nav("/board");
         }
       }, 1000);
@@ -326,10 +327,10 @@ export default function SelectRegionDetail() {
       // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
       const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
       if (editPageReturnUrl) {
-        console.log("수정 페이지로 돌아가기:", editPageReturnUrl);
+     
         nav(editPageReturnUrl);
       } else {
-        console.log("새 게시글 작성 페이지로 이동");
+      
         nav("/board");
       }
     } else {
@@ -377,7 +378,7 @@ export default function SelectRegionDetail() {
                 selected={selectedDistrict === district}
                 onClick={() => {
                   if (district && district.trim() !== "") {
-                    console.log("구/군 버튼 클릭:", district);
+            
                     handleDistrictSelect(district);
                   }
                 }}

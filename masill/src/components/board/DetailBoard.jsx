@@ -224,11 +224,9 @@ function LowHead() {
   const handleDeleteConfirm = async () => {
     try {
       await privateAPI.delete(`/events/${eventId}`);
-      alert("게시글이 삭제되었습니다.");
       navigate("/main/event");
     } catch (error) {
       console.error("게시글 삭제 실패:", error);
-      alert("게시글 삭제에 실패했습니다.");
     }
   };
 

@@ -185,10 +185,9 @@ function LowHead() {
   const handleDelete = async () => {
     try {
       await deleteSmallGroup(eventId, clubId);
-      alert("소모임이 삭제되었습니다.");
       navigate(`/detail/${eventId}`);
     } catch (error) {
-      alert("소모임 삭제에 실패했습니다.");
+      console.error("소모임 삭제 실패:", error);
     } finally {
       setShowDeleteModal(false); // 모달 닫기
     }
@@ -399,10 +398,11 @@ function MiddleWho() {
 
     try {
       setChatLoading(true);
-      console.log("모임 작성자와 채팅 시작:", { eventId, clubId });
 
+     
+      
       const response = await startClubChat(eventId, clubId);
-      console.log("채팅방 생성 성공:", response);
+     
 
       if (response?.data?.roomId) {
         navigate(`/chat/room/${response.data.roomId}`);
@@ -472,7 +472,7 @@ function DetailContent() {
       try {
         const data = await smallGroupDetail(eventId, clubId);
         setEvent(data);
-        console.log("content", data.content);
+ 
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -515,8 +515,7 @@ function UserChat() {
     const fetchComments = async () => {
       try {
         const items = await commentSmallGroups(eventId, clubId);
-        console.log("eventId ///////////////////////////////", eventId);
-        console.log("clubId ///////////////////////////////", clubId);
+
         setComments(items);
       } catch (error) {
         console.error("댓글 조회 실패", error);
@@ -547,10 +546,12 @@ function UserChat() {
     }));
   };
 
+
   const handleProfileClick = (user, commentId) => {
     if (user.username === currentNickname) return;
     setSelectedUser({ ...user, commentId });
     setChatModalOpen(true);
+
   };
 
   const handleCloseModal = () => {
@@ -596,6 +597,7 @@ function UserChat() {
         <p>작성된 댓글이 없습니다.</p>
       ) : (
         comments.map((comment) => (
+
           <CommentWrapper key={comment.commentId}>
             <div style={{ display: "flex", gap: "14px", marginTop: "26px" }}>
               <CommentUserImg
@@ -613,6 +615,7 @@ function UserChat() {
                 }
                 onError={(e) => {
                   e.currentTarget.src = "/default-profile.png";
+
                 }}
               />
               <div style={{ flex: 1 }}>
@@ -657,6 +660,7 @@ function UserChat() {
                         marginLeft: "40px",
                       }}
                     >
+
                       <CommentUserImg
                         src={
                           reply.userProfileImageUrl || "/default-profile.png"
@@ -678,6 +682,7 @@ function UserChat() {
                           e.currentTarget.src = "/default-profile.png";
                         }}
                       />
+
                       <div style={{ flex: 1 }}>
                         <div
                           style={{
@@ -735,6 +740,7 @@ function UserChat() {
         />
       </div>
 
+
       {chatModalOpen && selectedUser && (
         <ChatModal
           user={selectedUser}
@@ -742,6 +748,7 @@ function UserChat() {
           commentId={selectedUser.commentId}
         />
       )}
+
     </div>
   );
 }
@@ -868,6 +875,7 @@ function AddReplyMessage({
   );
 }
 function ChatModal({ user, onClose }) {
+
   console.log("=== ChatModal 컴포넌트 시작 ===");
   console.log("ChatModal props:", { user, onClose });
   console.log("user.commentId:", user?.commentId);

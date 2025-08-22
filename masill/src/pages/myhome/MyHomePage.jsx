@@ -251,7 +251,7 @@ const MyHomePage = () => {
   const navigate = useNavigate();
   const { userData, updateProfileImage } = useUser();
   
-  console.log('마이페이지 현재 userData:', userData);
+
   
   // 토큰 상태 확인
   React.useEffect(() => {
@@ -259,11 +259,7 @@ const MyHomePage = () => {
     const refreshToken = localStorage.getItem('refreshToken');
     const currentUser = localStorage.getItem('currentUser');
     
-    console.log('=== 마이페이지 토큰 상태 ===');
-    console.log('Access Token:', accessToken ? '있음' : '없음');
-    console.log('Refresh Token:', refreshToken ? '있음' : '없음');
-    console.log('Current User:', currentUser ? JSON.parse(currentUser) : '없음');
-    console.log('==========================');
+
   }, []);
 
   // 아바타 아이콘 매핑
@@ -343,7 +339,7 @@ const MyHomePage = () => {
   };
 
   const handlePlusButton = () => {
-    console.log('Plus 버튼 클릭');
+  
     // 파일 선택 다이얼로그 열기
     fileInputRef.current?.click();
   };
@@ -369,13 +365,13 @@ const MyHomePage = () => {
       
             // API 호출
       const result = await uploadProfileImage(file);
-      console.log('프로필 이미지 업로드 성공:', result);
+  
       
       // 업로드 성공 시 응답에서 profileImageUrl 사용
       if (result && result.success) {
         const profileImageUrl = result.data?.profileImageUrl;
         if (profileImageUrl) {
-          console.log('서버에서 받은 프로필 이미지 URL:', profileImageUrl);
+      
           localStorage.setItem('userProfileImage', profileImageUrl);
           setProfileImage(profileImageUrl);
           // UserContext 업데이트
@@ -408,7 +404,7 @@ const MyHomePage = () => {
       // 성공 메시지 (모바일 친화적)
       if (window.innerWidth <= 768) {
         // 모바일에서는 더 간단한 메시지
-        console.log('프로필 이미지가 업로드되었습니다.');
+    
       } else {
         alert('프로필 이미지가 성공적으로 업로드되었습니다.');
       }

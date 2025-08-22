@@ -569,29 +569,7 @@ function InputForm() {
           setLoading(true);
           const eventData = await detailBoard(eventId);
 
-          console.log("=== 게시글 데이터 로드 ===");
-          console.log("전체 데이터:", eventData);
-          console.log("모든 키 확인:", Object.keys(eventData));
-          console.log(
-            "지역ID:",
-            eventData.regionId,
-            "타입:",
-            typeof eventData.regionId
-          );
-          console.log(
-            "지역ID 존재 여부:",
-            eventData.regionId !== undefined && eventData.regionId !== null
-          );
-          console.log("region 객체 확인:", eventData.region);
-          console.log("region.regionId 확인:", eventData.region?.regionId);
-          console.log("regionId 필드 확인:", eventData.regionId);
-          console.log("areaId 필드 확인:", eventData.areaId);
-          console.log("locationId 필드 확인:", eventData.locationId);
-          console.log("area 필드 확인:", eventData.area);
-          console.log("location 필드 확인:", eventData.location);
-          console.log("sido 필드 확인:", eventData.sido);
-          console.log("sigungu 필드 확인:", eventData.sigungu);
-          console.log("전체 데이터 상세:", JSON.stringify(eventData, null, 2));
+
 
           // 폼 데이터 설정
           setTitle(eventData.title || "");
@@ -631,11 +609,6 @@ function InputForm() {
           }
 
           // 지역 설정
-          console.log("=== 지역 정보 설정 시작 ===");
-          console.log("eventData.regionId 값:", eventData.regionId);
-          console.log("eventData.regionId 타입:", typeof eventData.regionId);
-          console.log("eventData.regionId가 truthy인가:", !!eventData.regionId);
-
           // 다양한 지역 ID 필드명 확인 (숫자 타입만 허용)
           // 백엔드에서 region 객체 안에 regionId를 반환하므로 이를 우선 확인
           const possibleRegionId =
@@ -645,28 +618,19 @@ function InputForm() {
             eventData.areaId ||
             eventData.locationId ||
             eventData.area;
-          console.log("가능한 지역 ID:", possibleRegionId);
 
           if (
             possibleRegionId !== undefined &&
             possibleRegionId !== null &&
             !isNaN(Number(possibleRegionId))
           ) {
-            console.log("=== 지역 정보 설정 ===");
-            console.log(
-              "사용할 지역 ID:",
-              possibleRegionId,
-              typeof possibleRegionId
-            );
             setRegionId(possibleRegionId);
 
             // API로 지역 이름 가져오기
             const regionIdNum = parseInt(possibleRegionId);
-            console.log("변환된 regionId:", regionIdNum);
 
             getRegionName(regionIdNum)
               .then((regionData) => {
-                console.log("API로 가져온 지역:", regionData);
                 setRegionName(regionData);
               })
               .catch((err) => {
@@ -730,29 +694,11 @@ function InputForm() {
       const selectedRegionId = localStorage.getItem("selectedRegionId");
       const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
 
-      console.log("지역 선택 감지 중...");
-      console.log("selectedRegion:", selectedRegion);
-      console.log("selectedDistrict:", selectedDistrict);
-      console.log("selectedRegionId:", selectedRegionId);
-      console.log("editPageReturnUrl:", editPageReturnUrl);
-      console.log("현재 페이지:", window.location.pathname);
-      console.log("isEditMode:", isEditMode);
-
       // 지역 선택 정보가 있는 경우 (작성 모드와 수정 모드 모두)
       if (selectedRegion && selectedDistrict && selectedRegionId) {
-        console.log("지역 선택 정보 발견!");
-        console.log(
-          "지역 정보 업데이트 실행:",
-          selectedRegion,
-          selectedDistrict,
-          selectedRegionId
-        );
-
         // 지역 정보 업데이트
         setRegionId(parseInt(selectedRegionId));
         setRegionName({ sido: selectedRegion, sigungu: selectedDistrict });
-
-        console.log("지역 정보 업데이트 완료!");
 
         // 지역 정보 업데이트 후 localStorage 정리 (약간의 지연 후)
         setTimeout(() => {
@@ -761,16 +707,13 @@ function InputForm() {
           localStorage.removeItem("selectedRegionId");
           localStorage.removeItem("editPageEventId");
           localStorage.removeItem("editPageReturnUrl");
-          console.log("localStorage 정리 완료");
         }, 500);
       }
     };
 
-    // 로딩이 완료된 후 지역 선택 감지
+    // 로딩이 완료된 후 지역 선택 감지 (한 번만 실행)
     if (!loading) {
       checkForRegionSelection();
-      const interval = setInterval(checkForRegionSelection, 200);
-      return () => clearInterval(interval);
     }
   }, [loading, isEditMode]);
 
@@ -840,10 +783,6 @@ function InputForm() {
     setFormError("");
 
     try {
-      console.log("=== 폼 제출 시작 ===");
-      console.log("현재 regionId:", regionId);
-      console.log("현재 regionName:", regionName);
-
       if (!regionId) {
         setFormError("지역을 선택해주세요!");
         return;
@@ -853,7 +792,6 @@ function InputForm() {
       await changeRegion(regionId);
 
       const regionFullName = await getRegionName(regionId);
-      console.log("API로 가져온 지역명:", regionFullName);
 
       // 날짜 검증
       const startAt = new Date(
@@ -907,12 +845,10 @@ function InputForm() {
 
       if (isEditMode) {
         const result = await updateEvent(eventId, formData);
-        console.log("수정 서버 응답:", result);
         alert("게시글이 성공적으로 수정되었습니다.");
         navigate(`/detail/${eventId}`);
       } else {
         const result = await addBoard(formData);
-        console.log("작성 서버 응답:", result);
         navigate("/myhome/my-posts");
       }
 

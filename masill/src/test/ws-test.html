@@ -82,7 +82,7 @@
     box.innerText += `[${time}] ${msg}\n`;
     if (obj) box.innerText += JSON.stringify(obj, null, 2) + '\n';
     box.scrollTop = box.scrollHeight;
-    console.log(msg, obj ?? '');
+
   };
   const setState = (s) => $('state').textContent = s;
 
