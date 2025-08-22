@@ -18,6 +18,7 @@ import {
   fetchAllBoards,
   eventTypeBoards,
   getMyRegionName,
+  AiRecommend,
 } from "../../api/boardApi";
 
 import { privateAPI } from "../../api/axios";
@@ -299,61 +300,52 @@ function Post() {
     if (!searchResults) loadPosts();
   }, [category, regionId, searchResults]);
 
-  // AI 추천 게시물 useEffect
+  // AI 채팅으로 추천받은 게시물 useEffect
   useEffect(() => {
-    const loadAiPosts = async () => {
+    if (location.state?.aiPosts && !searchResults) {
+      // ✅ searchResults가 없을 때만 세팅
+      console.log("AI 추천 posts 직접 전달받음:", location.state.aiPosts);
+      setSearchResults(
+        location.state.aiPosts.map((post) => ({
+          ...post,
+          isHeartClicked: post.liked ?? false,
+        }))
+      );
+      setSearchTerm("AI 추천 전체보기");
+      setIsSearchActive(true);
+    }
+  }, [location.state, searchResults]);
+
+  // 토글 AI 춘천 순
+  useEffect(() => {
+    const loadAiRecommendations = async () => {
       try {
-        console.log("🔹 AI 추천 게시물 로드 시작");
-        const regionName = await getMyRegionName(regionId);
-        setMyRegion(regionName);
+        if (sortType === "AI 추천순") {
+          console.log("🔹 AI 추천 게시물 API 호출 시작");
+          const aiPosts = await AiRecommend(1, 100);
+          console.log("AI 추천 API 결과 개수:", aiPosts.length);
 
-        if (location.state?.eventIds) {
-          const eventIds = location.state.eventIds;
-          console.log("AI 추천 eventIds:", eventIds);
-
-          const res = await fetchAllBoards(
-            regionId,
-            1,
-            100,
-            "createdAt",
-            "desc"
-          );
-          const allPosts = res?.data?.content || [];
-          console.log("전체 게시물 개수:", allPosts.length);
-
-          const aiPosts = allPosts.filter((post) =>
-            eventIds.includes(post.eventId)
-          );
-          console.log("AI 추천 필터 후 개수:", aiPosts.length);
-          console.log(
-            "AI 추천 eventIds 결과:",
-            aiPosts.map((p) => p.eventId)
-          );
-
-          setSearchResults(
+          setPosts(
             aiPosts.map((post) => ({
               ...post,
               isHeartClicked: post.liked ?? false,
             }))
           );
-          setSearchTerm("AI 추천 전체보기");
-          setIsSearchActive(true);
-          return;
         }
       } catch (err) {
-        console.error("AI 추천 게시물 로드 실패", err);
+        console.error("AI 추천 게시물 불러오기 실패", err);
       }
     };
 
-    loadAiPosts();
-  }, [category, regionId, location.state]);
+    loadAiRecommendations();
+  }, [sortType, regionId]);
 
   // 검색 결과가 있으면 검색 결과, 없으면 일반 posts
   const displayPosts = searchResults || posts;
 
   // 정렬
   const sortedPosts = [...displayPosts].sort((a, b) => {
-    if (sortType === "AI 추천순") return a.eventId - b.eventId;
+    if (sortType === "AI 추천순") return 0;
     if (sortType === "댓글순") return b.commentCount - a.commentCount;
     if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
     if (sortType === "날짜순")
@@ -377,12 +369,16 @@ function Post() {
       navigate("/changeRegion");
     }
   };
-
   const handleClearSearch = () => {
+    console.log(
+      "검색 결과 초기화//////////////////////////////////////////////"
+    );
     setSearchResults(null);
     setSearchTerm("");
     setIsSearchActive(false);
-    navigate("/main", { replace: true });
+
+    // 🔥 location.state를 null로 교체
+    navigate(location.pathname, { replace: true, state: null });
   };
 
   // 하트 클릭

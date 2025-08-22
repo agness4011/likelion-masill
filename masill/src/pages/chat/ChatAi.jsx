@@ -326,9 +326,7 @@ export default function ChatAi() {
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   <EntireBtn
                     onClick={() => {
-                      // 전체 추천 보기 클릭 시 /main으로 eventId 배열 전달
-                      const eventIds = msg.posts.map((item) => item.eventId);
-                      navigate("/main", { state: { eventIds } });
+                      navigate("/main", { state: { aiPosts: msg.posts } });
                     }}
                   >
                     추천 전체 보기

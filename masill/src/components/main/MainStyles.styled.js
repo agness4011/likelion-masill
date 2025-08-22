@@ -86,6 +86,8 @@ export const BoardTitleH1 = styled.h1`
   line-height: 140%; /* 25.2px */
   letter-spacing: 0.36px;
   margin-left: 5px;
+
+  max-width: 250px;
 `;
 export const BoardLocationP = styled.p`
   overflow: hidden;
