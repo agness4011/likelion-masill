@@ -7,7 +7,7 @@ import ChatIcon from "@logo/myhome/chat.svg";
 import Fullheart from "@assets/logo/mainImg/fullheart.png";
 import Heart from "@assets/logo/mainImg/heart.png";
 import Comment from "@assets/logo/mainImg/commant.png";
-import PromotionIcon from "@logo/myhome/promotion.svg";
+
 import dayjs from "dayjs";
 import { fetchMyFavorites } from "../../api/boardApi";
 import {
@@ -210,19 +210,7 @@ const MemberLogo = styled.img`
   border-radius: 24px;
 `;
 
-const PromotionContainer = styled.div`
-  margin: 12px 0;
-  margin-left: -160px;
-  text-align: left;
-  display: flex;
-  justify-content: flex-end;
-`;
 
-const PromotionIconImg = styled.img`
-  width: 80%;
-  height: 100px;
-  border-radius: 20px;
-`;
 
 // 더미 데이터 제거 - 실제 좋아요한 게시물을 사용
 
@@ -413,15 +401,7 @@ const WishlistPage = () => {
                     </RightContent>
                   </ContentWrapper>
 
-                  {/* PromotionIcon을 마지막 게시물이 아닌 경우에만 표시 */}
-                  {index < likedPosts.length - 1 && (
-                    <PromotionContainer>
-                      <PromotionIconImg
-                        src={PromotionIcon}
-                        alt="프로모션 아이콘"
-                      />
-                    </PromotionContainer>
-                  )}
+
                 </PostCard>
               </React.Fragment>
             ))}

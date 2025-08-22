@@ -183,10 +183,9 @@ function LowHead() {
   const handleDelete = async () => {
     try {
       await deleteSmallGroup(eventId, clubId);
-      alert("소모임이 삭제되었습니다.");
       navigate(`/detail/${eventId}`);
     } catch (error) {
-      alert("소모임 삭제에 실패했습니다.");
+      console.error("소모임 삭제 실패:", error);
     } finally {
       setShowDeleteModal(false); // 모달 닫기
     }
