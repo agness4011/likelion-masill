@@ -275,6 +275,7 @@ function ChatRoomDetailPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [targetUser, setTargetUser] = useState(null);
   const messageContainerRef = useRef(null);
+  const [isAiChat, setIsAiChat] = useState(false);
   
   // 사용자 ID 가져오기 (최적화)
   const userId = userData?.id || userData?.userId || (localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')).userId : null) || localStorage.getItem('currentUserId');
