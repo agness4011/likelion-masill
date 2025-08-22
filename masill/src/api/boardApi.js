@@ -293,9 +293,7 @@ export const fetchMyPosts = async (
   sortDir = "desc"
 ) => {
   try {
-    console.log(
-      `GET 요청: /users/me/posts?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
-    );
+  
     const res = await privateAPI.get(`/users/me/posts`, {
       params: { page, size, sortBy, sortDir },
     });
@@ -314,9 +312,7 @@ export const fetchMyFavorites = async (
   sortDir = "desc"
 ) => {
   try {
-    console.log(
-      `GET 요청: /users/me/favorites?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
-    );
+  
     const res = await privateAPI.get(`/users/me/favorites`, {
       params: { page, size, sortBy, sortDir },
     });
@@ -330,7 +326,7 @@ export const fetchMyFavorites = async (
 // boardApi.js
 export const eventTypeBoards = async (eventType, regionId) => {
   try {
-    console.log("GET 요청: /events/eventType/list");
+   
 
     const params = {
       regionId,
@@ -355,11 +351,10 @@ export const eventTypeBoards = async (eventType, regionId) => {
 // POST: 게시글 이벤트 추가
 export const addBoard = async (formData) => {
   try {
-    console.log("POST 요청: /events");
-    console.log("addBoard 호출됨 - FormData 내용:");
+  
 
     for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+
     }
 
     // private 인스턴스가 없으면 그냥 multipartAPI로
@@ -376,9 +371,9 @@ export const addBoard = async (formData) => {
 // 지역 API
 export const getRegions = async () => {
   try {
-    console.log("지역 목록 API 호출 시작");
+  
     const { data } = await publicAPI.get("/regions/sidos");
-    console.log("지역 목록 API 성공:", data);
+  
 
     // API 응답 구조에 맞게 처리
     if (data && data.data && data.data.items) {
@@ -438,9 +433,9 @@ export const getRegions = async () => {
 
 export const getDistricts = async (region) => {
   try {
-    console.log("구/군 목록 API 호출 시작:", region);
+    
     const { data } = await publicAPI.get(`/regions/sidos/${region}/sigungus`);
-    console.log("구/군 목록 API 성공:", data);
+
 
     // API 응답 구조에 맞게 처리
     if (data && data.data && data.data.items) {
@@ -732,32 +727,31 @@ export const getRegionId = async (sido, sigungu) => {
       throw new Error("sido와 sigungu는 필수 파라미터입니다.");
     }
 
-    console.log("지역 ID 조회 API 호출 시작:", { sido, sigungu });
+
     const { data } = await publicAPI.get("/regions/id", {
       params: { sido, sigungu },
     });
-    console.log("지역 ID 조회 API 성공:", data);
+ 
 
     // API 응답 구조에 맞게 처리 (Swagger 문서 기반)
-    console.log("지역 ID API 응답 데이터:", data);
 
     if (data && typeof data === "object") {
       // Swagger 문서의 응답 구조: { success: true, code: 200, message: "...", data: { regionId: 141 } }
       if (data.success && data.data && data.data.regionId !== undefined) {
-        console.log("지역 ID 추출 성공:", data.data.regionId);
+   
         return data.data.regionId;
       }
       // 다른 가능한 구조들
       else if (data.regionId !== undefined) {
-        console.log("지역 ID 직접 추출:", data.regionId);
+
         return data.regionId;
       } else if (data.data && data.data.regionId !== undefined) {
-        console.log("지역 ID data에서 추출:", data.data.regionId);
+   
         return data.data.regionId;
       }
     } else if (typeof data === "number") {
       // 직접 숫자로 반환되는 경우
-      console.log("지역 ID 직접 숫자:", data);
+      
       return data;
     }
 
@@ -949,11 +943,10 @@ export const getMyRegionName = async (regionId) => {
 // 게시글 수정 API
 export const updateEvent = async (eventId, formData) => {
   try {
-    console.log("PUT 요청: /events/" + eventId);
-    console.log("updateEvent 호출됨 - FormData 내용:");
+
 
     for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+  
     }
 
     // addBoard와 동일한 방식으로 multipartAPI.private 사용

@@ -226,11 +226,7 @@ const SajangPage = () => {
     const refreshToken = localStorage.getItem('refreshToken');
     const currentUser = localStorage.getItem('currentUser');
   
-    console.log('=== 토큰 상태 확인 ===');
-    console.log('Access Token:', accessToken ? accessToken : '없음');
-    console.log('Refresh Token:', refreshToken ? '있음' : '없음');
-    console.log('Current User:', currentUser ? JSON.parse(currentUser) : '없음');
-    console.log('========================');
+  
   
     // 모든 필드 확인
     const allFieldsCompleted = Object.values(completedFields).every((completed) => completed);
@@ -269,7 +265,7 @@ const SajangPage = () => {
         businessNumber: businessNumberDigits, // 숫자만 10자리
       };
   
-      console.log('사업자 인증 요청 payload:', payload);
+      
   
       // API 호출
       const response = await verifyBusinessOwner(payload);

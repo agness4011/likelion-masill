@@ -260,7 +260,7 @@ export default function ChatRoomPage() {
 
   // 새 메시지 처리 함수
   const handleNewMessage = (data) => {
-    console.log('[ChatRoomPage] 새 메시지 처리:', data);
+
     
     // 데이터에서 roomId 추출 (여러 형식 지원)
     const roomId = data.roomId || data.chatRoomId || data.room_id;
@@ -296,17 +296,17 @@ export default function ChatRoomPage() {
       if (response.success && response.data) {
         const rooms = response.data.content || [];
 
-        console.log("채팅방 목록 데이터 전체 구조:", rooms);
+
 
         // 각 채팅방의 상세 정보를 가져와서 상대방 정보 추출 (개별 채팅방과 동일한 방식)
         const roomsWithUserInfo = await Promise.all(
           rooms.map(async (room) => {
-            console.log("개별 채팅방 데이터:", room);
+       
 
             try {
               // 개별 채팅방과 동일한 방식으로 채팅방 상세 정보 조회
               const chatRoomResponse = await fetchChatRoom(room.roomId);
-              console.log(`채팅방 ${room.roomId} 상세 정보:`, chatRoomResponse);
+           
 
               if (
                 chatRoomResponse &&
@@ -323,11 +323,7 @@ export default function ChatRoomPage() {
 
                 const targetUserId = chatRoomData.targetUserId;
 
-                console.log(`채팅방 ${room.roomId} 상대방 정보 추출 완료:`, {
-                  targetUser,
-                  targetUserId,
-                  contextType: room.contextType,
-                });
+             
 
                 return {
                   ...room,
@@ -336,9 +332,7 @@ export default function ChatRoomPage() {
                 };
               } else {
                 // 상세 정보 조회 실패 시 기본 정보 사용
-                console.log(
-                  `채팅방 ${room.roomId} 상세 정보 조회 실패, 기본 정보 사용`
-                );
+            
 
                 let targetUser = {
                   nickname: room.targetUserNickname || "사용자",
@@ -394,7 +388,7 @@ export default function ChatRoomPage() {
       if (e.key === 'chatRoomUpdate' && e.newValue) {
         try {
           const updateData = JSON.parse(e.newValue);
-          console.log('[ChatRoomPage] 로컬 스토리지 업데이트 감지:', updateData);
+
           
           if (updateData.type === 'chatMessageSent' && isMountedRef.current) {
             // 해당 채팅방의 안읽은 수 증가
@@ -418,7 +412,7 @@ export default function ChatRoomPage() {
 
     // 커스텀 이벤트 리스너 (같은 탭에서의 업데이트)
     const handleChatMessageSent = (e) => {
-      console.log('[ChatRoomPage] 커스텀 이벤트 감지:', e.detail);
+     
       if (e.detail.type === 'chatMessageSent' && isMountedRef.current) {
         setChatRooms(prev => prev.map(room => {
           if (room.roomId === e.detail.roomId) {
@@ -449,12 +443,12 @@ export default function ChatRoomPage() {
       try {
         connectWebSocket(
           (client) => {
-            console.log('[ChatRoomPage] WebSocket 연결 성공');
+         
             setWebsocketConnected(true);
             
                          // 채팅방 목록 업데이트 구독
              const chatRoomsUpdateSub = subscribe('/user/queue/chat.rooms.update', (data) => {
-               console.log('[ChatRoomPage] 채팅방 목록 업데이트 수신:', data);
+          
                if (isMountedRef.current) {
                  fetchChatRooms();
                }
@@ -462,7 +456,7 @@ export default function ChatRoomPage() {
              
              // 일반적인 채팅 메시지 구독
              const generalChatSub = subscribe('/user/queue/chat', (data) => {
-               console.log('[ChatRoomPage] 일반 채팅 메시지 수신:', data);
+          
                if (isMountedRef.current) {
                  // 채팅방 목록 새로고침
                  fetchChatRooms();
@@ -471,21 +465,21 @@ export default function ChatRoomPage() {
             
                          // 새 메시지 알림 구독 (여러 주제 시도)
              const newMessageSub1 = subscribe('/user/queue/chat.messages.new', (data) => {
-               console.log('[ChatRoomPage] 새 메시지 알림 수신 (1):', data);
+       
                if (isMountedRef.current) {
                  handleNewMessage(data);
                }
              });
              
              const newMessageSub2 = subscribe('/user/queue/messages', (data) => {
-               console.log('[ChatRoomPage] 새 메시지 알림 수신 (2):', data);
+            
                if (isMountedRef.current) {
                  handleNewMessage(data);
                }
              });
              
              const newMessageSub3 = subscribe('/user/queue/chat', (data) => {
-               console.log('[ChatRoomPage] 새 메시지 알림 수신 (3):', data);
+        
                if (isMountedRef.current) {
                  handleNewMessage(data);
                }
@@ -493,7 +487,7 @@ export default function ChatRoomPage() {
             
                          // 안읽은 수 업데이트 구독
              const unreadCountSub = subscribe('/user/queue/chat.rooms.unread', (data) => {
-               console.log('[ChatRoomPage] 안읽은 수 업데이트 수신:', data);
+        
                if (isMountedRef.current) {
                  setChatRooms(prev => prev.map(room => {
                    if (room.roomId === data.roomId) {
@@ -515,7 +509,7 @@ export default function ChatRoomPage() {
             setWebsocketConnected(false);
           },
           () => {
-            console.log('[ChatRoomPage] WebSocket 연결 해제');
+       
             setWebsocketConnected(false);
           }
         );
@@ -534,7 +528,7 @@ export default function ChatRoomPage() {
          // 주기적 새로고침 (백업 메커니즘)
      const intervalId = setInterval(() => {
        if (isMountedRef.current && websocketConnected) {
-         console.log('[ChatRoomPage] 주기적 채팅방 목록 새로고침');
+       
          fetchChatRooms();
        }
      }, 10000); // 10초마다

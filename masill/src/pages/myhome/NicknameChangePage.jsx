@@ -210,7 +210,7 @@ const NicknameChangePage = () => {
 
     try {
       const response = await checkNicknameDuplicate(nickname);
-      console.log('닉네임 중복 확인 결과:', response);
+      
       
       if (response.available) {
         setDuplicateStatus('available');
@@ -235,7 +235,7 @@ const NicknameChangePage = () => {
       
       try {
         const response = await updateNickname(nickname);
-        console.log('닉네임 변경 결과:', response);
+      
         
         if (response.success) {
           // UserContext 업데이트

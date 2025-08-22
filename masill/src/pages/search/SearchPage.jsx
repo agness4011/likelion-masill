@@ -539,7 +539,7 @@ const SearchPage = () => {
   // 키워드 검색 API 호출 함수
   const searchEvents = async (query, page = 1, size = 20) => {
     try {
-      console.log('키워드 검색 API 호출:', { query, page, size });
+      
       
       const response = await privateAPI.get('/events/search', {
         params: {
@@ -549,7 +549,7 @@ const SearchPage = () => {
         }
       });
       
-      console.log('키워드 검색 API 응답:', response.data);
+    
       return response.data;
     } catch (error) {
       console.error('키워드 검색 API 실패:', error);
@@ -568,14 +568,12 @@ const SearchPage = () => {
     setIsSearching(true);
 
     try {
-      console.log("검색 시작:", query);
+    
       
       // 키워드 검색 API 호출
       const searchResponse = await searchEvents(query);
       const results = searchResponse?.data?.content || searchResponse?.content || [];
-      
-      console.log("검색 결과 개수:", results.length);
-      console.log("검색 결과:", results);
+ 
 
       setSearchResults(results);
       setIsSearching(false);
