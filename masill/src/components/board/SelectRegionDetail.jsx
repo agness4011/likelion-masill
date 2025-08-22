@@ -300,7 +300,7 @@ export default function SelectRegionDetail() {
       
           nav("/board");
         }
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.error("지역 ID 조회 실패:", error);
       // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
@@ -316,7 +316,7 @@ export default function SelectRegionDetail() {
         
           nav("/board");
         }
-      }, 1000);
+      }, 500);
     }
   };
 

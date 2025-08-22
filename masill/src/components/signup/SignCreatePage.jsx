@@ -142,7 +142,7 @@ const Input = styled.input`
 
   &::placeholder {
     color: #b0b4c0;
-    font-size: 16px;
+    font-size: 12px;
   }
 `;
 
@@ -178,11 +178,11 @@ const EmailDomainSelect = styled.select`
 
 const CheckButton = styled.button`
   background: #e8eaf2;
-  border: none;
+
   border-radius: 8px;
   padding: 8px 12px;
-  font-size: 14px;
-  color: #1B409C;
+  font-size: 10px;
+  color: #727C94;
   cursor: pointer;
   font-weight: 700;
 `;
@@ -190,6 +190,18 @@ const CheckButton = styled.button`
 const PasswordInputGroup = styled.div`
   position: relative;
   width: 100%;
+  
+  /* 전역적으로 비밀번호 입력 필드의 기본 아이콘 제거 */
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear,
+  input[type="password"]::-webkit-credentials-auto-fill-button,
+  input[type="password"]::-webkit-contacts-auto-fill-button,
+  input[type="password"]::-webkit-strong-password-auto-fill-button {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
 `;
 
 const PasswordInput = styled(Input)`
@@ -221,6 +233,56 @@ const PasswordInput = styled(Input)`
   &::-webkit-search-decoration {
     display: none !important;
   }
+  
+  /* Chrome/Safari 비밀번호 표시 버튼 완전 제거 */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button,
+  &::-webkit-textfield-decoration-container,
+  &::-webkit-password-decoration-container {
+    display: none !important;
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+  
+  /* Firefox 비밀번호 표시 버튼 제거 */
+  &::-moz-password-decoration {
+    display: none !important;
+  }
+  
+  /* 모든 브라우저에서 기본 스타일 제거 */
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  
+  /* 추가 강력한 제거 방법 */
+  &::-webkit-password-decoration {
+    display: none !important;
+  }
+  
+  &::-webkit-password-decoration-container {
+    display: none !important;
+  }
+  
+  &::-webkit-password-decoration-button {
+    display: none !important;
+  }
+  
+  &::-webkit-password-decoration-icon {
+    display: none !important;
+  }
+  
+  /* Edge 특별 처리 */
+  &::-ms-reveal {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  
+  &::-ms-clear {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
 `;
 
 const TogglePasswordBtn = styled.button`
@@ -240,13 +302,13 @@ const TogglePasswordBtn = styled.button`
 `;
 
 const InfoText = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   color: ${({ color }) => color || "#b0b4c0"};
   text-align: left;
   width: 90%;
   max-width: 340px;
-  margin-top: -8px;
-  margin-bottom: -10px;
+  margin-top: -10px;
+  margin-bottom: -13px;
   min-height: 20px;
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   max-height: ${({ $visible }) => ($visible ? '20px' : '0')};
@@ -389,7 +451,11 @@ export default function SignCreatePage() {
   };
 
   const passwordValidationMessage = () => {
-    if (password.length === 0) return "영문,특수문자,숫자 중 2가지 조합 6자 이상";
+    if (password.length === 0) return (
+      <span>
+        <span style={{ marginLeft: "5px" }}>영문,특수문자,숫자</span> 중 2가지 조합 6자 이상
+      </span>
+    );
     if (isPasswordValid()) return "사용가능한 비밀번호입니다.";
     return "유효하지 않은 비밀번호입니다.";
   };
@@ -502,6 +568,7 @@ export default function SignCreatePage() {
           <InfoText 
             $visible={currentStep >= 2} 
             color={nicknameCompleted ? "#1B409C" : "#b0b4c0"}
+            style={nicknameCompleted ? { marginTop: "-15px", marginBottom: "5px", marginLeft: "10px" } : {}}
           >
             {nicknameCompleted ? "사용가능한 닉네임입니다." : ""}
           </InfoText>
