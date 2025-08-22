@@ -211,27 +211,27 @@ const MyHomePage = () => {
   const isBusinessVerified = userData.isSajangVerified;
 
   const handleEditProfile = () => {
-    console.log('프로필 편집');
+   
   };
 
   const handleNotifications = () => {
-    console.log('알림');
+
   };
 
   const handleChat = () => {
-    console.log('채팅');
+  
   };
 
   const handleProfile = () => {
-    console.log('프로필');
+  
   };
 
   const handleViewPosts = () => {
-    console.log('내가 작성한 게시글 보기');
+  
   };
 
   const handleViewWishlist = () => {
-    console.log('관심 목록 보기');
+ 
   };
 
   const handleVerifyManager = () => {
@@ -244,7 +244,7 @@ const MyHomePage = () => {
   };
 
   const handleNicknameChange = () => {
-    console.log('닉네임 변경');
+ 
   };
 
   return (

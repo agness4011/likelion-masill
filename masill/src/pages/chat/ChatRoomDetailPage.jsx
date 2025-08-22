@@ -281,12 +281,7 @@ function ChatRoomDetailPage() {
   const userId = userData?.id || userData?.userId || (localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')).userId : null) || localStorage.getItem('currentUserId');
   
   // 디버깅을 위한 로그
-  console.log('[ChatRoomDetailPage] 사용자 정보:', {
-    userData,
-    userId,
-    currentUserFromStorage: localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')) : null,
-    currentUserIdFromStorage: localStorage.getItem('currentUserId')
-  });
+
 
   // 타겟 사용자 정보 조회 (최적화)
   const fetchTargetUser = useCallback(async () => {
@@ -481,11 +476,7 @@ function ChatRoomDetailPage() {
           
           // 상대방에게 안읽은 수 증가 알림 전송
           if (targetUser?.userId) {
-            console.log('[ChatRoomDetailPage] 안읽은 수 증가 알림 전송:', {
-              roomId,
-              messageContent: newMessage.trim(),
-              targetUserId: targetUser.userId
-            });
+         
             sendUnreadNotification(roomId, newMessage.trim(), targetUser.userId);
             
             // 로컬 스토리지를 통한 즉시 업데이트 (다른 탭/창에서)

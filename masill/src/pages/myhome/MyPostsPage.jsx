@@ -234,25 +234,18 @@ const MyPostsPage = () => {
       try {
         setLoading(true);
         const res = await fetchMyPosts();
-        console.log("내가 작성한 게시글:", res);
-        console.log(
-          "내가 작성한 게시글 데이터 구조:",
-          JSON.stringify(res, null, 2)
-        );
+     
 
         // 실제 데이터 구조에 맞게 접근
         const content = res?.data?.content || [];
-        console.log("내가 작성한 게시글 content:", content);
+  
 
         // postType별로 게시글 분류
         const clubPosts = content.filter((post) => post.postType === "CLUB");
         const eventPosts = content.filter((post) => post.postType === "EVENT");
 
-        console.log("소모임 게시글:", clubPosts);
-        console.log("이벤트 게시글:", eventPosts);
-
         if (content.length > 0) {
-          console.log("첫 번째 게시글 구조:", content[0]);
+       
         }
         setPosts(content);
       } catch (err) {
@@ -275,16 +268,16 @@ const MyPostsPage = () => {
 
   const handlePostClick = (post) => {
     try {
-      console.log("클릭된 게시글:", post);
+     
 
       // postType에 따라 다른 경로로 이동
       if (post.postType === "CLUB" && post.clubId) {
         // 소모임 게시글: /events/{eventId}/clubs/{clubId}
-        console.log("소모임 게시글 클릭:", post.clubId);
+     
         navigate(`/smallgroup/${post.eventId}/${post.clubId}`);
       } else if (post.postType === "EVENT") {
         // 이벤트 게시글: /events/{eventId}
-        console.log("이벤트 게시글 클릭:", post.eventId);
+
         navigate(`/detail/${post.eventId}`);
       } else {
         console.error("게시글 타입을 확인할 수 없습니다:", post);

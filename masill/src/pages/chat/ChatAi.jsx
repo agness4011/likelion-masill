@@ -224,7 +224,7 @@ export default function ChatAi() {
           time: formatMessageTime(new Date()),
         };
         setMessages((prev) => [...prev, aiGroupMessage]);
-        console.log("AI 데이터:", aiData);
+   
       }
     } catch (error) {
       setMessages((prev) => [

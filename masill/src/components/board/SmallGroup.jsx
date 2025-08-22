@@ -396,10 +396,10 @@ function MiddleWho() {
     
     try {
       setChatLoading(true);
-      console.log('모임 작성자와 채팅 시작:', { eventId, clubId });
+     
       
       const response = await startClubChat(eventId, clubId);
-      console.log('채팅방 생성 성공:', response);
+     
       
       if (response?.data?.roomId) {
         navigate(`/chat/room/${response.data.roomId}`);
@@ -469,7 +469,7 @@ function DetailContent() {
       try {
         const data = await smallGroupDetail(eventId, clubId);
         setEvent(data);
-        console.log("content", data.content);
+ 
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -511,7 +511,7 @@ function UserChat() {
     const fetchComments = async () => {
       try {
         const items = await commentSmallGroups(eventId, clubId);
-        console.log('댓글 데이터 구조:', items);
+
         setComments(items);
       } catch (error) {
         console.error("댓글 조회 실패", error);
@@ -535,29 +535,22 @@ function UserChat() {
   };
 
   const handleProfileClick = (user) => {
-    console.log('=== handleProfileClick 함수 호출됨 ===');
-    console.log('전달받은 user 객체:', user);
-    console.log('현재 chatModalOpen 상태:', chatModalOpen);
-    console.log('현재 selectedUser 상태:', selectedUser);
+
     
     if (!user || !user.commentId) {
       console.error('유효하지 않은 user 데이터:', user);
       return;
     }
     
-    console.log('모달 상태 설정 시작...');
+    
     setSelectedUser(user);
     setChatModalOpen(true);
     
-    console.log('모달 상태 설정 완료');
-    console.log('설정된 selectedUser:', user);
-    console.log('설정된 chatModalOpen: true');
+   
     
     // 상태 업데이트 확인을 위한 setTimeout
     setTimeout(() => {
-      console.log('=== 상태 업데이트 확인 ===');
-      console.log('chatModalOpen 상태 (1초 후):', chatModalOpen);
-      console.log('selectedUser 상태 (1초 후):', selectedUser);
+
     }, 1000);
   };
 
@@ -622,11 +615,7 @@ function UserChat() {
                                onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('=== 프로필 이미지 클릭됨 ===');
-                  console.log('클릭된 댓글:', comment);
-                  console.log('commentId:', comment.commentId);
-                  console.log('username:', comment.username);
-                  console.log('userProfileImageUrl:', comment.userProfileImageUrl);
+    
                   
                   const userData = {
                     username: comment.username,
@@ -634,7 +623,7 @@ function UserChat() {
                     commentId: comment.commentId, // 댓글 ID 추가
                   };
                   
-                  console.log('전달할 userData:', userData);
+            
                   handleProfileClick(userData);
                 }}
              />
@@ -701,8 +690,7 @@ function UserChat() {
                          onClick={(e) => {
                            e.preventDefault();
                            e.stopPropagation();
-                           console.log('=== 대댓글 프로필 이미지 클릭됨 ===');
-                           console.log('클릭된 대댓글:', reply);
+                    
                            handleProfileClick({
                              username: reply.username,
                              userProfileImageUrl: reply.userProfileImageUrl,
@@ -763,14 +751,10 @@ function UserChat() {
       </div>
 
                     {/* ChatModal */}
-        {console.log('=== 모달 렌더링 조건 확인 ===')}
-        {console.log('chatModalOpen:', chatModalOpen)}
-        {console.log('selectedUser:', selectedUser)}
-        {console.log('조건 만족 여부:', chatModalOpen && selectedUser)}
-        
+   
         {chatModalOpen && selectedUser && (
           <>
-            {console.log('=== ChatModal 렌더링됨 ===')}
+          
             <ChatModal user={selectedUser} onClose={handleCloseModal} />
           </>
         )}
@@ -848,10 +832,7 @@ function AddReplyMessage({
   );
 }
 function ChatModal({ user, onClose }) {
-  console.log('=== ChatModal 컴포넌트 시작 ===');
-  console.log('ChatModal props:', { user, onClose });
-  console.log('user.commentId:', user?.commentId);
-  console.log('user.username:', user?.username);
+
   
   const navigate = useNavigate();
   const [chatLoading, setChatLoading] = useState(false);
