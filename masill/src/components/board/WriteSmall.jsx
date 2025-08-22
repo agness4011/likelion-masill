@@ -90,7 +90,7 @@ function MainEvent() {
   return (
     <div>
       <BirdImg src={BirdIcon} />
-      <div>
+      <div style={{ marginBottom: "18px" }}>
         <TextStyle>본행사</TextStyle>
         <MainEventDiv>{event.title}</MainEventDiv>
       </div>
@@ -100,7 +100,7 @@ function MainEvent() {
 
 function SetTitle({ title, setTitle, error, setTouched }) {
   return (
-    <Div>
+    <div style={{ marginBottom: "18px" }}>
       <ErrorDiv>
         <TextStyle>제목</TextStyle>
       </ErrorDiv>
@@ -112,13 +112,13 @@ function SetTitle({ title, setTitle, error, setTouched }) {
         onChange={(e) => setTitle(e.target.value)}
         onBlur={() => setTouched(true)}
       />
-    </Div>
+    </div>
   );
 }
 
 function SetLocation({ location, setLocation, error, setTouched }) {
   return (
-    <div>
+    <div style={{ marginBottom: "18px" }}>
       <ErrorDiv>
         <TextStyle>세부 장소</TextStyle>
       </ErrorDiv>
@@ -173,7 +173,7 @@ function EventDateTimePicker({
 
   return (
     <div>
-      <div style={{ display: "flex", gap: "16px" }}>
+      <div style={{ display: "flex", gap: "16px", marginBottom: "18px" }}>
         <DateDiv>
           <ErrorDiv>
             <TextStyle>만날 날짜</TextStyle>
@@ -253,7 +253,7 @@ function WriteContext({ content, setContent, error, setTouched }) {
       <TextStyle>내용</TextStyle>
       {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
       <TextArea
-        placeholder="내용을 입력하세요..."
+        placeholder="주최하시는 모임에 대해 자세히 설명해주세요!"
         value={content}
         onChange={handleChange}
         onBlur={() => setTouched(true)}
@@ -267,63 +267,30 @@ function WriteContext({ content, setContent, error, setTouched }) {
 }
 
 // --- 최종 InputForm ---
+
 function InputForm() {
   const navigate = useNavigate();
   const { eventId } = useParams();
 
-  // --- 기존 state ---
   const [title, setTitle] = useState("");
-  const [titleError, setTitleError] = useState("");
   const [location, setLocation] = useState("");
-  const [locationError, setLocationError] = useState("");
   const [content, setContent] = useState("");
-  const [contentError, setContentError] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [startTime, setStartTime] = useState(null);
-  const [dateErrors, setDateErrors] = useState({});
-  const [formError, setFormError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [touched, setTouched] = useState(false); // ✅ 버튼 클릭 여부 추적
 
-  // --- 유효성 검사 ---
-  const validateForm = () => {
-    let valid = true;
-
-    if (!title.trim()) {
-      setTitleError("제목을 입력해주세요!");
-      valid = false;
-    } else setTitleError("");
-
-    if (!location.trim()) {
-      setLocationError("장소를 입력해주세요!");
-      valid = false;
-    } else setLocationError("");
-
-    if (!content.trim()) {
-      setContentError("내용을 입력해주세요!");
-      valid = false;
-    } else setContentError("");
-
-    const newDateErrors = {};
-    if (!startDate) newDateErrors.startDate = "시작 날짜를 선택해주세요!";
-
-    if (!startTime) newDateErrors.startTime = "시작 시간을 선택해주세요!";
-    setDateErrors(newDateErrors);
-
-    if (Object.keys(newDateErrors).length > 0) valid = false;
-
-    if (!valid) {
-      setFormError("모든 항목을 기입해주세요!");
-    } else {
-      setFormError("");
-    }
-
-    return valid;
-  };
+  const isFormValid =
+    title.trim() && location.trim() && content.trim() && startDate && startTime;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setTouched(true); // ✅ 검증 시도
 
-    if (!validateForm()) return;
-    setFormError("");
+    if (!isFormValid) {
+      setErrorMessage("모든 필드를 입력해주세요!");
+      return;
+    }
 
     try {
       const startAt = new Date(
@@ -343,7 +310,6 @@ function InputForm() {
         )}`;
       };
 
-      const formData = new FormData();
       const payload = {
         title,
         content,
@@ -351,57 +317,40 @@ function InputForm() {
         startAt: formatDateTimeLocal(startAt),
       };
 
-      const result = await addSmallGroup(eventId, payload);
-
-      console.log("서버 응답:", result);
-
-      navigate(`/detail/${eventId}`); // 🔥 소모임 생성 후 본행사 상세 페이지로 이동
+      await addSmallGroup(eventId, payload);
+      navigate(`/detail/${eventId}`);
     } catch (error) {
       console.error("저장 실패:", error);
-      setFormError("서버 저장 중 오류가 발생했습니다.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <MainEvent></MainEvent>
-      {/* 제목 */}
-      <SetTitle
-        title={title}
-        setTitle={setTitle}
-        error={titleError}
-        setTouched={() => {}}
-      />
-      {/* 장소 */}
-      <SetLocation
-        location={location}
-        setLocation={setLocation}
-        error={locationError}
-        setTouched={() => {}}
-      />
+      <MainEvent />
+      <SetTitle title={title} setTitle={setTitle} />
+      <SetLocation location={location} setLocation={setLocation} />
       <EventDateTimePicker
         startDate={startDate}
         setStartDate={setStartDate}
         startTime={startTime}
         setStartTime={setStartTime}
-        errors={dateErrors}
       />
-      {/* 내용 */}
-      <WriteContext
-        content={content}
-        setContent={setContent}
-        error={contentError}
-        setTouched={() => {}}
-      />
-      {/* 에러 메시지 */}
-      <ErrorDiv>
-        {formError && <ErrorMessage>{formError}</ErrorMessage>}
-      </ErrorDiv>
+      <WriteContext content={content} setContent={setContent} />
 
-      <SubmitBtn type="submit">작성 완료</SubmitBtn>
+      {/* ✅ 에러 메시지는 "버튼을 누른 후 && 아직 유효하지 않을 때"만 표시 */}
+      {touched && !isFormValid && (
+        <p style={{ color: "red", marginTop: "8px" }}>
+          모든 필드를 입력해주세요!
+        </p>
+      )}
+
+      <SubmitBtn type="submit" disabled={!isFormValid}>
+        작성 완료
+      </SubmitBtn>
     </form>
   );
 }
+
 WriteSmall.SubmitButton = SubmitButton;
 WriteSmall.InputForm = InputForm;
 
