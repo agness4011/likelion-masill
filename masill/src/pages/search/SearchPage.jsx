@@ -6,7 +6,7 @@ import BirdIcon from "@logo/bird.svg";
 import BirdIcon2 from "@logo/search/twobird.svg";
 import SearchIcon from "@logo/search/searchicon.svg";
 import SearchArrowRight from "@logo/search/search-arrowright.svg";
-import { fetchAllBoards, fetchAllBoardsForSearch } from "../../api/boardApi";
+import { privateAPI } from "../../api/axios";
 import dayjs from "dayjs";
 import Fullheart from "@logo/mainImg/fullheart.png";
 import Heart from "@logo/mainImg/heart.png";
@@ -304,7 +304,7 @@ const NoResultsContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 60vh;
+  height: 400px;
   text-align: center;
   gap: 120px; /* 텍스트와 새 아이콘 간의 간격을 60px로 설정 */
 `;
@@ -506,7 +506,6 @@ const SearchPage = () => {
   const [searches, setSearches] = useState([]); // 빈 배열로 시작
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [allPosts, setAllPosts] = useState([]); // 실제 API 데이터
 
   // localStorage에서 검색 기록 불러오기
   useEffect(() => {
@@ -519,35 +518,6 @@ const SearchPage = () => {
         setSearches([]);
       }
     }
-  }, []);
-
-  // API에서 모든 게시글 데이터 가져오기
-  useEffect(() => {
-    const loadAllPosts = async () => {
-      try {
-        // 사용자의 현재 지역 ID 가져오기
-        const currentRegionId = localStorage.getItem("selectedRegionId");
-        console.log("현재 지역 ID:", currentRegionId);
-
-        // 현재 지역의 게시글을 더 많이 가져오기 (size를 100으로 증가)
-        const res = await fetchAllBoards(currentRegionId, 1, 100);
-        const posts = res?.data?.content || [];
-        console.log("로드된 게시글 데이터:", posts);
-        console.log("게시글 개수:", posts.length);
-
-        // 각 게시글의 구조 확인
-        if (posts.length > 0) {
-          console.log("첫 번째 게시글 구조:", posts[0]);
-        }
-
-        setAllPosts(posts);
-      } catch (error) {
-        console.error("게시글 데이터 로드 실패:", error);
-        setAllPosts([]);
-      }
-    };
-
-    loadAllPosts();
   }, []);
 
   // 검색 기록을 localStorage에 저장하는 함수
@@ -566,84 +536,76 @@ const SearchPage = () => {
     }
   }, [location.state]);
 
+  // 키워드 검색 API 호출 함수
+  const searchEvents = async (query, page = 1, size = 20) => {
+    try {
+      console.log('키워드 검색 API 호출:', { query, page, size });
+      
+      const response = await privateAPI.get('/events/search', {
+        params: {
+          query: query,
+          page: page,
+          size: size
+        }
+      });
+      
+      console.log('키워드 검색 API 응답:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('키워드 검색 API 실패:', error);
+      throw error;
+    }
+  };
+
   // 검색 함수
-  const performSearch = (query) => {
+  const performSearch = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
       setIsSearching(false);
-      // If query is empty, still navigate to main to clear previous search
-      navigate("/main", {
-        state: {
-          searchResults: [],
-          searchTerm: "",
-        },
-      });
       return;
     }
 
     setIsSearching(true);
 
-    console.log("검색 시작:", query);
-    console.log("검색할 데이터:", allPosts);
-    console.log("데이터 개수:", allPosts.length);
+    try {
+      console.log("검색 시작:", query);
+      
+      // 키워드 검색 API 호출
+      const searchResponse = await searchEvents(query);
+      const results = searchResponse?.data?.content || searchResponse?.content || [];
+      
+      console.log("검색 결과 개수:", results.length);
+      console.log("검색 결과:", results);
 
-    // 실제 API 데이터에서 검색
-    const searchQuery = query.toLowerCase();
-    const results = allPosts.filter((post) => {
-      const title = (post.title || "").toLowerCase();
-      const location = (post.location || "").toLowerCase();
-      const detailLocation = (post.detailLocation || "").toLowerCase();
-      const content = (post.content || "").toLowerCase();
+      setSearchResults(results);
+      setIsSearching(false);
 
-      const titleMatch = title.includes(searchQuery);
-      const locationMatch = location.includes(searchQuery);
-      const detailLocationMatch = detailLocation.includes(searchQuery);
-      const contentMatch = content.includes(searchQuery);
-
-      const isMatch =
-        titleMatch || locationMatch || detailLocationMatch || contentMatch;
-
-      if (isMatch) {
-        console.log("매칭된 게시글:", {
-          title: post.title,
-          location: post.location,
-          detailLocation: post.detailLocation,
-          content: post.content?.substring(0, 50) + "...",
+      // 검색어를 최근 검색에 추가
+      if (query.trim()) {
+        setSearches((prev) => {
+          const newSearches = [
+            query.trim(),
+            ...prev.filter((search) => search !== query.trim()),
+          ];
+          const finalSearches = newSearches.slice(0, 10);
+          saveSearchesToStorage(finalSearches);
+          return finalSearches;
         });
       }
 
-      return isMatch;
-    });
-
-    console.log("검색 결과 개수:", results.length);
-    console.log("검색 결과:", results);
-
-    setSearchResults(results);
-    setIsSearching(false);
-
-    // 검색어를 최근 검색에 추가
-    if (query.trim()) {
-      setSearches((prev) => {
-        const newSearches = [
-          query.trim(),
-          ...prev.filter((search) => search !== query.trim()),
-        ];
-        const finalSearches = newSearches.slice(0, 10);
-        saveSearchesToStorage(finalSearches);
-        return finalSearches;
-      });
-    }
-
-    // 검색 결과가 있으면 바로 메인화면으로 이동
-    if (results.length > 0) {
+      // 검색 결과가 있든 없든 바로 메인화면으로 이동
       navigate("/main", {
         state: {
           searchResults: results,
           searchTerm: query,
         },
       });
-    } else {
-      // 검색 결과가 없어도 메인화면으로 이동 (빈 결과 표시)
+    } catch (error) {
+      console.error("검색 실패:", error);
+      setIsSearching(false);
+      setSearchResults([]);
+      
+      // 오류가 발생해도 메인화면으로 이동
       navigate("/main", {
         state: {
           searchResults: [],
@@ -686,6 +648,22 @@ const SearchPage = () => {
 
   const handleHeartClick = () => {
     navigate("/myhome/wishlist");
+  };
+
+  // 최근 검색어 클릭 시 검색 실행
+  const handleRecentSearchClick = async (search) => {
+    setSearchTerm(search);
+    await performSearch(search);
+  };
+
+  // 검색 결과를 메인화면으로 이동
+  const handleGoToMain = () => {
+    navigate("/main", {
+      state: {
+        searchResults: searchResults,
+        searchTerm: searchTerm,
+      },
+    });
   };
 
   return (
@@ -734,42 +712,7 @@ const SearchPage = () => {
               {searches.map((search, index) => (
                 <SearchItem key={index}>
                   <SearchTerm
-                    onClick={() => {
-                      setSearchTerm(search);
-                      // 최근 검색어 클릭 시 바로 검색 실행
-                      const searchQuery = search.toLowerCase();
-                      const results = allPosts.filter((post) => {
-                        const title = (post.title || "").toLowerCase();
-                        const location = (post.location || "").toLowerCase();
-                        const detailLocation = (
-                          post.detailLocation || ""
-                        ).toLowerCase();
-                        const content = (post.content || "").toLowerCase();
-
-                        return (
-                          title.includes(searchQuery) ||
-                          location.includes(searchQuery) ||
-                          detailLocation.includes(searchQuery) ||
-                          content.includes(searchQuery)
-                        );
-                      });
-
-                      if (results.length > 0) {
-                        navigate("/main", {
-                          state: {
-                            searchResults: results,
-                            searchTerm: search,
-                          },
-                        });
-                      } else {
-                        navigate("/main", {
-                          state: {
-                            searchResults: [],
-                            searchTerm: search,
-                          },
-                        });
-                      }
-                    }}
+                    onClick={() => handleRecentSearchClick(search)}
                     style={{ cursor: "pointer" }}
                   >
                     {search}
@@ -785,8 +728,7 @@ const SearchPage = () => {
             {searchResults.length > 0 && (
               <SearchResultsContainer>
                 <SearchKeywordDisplay>
-                  <SearchKeywordText>"{searchTerm}"</SearchKeywordText> 검색
-                  결과 {searchResults.length}개
+                  <SearchKeywordText>"{searchTerm}"</SearchKeywordText>
                 </SearchKeywordDisplay>
 
                 {searchResults.map((result) => (
@@ -845,7 +787,7 @@ const SearchPage = () => {
                   </PostWrapper>
                 ))}
               </SearchResultsContainer>
-            )}
+                        )}
 
             {/* 검색 결과가 없을 때 메시지 */}
             {searchTerm.trim() &&

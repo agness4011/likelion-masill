@@ -20,8 +20,7 @@ import DetailBoardPage from "./pages/DetailBoardPage";
 
 import SignupPage from "@pages/signup/SignupPage";
 import SignPage from "@components/signup/SignPage";
-import SignAgreePage from "@components/signup/SignAgreePage";
-import SignPhonePage from "@components/signup/SignPhonePage";
+
 import SignCreatePage from "@components/signup/SignCreatePage";
 import SignRegionPage from "@components/signup/SignRegionPage";
 import SignRegionDetailPage from "@components/signup/SignRegionDetailPage";
@@ -72,8 +71,7 @@ export default function App() {
             {/* 회원가입 흐름 */}
             <Route path="signup" element={<SignupPage />}>
               <Route index element={<SignPage />} />
-              <Route path="agree" element={<SignAgreePage />} />
-              <Route path="phone" element={<SignPhonePage />} />
+
               <Route path="create" element={<SignCreatePage />} />
               <Route path="region" element={<SignRegionPage />} />
               <Route path="region-detail" element={<SignRegionDetailPage />} />
@@ -123,10 +121,6 @@ export default function App() {
             />
             <Route
               path="smallgroup/:eventId/:clubId"
-              element={<SmallGroupPage />}
-            />
-            <Route
-              path="events/:eventId/clubs/:clubId"
               element={<SmallGroupPage />}
             />
             <Route
