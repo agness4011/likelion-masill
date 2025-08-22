@@ -376,7 +376,38 @@ function InputForm() {
       navigate(`/detail/${eventId}`); // 🔥 소모임 생성 후 본행사 상세 페이지로 이동
     } catch (error) {
       console.error("저장 실패:", error);
-      setFormError("서버 저장 중 오류가 발생했습니다.");
+      console.error("에러 상세 정보:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        url: error.config?.url,
+        method: error.config?.method
+      });
+      
+      let errorMessage = "서버 저장 중 오류가 발생했습니다.";
+      
+      if (error.response?.status === 400) {
+        errorMessage = "입력 정보를 확인해주세요. (400 오류)";
+      } else if (error.response?.status === 401) {
+        errorMessage = "로그인이 필요합니다. (401 오류)";
+      } else if (error.response?.status === 403) {
+        errorMessage = "권한이 없습니다. (403 오류)";
+      } else if (error.response?.status === 404) {
+        errorMessage = "요청한 리소스를 찾을 수 없습니다. (404 오류)";
+      } else if (error.response?.status === 500) {
+        errorMessage = "서버 내부 오류가 발생했습니다. (500 오류)";
+      } else if (error.response?.status === 502) {
+        errorMessage = "서버 게이트웨이 오류가 발생했습니다. (502 오류)";
+      } else if (error.response?.status === 503) {
+        errorMessage = "서비스가 일시적으로 사용할 수 없습니다. (503 오류)";
+      } else if (error.code === 'NETWORK_ERROR') {
+        errorMessage = "네트워크 연결을 확인해주세요.";
+      } else if (error.message) {
+        errorMessage = `오류: ${error.message}`;
+      }
+      
+      setFormError(errorMessage);
     }
   };
 

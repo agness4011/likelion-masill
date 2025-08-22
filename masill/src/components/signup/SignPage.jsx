@@ -76,7 +76,7 @@ const AnimatedText = styled.div`
   text-align: left;
   opacity: ${({ state }) => (state === "enter" ? 1 : 0)};
   transform: translateY(${({ state }) => (state === "enter" ? "0" : "30px")});
-  transition: opacity 0.5s, transform 0.5s;
+  transition: opacity 0.5s, transform 0.4s;
 `;
 
 const GradientText = styled.span`
