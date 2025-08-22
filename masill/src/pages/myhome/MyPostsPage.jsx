@@ -84,18 +84,29 @@ const PostCard = styled.div`
 `;
 
 const ImageScrollWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding-bottom: 4px;
-  max-height: 140px;
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  padding-bottom: 10px;
+  margin-top: 20px;
+
+  /* 스크롤바 스타일 (선택) */
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
 `;
 
 const BoardImage = styled.img`
-  width: 100%;
+  width: 140px;
   height: 140px;
+  flex-shrink: 0;
   border-radius: 6px;
-  object-fit: cover;
+  background: url(<path-to-image>);
+  gap: 4px;
 `;
 
 const ContentWrapper = styled.div`
@@ -362,15 +373,14 @@ const MyPostsPage = () => {
               <React.Fragment key={post.eventId}>
                 <PostCard onClick={() => handlePostClick(post)}>
                   <ImageScrollWrapper>
-                    {Array.isArray(post.images) && post.images.length > 0
-                      ? post.images.map((image, idx) => (
-                          <BoardImage
-                            key={idx}
-                            src={image.imageUrl}
-                            alt={`${post.title}-${idx}`}
-                          />
-                        ))
-                      : null}
+                    {Array.isArray(post.images) &&
+                      post.images.map((img, idx) => (
+                        <BoardImage
+                          key={idx}
+                          src={img.imageUrl}
+                          alt={`${post.title}-${idx}`}
+                        />
+                      ))}
                   </ImageScrollWrapper>
 
                   <ContentWrapper>
@@ -438,15 +448,15 @@ const MyPostsPage = () => {
                     </RightContent>
                   </ContentWrapper>
 
-                  {/* PromotionIcon을 마지막 게시물이 아닌 경우에만 표시 */}
-                  {index < posts.length - 1 && (
-                    <PromotionContainer>
-                      <PromotionIconImg
-                        src={PromotionIcon}
-                        alt="프로모션 아이콘"
-                      />
-                    </PromotionContainer>
-                  )}
+                                     {/* PromotionIcon을 소모임이 아닌 경우에만 표시 (마지막 게시글이 이벤트인 경우에도 표시) */}
+                   {post.postType !== "CLUB" && (
+                     <PromotionContainer>
+                       <PromotionIconImg
+                         src={PromotionIcon}
+                         alt="프로모션 아이콘"
+                       />
+                     </PromotionContainer>
+                   )}
                 </PostCard>
               </React.Fragment>
             ))}

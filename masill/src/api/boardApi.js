@@ -21,7 +21,7 @@ export const AiRecommend = async (
       params.eventType = category;
     }
 
-    console.log("AI 추천 API 요청 params:", params); // 🔹 디버깅용
+
 
     const res = await privateAPI.get(`/events/ai-recommendations`, { params });
 
@@ -95,9 +95,6 @@ export const addSmallGroupComment = async (eventId, clubId, content) => {
 
 export const addSmallGroup = async (eventId, payload) => {
   try {
-    console.log("POST 요청: /events");
-    console.log("payload:", payload);
-
     const res = await privateAPI.post(
       `/events/${eventId}/clubs`,
       payload, // 🚀 JSON 그대로 전달
@@ -162,7 +159,6 @@ export const fetchSmallGroup = async (
   sortDir = "desc"
 ) => {
   try {
-    console.log(`GET 요청: /events/${eventId}/clubs/all`);
     const res = await privateAPI.get(`/events/${eventId}/clubs/all`, {
       params: { eventId, page, size, sortBy, sortDir },
     });
@@ -232,13 +228,7 @@ export const detailImg = async (eventId) => {
 
 export const detailBoard = async (eventId) => {
   try {
-    console.log(`=== detailBoard API 호출 ===`);
-    console.log(`요청 URL: /events/${eventId}`);
     const res = await privateAPI.get(`/events/${eventId}`);
-    console.log(`API 응답 전체:`, res);
-    console.log(`API 응답 data:`, res.data);
-    console.log(`API 응답 data.data:`, res.data.data);
-    console.log(`regionId 값:`, res.data.data?.regionId);
     return res.data.data; // 실제 이벤트 데이터 반환
   } catch (error) {
     console.error("이벤트 조회 실패", error);
@@ -265,9 +255,7 @@ export const fetchAllBoards = async (
   sortDir = "desc"
 ) => {
   try {
-    console.log(
-      `GET 요청: /events/all?regionId=${regionId}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
-    );
+
     const res = await privateAPI.get(`/events/all`, {
       params: { regionId, page, size, sortBy, sortDir },
     });
@@ -286,9 +274,7 @@ export const fetchAllBoardsForSearch = async (
   sortDir = "desc"
 ) => {
   try {
-    console.log(
-      `GET 요청: /events/all/search?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
-    );
+
     const res = await privateAPI.get(`/events/all/search`, {
       params: { page, size, sortBy, sortDir },
     });
