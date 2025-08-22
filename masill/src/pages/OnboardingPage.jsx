@@ -156,7 +156,7 @@ const CircleTopRight = styled.div`
 const CircleBottomLeft = styled.div`
   position: absolute;
   left: -120px;
-  bottom: 270px;
+  bottom: 330px;
   width: 320px;
   height: 320px;
   border-radius: 50%;
