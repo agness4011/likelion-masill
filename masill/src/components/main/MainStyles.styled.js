@@ -160,16 +160,5 @@ export const ToggleOpenDiv = styled.div`
   text-underline-position: from-font;
 `;
 export const BoardDiv = styled.div`
-  height: 600px; /* 원하는 높이로 제한 */
-  overflow-y: auto; /* 세로 스크롤 활성화 */
-  padding-right: 10px; /* 스크롤바 겹침 방지 */
   overflow-x: hidden;
-  /* 선택 사항: 스크롤바 꾸미기 */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-  }
 `;

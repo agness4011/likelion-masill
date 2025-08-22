@@ -16,7 +16,6 @@ import MainArrowLeftIcon from "../../assets/logo/main/main-arrowleft.svg";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
   background: #fff;
   overflow-x: hidden;
   overflow-y: auto;

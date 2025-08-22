@@ -7,7 +7,7 @@ import ArrowLeftIcon from '@logo/main/main-arrowleft.svg';
 import BirdIcon from '@logo/bird1.svg';
 
 const Container = styled.div`
-  min-height: 100vh;
+  min-height: 100%;
   background: white;
   padding: 0;
   margin: 0;
@@ -53,7 +53,7 @@ const Content = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 70vh;
+  min-height: 400px;
 `;
 
 const BirdContainer = styled.div`

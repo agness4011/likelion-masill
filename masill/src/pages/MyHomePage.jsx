@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Edit, Bell, MessageCircle, User, Heart, CheckCircle } from 'lucide-react';
 
 const MyHomeContainer = styled.div`
-  min-height: 100vh;
+  
   background: white;
   padding: 0;
   margin: 0;

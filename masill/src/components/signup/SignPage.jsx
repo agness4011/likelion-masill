@@ -6,16 +6,15 @@ import AuthContainer from "@components/auth/AuthContainer";
 import AuthButton from "@components/auth/AuthButton";
 import MasilLogo from "@/assets/masill-logo.svg";
 import EmailIcon from "@logo/email.svg";
-import KakaoIcon from "@logo/kakao.svg";
-import NaverIcon from "@logo/naver.svg";
+
 import BirdIcon1 from "@logo/bird1.svg"; //새 아이콘 새로 교체할것//
 
 const TEXT_COLOR_GRADIENT = `linear-gradient(90deg, #4E7AEA 0%, #FF7852 100%)`;
 
 const PageContainer = styled(AuthContainer)`
   padding: 0;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -31,7 +30,7 @@ const Header = styled.div`
   flex-direction: column;
   align-items: flex-start; // 기존 center → flex-start로 변경
   text-align: left;
-  margin-top: 17vh;
+  margin-top: 120px;
   padding-left: 20px;
   z-index: 1;
   // 추가: 왼쪽 여백 조정 (원하는 만큼 값 조절)
@@ -102,28 +101,30 @@ const ButtonList = styled.div`
   flex-direction: column;
   gap: 12px;
   padding: 0 25px;
-  margin-top: 20vh;
-  z-index: 1;
+  margin-top: 280px;
 `;
 
 const StyledAuthButton = styled(AuthButton)`
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 1;
+  z-index: 5;
+  
 
   &:nth-child(1) {
-    background-color: rgba(236, 241, 255, 0.2);
+    background-color: rgba(236, 241, 255, 0.4);
     color: #333;
     border: 1px solid #c1cae0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   }
   &:nth-child(2) {
-    background-color: rgba(236, 241, 255, 0.2);
+    background-color: rgba(236, 241, 255, 0.4);
     color: #191919;
     border: 1px solid #c1cae0;
   }
   &:nth-child(3) {
-    background-color: rgba(236, 241, 255, 0.2);
+    background-color: rgba(236, 241, 255, 0.4);
     color: #000000;
     border: 1px solid #c1cae0;
   }
@@ -133,12 +134,19 @@ const IconWrapper = styled.span`
   display: inline-flex;
   align-items: center;
   margin-right: 8px;
+  position: relative;
+  left: -70px;
 
   svg,
   img {
     width: 20px;
     height: 20px;
   }
+`;
+
+const TextWrapper = styled.span`
+  position: relative;
+  left: -20px;
 `;
 
 export default function SignPage() {
@@ -180,23 +188,11 @@ export default function SignPage() {
       </Header>
 
       <ButtonList>
-        <StyledAuthButton onClick={() => nav("/signup/agree")}>
+        <StyledAuthButton onClick={() => nav("/signup/create")}>
           <IconWrapper>
             <img src={EmailIcon} alt="이메일 아이콘" />
           </IconWrapper>
-          이메일로 시작하기
-        </StyledAuthButton>
-        <StyledAuthButton onClick={() => console.log("카카오 로그인")}>
-          <IconWrapper>
-            <img src={KakaoIcon} alt="카카오 아이콘" />
-          </IconWrapper>
-          카카오로 시작하기
-        </StyledAuthButton>
-        <StyledAuthButton onClick={() => console.log("네이버 로그인")}>
-          <IconWrapper>
-            <img src={NaverIcon} alt="네이버 아이콘" />
-          </IconWrapper>
-          네이버로 시작하기
+          <TextWrapper>이메일로 시작하기</TextWrapper>
         </StyledAuthButton>
       </ButtonList>
       <CircleBottomRight />

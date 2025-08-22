@@ -8,6 +8,7 @@ import Heart from "../../assets/logo/mainImg/heart.png";
 import Goheart from "../../assets/logo/mainImg/goheart.png";
 import Recommand from "../../assets/logo/main/main-sort.svg";
 import SetLocation from "../../assets/logo/main/main-location.svg";
+import BirdIcon2 from "../../assets/logo/search/twobird.svg";
 
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -49,7 +50,7 @@ export default function Main({ children }) {
   return <MainContainer>{children}</MainContainer>;
 }
 const MainContainer = styled.div`
-  overflow: hidden;
+  overflow-x: hidden;
 `;
 // 배경 이미지
 function HigherContainer({ children }) {
@@ -65,6 +66,14 @@ function HigherContainer({ children }) {
 function SearchBar() {
   const [text, setText] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 검색 결과가 있을 때 검색어 표시
+  useEffect(() => {
+    if (location.state?.searchTerm) {
+      setText(location.state.searchTerm);
+    }
+  }, [location.state]);
 
   const handleSearchClick = () => {
     // 검색 페이지로 이동하면서 검색어 전달
@@ -220,6 +229,16 @@ function Post() {
 
   const { isSearchActive, setIsSearchActive } = useOutletContext();
 
+  // SearchPage에서 전달받은 검색 결과 처리
+  useEffect(() => {
+    if (location.state?.searchResults !== undefined) {
+      console.log('SearchPage에서 검색 결과 받음:', location.state);
+      setSearchResults(location.state.searchResults);
+      setSearchTerm(location.state.searchTerm || "");
+      setIsSearchActive(true);
+    }
+  }, [location.state, setIsSearchActive]);
+
   const regionId = JSON.parse(localStorage.getItem("currentUser"))?.regionId;
 
   const CATEGORY_MAP = {
@@ -340,8 +359,8 @@ function Post() {
     loadAiRecommendations();
   }, [sortType, regionId]);
 
-  // 검색 결과가 있으면 검색 결과, 없으면 일반 posts
-  const displayPosts = searchResults || posts;
+  // 검색 결과가 있으면 검색 결과, 검색 결과가 없으면서 검색어가 있으면 일반 posts, 그 외에는 일반 posts
+  const displayPosts = searchResults && searchResults.length > 0 ? searchResults : posts;
 
   // 정렬
   const sortedPosts = [...displayPosts].sort((a, b) => {
@@ -436,25 +455,23 @@ function Post() {
         )}
       </ToggleLoctionDiv>
 
-      {searchResults && (
-        <SearchResultHeader>
-          <SearchResultText>
-            "{searchTerm}" 검색 결과 {searchResults.length}개
-          </SearchResultText>
-          <ClearSearchButton onClick={handleClearSearch}>
-            검색 초기화
-          </ClearSearchButton>
-        </SearchResultHeader>
+           
+
+      {searchResults && searchResults.length === 0 && searchTerm.trim() && (
+        <NoSearchResultsHeader>
+          <NoSearchResultsText>
+            <UnderlinedSearchTerm>"{searchTerm}"</UnderlinedSearchTerm>에 대한 검색결과가 없습니다.
+          </NoSearchResultsText>
+          <SubText>{myRegion}의 다른 행사는 어떠세요?</SubText>
+        </NoSearchResultsHeader>
       )}
 
-      <BoardDiv>
-        {sortedPosts.length === 0 ? (
-          <NoPostsMessage>
-            {searchTerm.trim()
-              ? `${searchTerm}에 대한 검색결과가 없습니다.`
-              : "여러분의 게시글을 공유해보세요"}
-          </NoPostsMessage>
-        ) : (
+             <BoardDiv>
+         {sortedPosts.length === 0 ? (
+           <NoPostsMessage>
+             여러분의 게시글을 공유해보세요
+           </NoPostsMessage>
+         ) : (
           sortedPosts.map((item) => {
             const now = dayjs();
             const eventEnd = dayjs(item.endAt);
@@ -575,6 +592,36 @@ const ClearSearchButton = styled.button`
     color: #333;
   }
 `;
+
+const NoSearchResultsHeader = styled.div`
+  text-align: center;
+  padding: 20px 0;
+  background-color: #F4F7FF;
+  border-top: 0.8px solid #e0e0e0;
+
+`;
+
+const NoSearchResultsText = styled.h3`
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+`;
+
+const SubText = styled.p`
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+`;
+
+const UnderlinedSearchTerm = styled.span`
+  border-bottom: 1px solid #333;
+  font-weight: 600;
+  padding-bottom: 1px;
+  font-weight: bold;
+`;
+
+
 
 function MoveInterest() {
   return (
@@ -778,6 +825,11 @@ const CategoryBtn = styled.button`
   justify-content: center;
   align-items: center;
   gap: 10px;
+  box-sizing: border-box;
+  
+  &:focus {
+    outline: none;
+  }
 `;
 const CategoryWrapper = styled.div`
   position: relative;
@@ -832,15 +884,17 @@ const SearchInput = styled.input`
   width: 345px;
   height: 42px;
   border-radius: 18px;
+  margin-bottom: 10px;
   background: var(--BG, #fbfcff);
   border: none;
   outline: none;
   padding-left: 16px;
+  font-weight: 600;
 `;
 const SearchImg = styled.img`
   position: absolute;
-  right: calc(50% - 172px + 10px);
-  top: 50%;
+  right: 35px;
+  top: 22px;
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
