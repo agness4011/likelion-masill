@@ -463,7 +463,7 @@ function Post() {
   return (
     <BoardContanier>
       <ToggleLoctionDiv>
-        <LocationDiv onClick={handleRegionClick}>
+        <LocationDiv onClick={handleRegionClick} style={{ marginTop: "10px" }}>
           <LocationImg src={SetLocation} />
           <LocationP>우리 마을 [ {myRegion} ]</LocationP>
         </LocationDiv>

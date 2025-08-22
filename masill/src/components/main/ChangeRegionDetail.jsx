@@ -308,7 +308,7 @@ export default function ChangeRegionDetail() {
       setTimeout(() => {
         console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
         nav(-2);
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.error("지역 ID 조회 실패:", error);
 
@@ -316,7 +316,7 @@ export default function ChangeRegionDetail() {
       setTimeout(() => {
         console.log("지역 ID 조회 실패, 기본값으로 이동:", district);
         nav(-2);
-      }, 1000);
+      }, 500);
     }
   };
 
