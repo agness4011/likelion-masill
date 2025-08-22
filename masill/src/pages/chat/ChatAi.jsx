@@ -295,6 +295,18 @@ export default function ChatAi() {
           } else if (msg.type === "postGroup") {
             return (
               <div key={msg.id}>
+                {/* 안내 문구 추가 */}
+                <AiMessage
+                  style={{
+                    textAlign: "left",
+                    margin: "12px 0",
+                    fontWeight: "bold",
+                    color: "#555",
+                  }}
+                >
+                  좋아하실만한 힐링 행사들을 찾아봤어요! 🎉
+                </AiMessage>
+
                 {msg.posts.map((item, index) => (
                   <RecommendPost
                     key={index}
@@ -326,9 +338,7 @@ export default function ChatAi() {
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   <EntireBtn
                     onClick={() => {
-                      // 전체 추천 보기 클릭 시 /main으로 eventId 배열 전달
-                      const eventIds = msg.posts.map((item) => item.eventId);
-                      navigate("/main", { state: { eventIds } });
+                      navigate("/main", { state: { aiPosts: msg.posts } });
                     }}
                   >
                     추천 전체 보기
@@ -358,6 +368,27 @@ export default function ChatAi() {
     </Container>
   );
 }
+const AiMessage = styled.div`
+  display: flex;
+  padding: 13px 15px; /* 위/아래 13px, 좌/우 15px */
+  flex-direction: column;
+  justify-content: center; /* 세로 중앙 정렬 */
+  align-items: center; /* 가로 중앙 정렬 */
+  gap: 10.427px;
+  border-radius: 18px 18px 18px 0;
+  background: #ffdbac;
+
+  color: var(--Dark-Text, #060d1d);
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
+  min-width: 20px;
+  max-width: 241px;
+  text-align: center;
+`;
 
 const EntireBtn = styled.button`
   display: inline-flex;

@@ -1,15 +1,38 @@
 import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 
 /* --- API 호출 --- */
-export const AiRecommend = async () => {
+// api.js 같은 곳
+export const AiRecommend = async (
+  category = null, // 기본값 null
+  today = false, // 기본값 false
+  page = 1,
+  size = 100
+) => {
   try {
-    const res = await privateAPI.get(`/events/ai-recommendations`);
-    return res.data.data.items;
+    // params 초기화
+    const params = {
+      page,
+      size,
+      today, // Boolean 값 항상 전송
+    };
+
+    // category가 존재하면 eventType으로 전달
+    if (category) {
+      params.eventType = category;
+    }
+
+    console.log("AI 추천 API 요청 params:", params); // 🔹 디버깅용
+
+    const res = await privateAPI.get(`/events/ai-recommendations`, { params });
+
+    // 정상적으로 content 반환
+    return res.data?.data?.content || [];
   } catch (error) {
-    console.error("Ai 추천 조회 실패", error);
+    console.error("AI 추천 조회 실패", error);
     throw error;
   }
 };
+
 export const deleteSmallGroup = async (eventId, clubId) => {
   try {
     const res = await privateAPI.delete(`/events/${eventId}/clubs/${clubId}`);
@@ -317,8 +340,6 @@ export const fetchMyFavorites = async (
     throw error;
   }
 };
-
-
 
 // boardApi.js
 export const eventTypeBoards = async (eventType, regionId) => {
