@@ -730,14 +730,6 @@ function InputForm() {
       const selectedRegionId = localStorage.getItem("selectedRegionId");
       const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
 
-      console.log("지역 선택 감지 중...");
-      console.log("selectedRegion:", selectedRegion);
-      console.log("selectedDistrict:", selectedDistrict);
-      console.log("selectedRegionId:", selectedRegionId);
-      console.log("editPageReturnUrl:", editPageReturnUrl);
-      console.log("현재 페이지:", window.location.pathname);
-      console.log("isEditMode:", isEditMode);
-
       // 지역 선택 정보가 있는 경우 (작성 모드와 수정 모드 모두)
       if (selectedRegion && selectedDistrict && selectedRegionId) {
         console.log("지역 선택 정보 발견!");
@@ -766,11 +758,9 @@ function InputForm() {
       }
     };
 
-    // 로딩이 완료된 후 지역 선택 감지
+    // 로딩이 완료된 후 지역 선택 감지 (한 번만 실행)
     if (!loading) {
       checkForRegionSelection();
-      const interval = setInterval(checkForRegionSelection, 200);
-      return () => clearInterval(interval);
     }
   }, [loading, isEditMode]);
 
