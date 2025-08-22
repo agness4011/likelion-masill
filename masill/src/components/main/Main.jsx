@@ -9,6 +9,7 @@ import Goheart from "../../assets/logo/mainImg/goheart.png";
 import Recommand from "../../assets/logo/main/main-sort.svg";
 import SetLocation from "../../assets/logo/main/main-location.svg";
 import BirdIcon2 from "../../assets/logo/search/twobird.svg";
+import OwnerHat from "../../assets/logo/main/owner-hat.svg";
 
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -31,6 +32,7 @@ import {
   useLocation,
   useOutletContext,
 } from "react-router-dom";
+import { useUser } from "../../contexts/UserContext";
 import {
   LocationDiv,
   LocationImg,
@@ -43,6 +45,8 @@ import {
   ToggleP,
   ToggleOpenDiv,
   BoardDiv,
+  ImageContainer,
+  OwnerHatOverlay,
 } from "./MainStyles.styled";
 import styled from "styled-components";
 
@@ -224,6 +228,7 @@ dayjs.locale("ko");
 // 게시글 목록
 function Post() {
   const location = useLocation();
+  const { userData } = useUser();
   const category =
     location.pathname === "/main"
       ? null
@@ -315,6 +320,9 @@ function Post() {
           content.map((post) => ({
             ...post,
             isHeartClicked: post.liked ?? false,
+            // 현재 로그인한 사용자가 작성한 게시물이고 사업자 인증이 되어있는 경우만 모자 표시
+            isBusinessVerified: userData.isSajangVerified && 
+              (post.username === userData.username || post.username === userData.nickname),
           }))
         );
         console.log(
@@ -338,6 +346,9 @@ function Post() {
         location.state.aiPosts.map((post) => ({
           ...post,
           isHeartClicked: post.liked ?? false,
+          // 현재 로그인한 사용자가 작성한 게시물이고 사업자 인증이 되어있는 경우만 모자 표시
+          isBusinessVerified: userData.isSajangVerified && 
+            (post.username === userData.username || post.username === userData.nickname),
         }))
       );
       setSearchTerm("AI 추천 전체보기");
@@ -367,6 +378,9 @@ function Post() {
             aiPosts.map((post) => ({
               ...post,
               isHeartClicked: post.liked ?? false,
+              // 현재 로그인한 사용자가 작성한 게시물이고 사업자 인증이 되어있는 경우만 모자 표시
+              isBusinessVerified: userData.isSajangVerified && 
+                (post.username === userData.username || post.username === userData.nickname),
             }))
           );
         }
@@ -440,7 +454,14 @@ function Post() {
         setSearchResults((prev) =>
           prev.map((post) =>
             post.eventId === eventId
-              ? { ...post, isHeartClicked: favorite, favoriteCount }
+              ? { 
+                  ...post, 
+                  isHeartClicked: favorite, 
+                  favoriteCount,
+                  // 사업자 인증 상태 유지
+                  isBusinessVerified: userData.isSajangVerified && 
+                    (post.username === userData.username || post.username === userData.nickname)
+                }
               : post
           )
         );
@@ -505,15 +526,19 @@ function Post() {
                 key={item.eventId}
                 onClick={() => navigate(`/detail/${item.eventId}`)}
               >
+                {item.isBusinessVerified && (
+                  <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
+                )}
                 <div style={{ marginLeft: "24px" }}>
                   <ImageScrollWrapper>
                     {Array.isArray(item.images) &&
                       item.images.map((img, idx) => (
-                        <BoardImage
-                          key={idx}
-                          src={img.imageUrl}
-                          alt={`${item.title}-${idx}`}
-                        />
+                        <ImageContainer key={idx}>
+                          <BoardImage
+                            src={img.imageUrl}
+                            alt={`${item.title}-${idx}`}
+                          />
+                        </ImageContainer>
                       ))}
                   </ImageScrollWrapper>
 
@@ -654,6 +679,7 @@ const BoardContanier = styled.div`
   overflow: hidden; /* 최상위 스크롤 제거 */
 `;
 const PostWrapper = styled.div`
+  position: relative;
   padding: 0 0 8px 0;
   cursor: pointer;
   border-top: 0.5px solid var(--Gray-500, #c1cae0);
