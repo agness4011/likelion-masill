@@ -61,7 +61,17 @@ function HigherContainer({ children }) {
     </Container>
   );
 }
-
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+`;
+const BackImg = styled.img`
+  position: absolute;
+  top: -20px; /* 원하는 만큼 위로 올리기 (음수 값) */
+  left: 0;
+  width: 100%;
+  z-index: -10; /* 배경으로 두기 */
+`;
 // 검색창
 function SearchBar() {
   const [text, setText] = useState("");
@@ -219,7 +229,7 @@ function Post() {
       ? null
       : location.pathname.replace("/main/", "");
 
-  const [sortType, setSortType] = useState("AI 추천순");
+  const [sortType, setSortType] = useState("날짜순");
   const [isOpen, setIsOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [myRegion, setMyRegion] = useState("");
@@ -232,7 +242,7 @@ function Post() {
   // SearchPage에서 전달받은 검색 결과 처리
   useEffect(() => {
     if (location.state?.searchResults !== undefined) {
-      console.log('SearchPage에서 검색 결과 받음:', location.state);
+      console.log("SearchPage에서 검색 결과 받음:", location.state);
       setSearchResults(location.state.searchResults);
       setSearchTerm(location.state.searchTerm || "");
       setIsSearchActive(true);
@@ -253,7 +263,7 @@ function Post() {
   };
 
   const navigate = useNavigate();
-  const options = ["AI 추천순", "댓글순", "인기순", "날짜순"];
+  const options = ["날짜순", "AI 추천순", "댓글순", "인기순"];
 
   // posts 불러오기
   // posts 불러오기 useEffect
@@ -340,8 +350,17 @@ function Post() {
     const loadAiRecommendations = async () => {
       try {
         if (sortType === "AI 추천순") {
-          console.log("🔹 AI 추천 게시물 API 호출 시작");
-          const aiPosts = await AiRecommend(1, 100);
+          console.log(`🔹 ${category || "전체"} AI 추천 게시물 API 호출 시작`);
+
+          // today 판단
+          const isTodayEvent = category === "event";
+
+          // category를 서버용 eventType으로 변환
+          const eventType = category ? CATEGORY_MAP[category] : null;
+
+          // 안전하게 API 호출
+          const aiPosts = await AiRecommend(eventType, isTodayEvent, 1, 100);
+
           console.log("AI 추천 API 결과 개수:", aiPosts.length);
 
           setPosts(
@@ -357,22 +376,25 @@ function Post() {
     };
 
     loadAiRecommendations();
-  }, [sortType, regionId]);
+  }, [sortType, regionId, category]);
 
   // 검색 결과가 있으면 검색 결과, 검색 결과가 없으면서 검색어가 있으면 일반 posts, 그 외에는 일반 posts
-  const displayPosts = searchResults && searchResults.length > 0 ? searchResults : posts;
+  const displayPosts =
+    searchResults && searchResults.length > 0 ? searchResults : posts;
 
   // 정렬
   const sortedPosts = [...displayPosts].sort((a, b) => {
+    if (sortType === "날짜순")
+      return dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf();
     if (sortType === "AI 추천순") return 0;
     if (sortType === "댓글순") return b.commentCount - a.commentCount;
     if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
-    if (sortType === "날짜순")
-      return dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf();
+
     return 0;
   });
 
   const toggleOpen = () => setIsOpen((prev) => !prev);
+
   const handleSelect = (type) => {
     setSortType(type);
     setIsOpen(false);
@@ -388,17 +410,17 @@ function Post() {
       navigate("/changeRegion");
     }
   };
-  const handleClearSearch = () => {
-    console.log(
-      "검색 결과 초기화//////////////////////////////////////////////"
-    );
-    setSearchResults(null);
-    setSearchTerm("");
-    setIsSearchActive(false);
+  useEffect(() => {
+    if (location.state?.clearSearch) {
+      console.log("로고 클릭으로 검색 초기화");
+      setSearchResults(null);
+      setSearchTerm("");
+      setIsSearchActive(false);
 
-    // 🔥 location.state를 null로 교체
-    navigate(location.pathname, { replace: true, state: null });
-  };
+      // location.state 초기화 (중복 실행 방지)
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.state, navigate]);
 
   // 하트 클릭
   const clickHeart = async (eventId) => {
@@ -455,23 +477,20 @@ function Post() {
         )}
       </ToggleLoctionDiv>
 
-           
-
       {searchResults && searchResults.length === 0 && searchTerm.trim() && (
         <NoSearchResultsHeader>
           <NoSearchResultsText>
-            <UnderlinedSearchTerm>"{searchTerm}"</UnderlinedSearchTerm>에 대한 검색결과가 없습니다.
+            <UnderlinedSearchTerm>"{searchTerm}"</UnderlinedSearchTerm>에 대한
+            검색결과가 없습니다.
           </NoSearchResultsText>
           <SubText>{myRegion}의 다른 행사는 어떠세요?</SubText>
         </NoSearchResultsHeader>
       )}
 
-             <BoardDiv>
-         {sortedPosts.length === 0 ? (
-           <NoPostsMessage>
-             여러분의 게시글을 공유해보세요
-           </NoPostsMessage>
-         ) : (
+      <BoardDiv>
+        {sortedPosts.length === 0 ? (
+          <NoPostsMessage>여러분의 게시글을 공유해보세요</NoPostsMessage>
+        ) : (
           sortedPosts.map((item) => {
             const now = dayjs();
             const eventEnd = dayjs(item.endAt);
@@ -498,15 +517,14 @@ function Post() {
                       ))}
                   </ImageScrollWrapper>
 
-                  {isClosingSoon && (
-                    <ClosingTag>🔥 {deadline} 마감 임박!</ClosingTag>
-                  )}
-
                   <ContentWrapper>
                     <LeftContent>
                       <MemberLogo src={item.userImage} alt="회원로고" />
                       <TextInfo>
                         <BoardTitleH1>{item.title}</BoardTitleH1>
+                        {isClosingSoon && (
+                          <ClosingTag>{deadline} 기한이 임박해요!</ClosingTag>
+                        )}
                         <BoardLocationP>
                           {item.region?.sido} {item.region?.sigungu}{" "}
                           {item.location}
@@ -552,7 +570,15 @@ function Post() {
     </BoardContanier>
   );
 }
-
+function MoveInterest() {
+  return (
+    <div>
+      <Link to="/myhome/wishlist">
+        <GoHeartImg src={Goheart} />
+      </Link>
+    </div>
+  );
+}
 // 스타일링
 const NoPostsMessage = styled.p`
   text-align: center;
@@ -596,9 +622,8 @@ const ClearSearchButton = styled.button`
 const NoSearchResultsHeader = styled.div`
   text-align: center;
   padding: 20px 0;
-  background-color: #F4F7FF;
+  background-color: #f4f7ff;
   border-top: 0.8px solid #e0e0e0;
-
 `;
 
 const NoSearchResultsText = styled.h3`
@@ -621,20 +646,12 @@ const UnderlinedSearchTerm = styled.span`
   font-weight: bold;
 `;
 
-
-
-function MoveInterest() {
-  return (
-    <div>
-      <Link to="/myhome/wishlist">
-        <GoHeartImg src={Goheart} />
-      </Link>
-    </div>
-  );
-}
-
 const BoardContanier = styled.div`
-  overflow-x: hidden;
+  width: 100%;
+  height: 100vh; /* 최상위 컨테이너 전체 높이 */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 최상위 스크롤 제거 */
 `;
 const PostWrapper = styled.div`
   padding: 0 0 8px 0;
@@ -646,8 +663,16 @@ const PostWrapper = styled.div`
 `;
 
 const ClosingTag = styled.p`
+  margin: 0 0 3px 0;
+
+  display: -webkit-box;
+  width: 247px;
+  max-width: 247px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  flex-shrink: 0;
   overflow: hidden;
-  color: var(--Allert, #ff443e);
+  color: var(--Allert, #e60624);
   text-overflow: ellipsis;
   font-family: Pretendard;
   font-size: 12px;
@@ -655,14 +680,13 @@ const ClosingTag = styled.p`
   font-weight: 600;
   line-height: 120%; /* 14.4px */
   letter-spacing: 0.12px;
-  margin-bottom: 6px;
 `;
 
 const ImageScrollWrapper = styled.div`
   display: flex;
   overflow-x: auto;
-  gap: 8px;
-  padding-bottom: 4px;
+  gap: 4px;
+  padding-bottom: 10px;
   margin-top: 20px;
 
   /* 스크롤바 스타일 (선택) */
@@ -686,16 +710,18 @@ const BoardImage = styled.img`
 
 const ContentWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-top: 11px;
+  justify-content: center; /* 가로 중앙 */
+  align-items: center; /* 세로 중앙 */
+  width: 100%;
+  margin: 0;
+  gap: 3px;
 `;
-
 const LeftContent = styled.div`
   display: flex;
   align-items: flex-start; /* 로고와 텍스트의 윗줄 맞춤 */
   gap: 7px;
   flex: 1;
+  width: 284px;
 `;
 
 const TextInfo = styled.div`
@@ -709,11 +735,11 @@ const TextInfo = styled.div`
 
   /* 위치와 날짜는 아래로 순서대로 */
   ${BoardLocationP} {
-    margin: 2px 0 0;
+    margin: 0;
   }
 
   ${BoardDateP} {
-    margin: 2px 0 0;
+    margin: 0;
   }
 `;
 const RightContent = styled.div`
@@ -724,9 +750,9 @@ const RightContent = styled.div`
   justify-content: flex-start;
   padding-top: 2px;
   padding-bottom: 2px;
-  right: 50px;
   min-height: 100%; /* 세로 위치 계산 위해 높이 유지 */
-  right: 24px;
+  right: 45px;
+  bottom: 22px;
 `;
 
 const HeartArea = styled.div`
@@ -766,8 +792,8 @@ const HeartImg = styled.img`
   right: -2px;
   top: 50%;
   transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 `;
 
 const CommentImg = styled.img`
@@ -775,8 +801,8 @@ const CommentImg = styled.img`
   right: -2px;
   top: 50%;
   transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 `;
 
 const MemberLogo = styled.img`
@@ -826,7 +852,7 @@ const CategoryBtn = styled.button`
   align-items: center;
   gap: 10px;
   box-sizing: border-box;
-  
+
   &:focus {
     outline: none;
   }
@@ -835,11 +861,12 @@ const CategoryWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 `;
 
 const LeftBtn = styled.img`
   position: absolute;
-  left: 0;
+  left: 24px;
   top: 65%;
   transform: translateY(-50%) scaleX(-1);
   cursor: pointer;
@@ -861,6 +888,7 @@ const RightBtn = styled.img`
   z-index: 10;
   background: white;
   border-radius: 50%;
+  right: 24px;
 `;
 const CategoryScroll = styled.div`
   display: flex;
@@ -900,18 +928,7 @@ const SearchImg = styled.img`
   height: 24px;
   cursor: pointer;
 `;
-const Container = styled.div`
-  position: relative;
-  width: 100%;
-`;
-const BackImg = styled.img`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 393px;
-  height: 314px;
-  z-index: -10;
-`;
+
 // 컴포넌트 바인딩
 Main.LowContent = LowContent;
 Main.HigherContainer = HigherContainer;

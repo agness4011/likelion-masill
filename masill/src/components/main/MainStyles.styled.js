@@ -73,11 +73,14 @@ export const ToggleDiv = styled.div`
   text-align: center;
 `;
 
-export const BoardTitleH1 = styled.h1`
-  overflow: hidden;
+export const BoardTitleH1 = styled.p`
   color: #000;
 
+  /* 말줄임 설정 */
+  overflow: hidden;
+  white-space: nowrap; /* 한 줄로 표시 */
   text-overflow: ellipsis;
+
   /* Heading 02 */
   font-family: Pretendard;
   font-size: 18px;
@@ -85,14 +88,18 @@ export const BoardTitleH1 = styled.h1`
   font-weight: 600;
   line-height: 140%; /* 25.2px */
   letter-spacing: 0.36px;
-  margin-left: 5px;
 
-  max-width: 250px;
+  margin: 0;
+
+  max-width: 250px; /* 고정 폭 내에서 ... 표시 */
 `;
 export const BoardLocationP = styled.p`
   overflow: hidden;
-  color: var(--Gray-900, #727c94);
+  white-space: nowrap; /* 한 줄 유지 */
   text-overflow: ellipsis;
+
+  color: var(--Gray-900, #727c94);
+
   /* SUB Text 01 */
   font-family: Pretendard;
   font-size: 12px;
@@ -100,6 +107,8 @@ export const BoardLocationP = styled.p`
   font-weight: 400;
   line-height: 120%; /* 14.4px */
   letter-spacing: -0.12px;
+
+  max-width: 247px; /* 적절히 조정 */
 `;
 
 export const BoardDateP = styled.p`
@@ -110,7 +119,6 @@ export const BoardDateP = styled.p`
   line-height: 120%;
   letter-spacing: -0.12px;
 
-  margin: 2px 0 0;
   flex-shrink: 0;
   width: 100%; /* 부모폭에 맞춤 */
   white-space: normal; /* 줄바꿈 허용 */
@@ -122,7 +130,6 @@ export const ToggleLoctionDiv = styled.div`
   gap: 160px;
   cursor: pointer;
   margin-bottom: 10px;
-  margin-top: 18px;
   margin-left: 24px;
 `;
 export const ToggleP = styled.p`
@@ -159,6 +166,20 @@ export const ToggleOpenDiv = styled.div`
   text-underline-offset: 25%; /* 3.5px */
   text-underline-position: from-font;
 `;
+
 export const BoardDiv = styled.div`
-  overflow-x: hidden;
+  flex: 1; /* 남은 공간을 모두 차지 */
+  overflow-y: auto; /* 게시글만 세로 스크롤 가능 */
+
+  /* 스크롤바 스타일 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 `;

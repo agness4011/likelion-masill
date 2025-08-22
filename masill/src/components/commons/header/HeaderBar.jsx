@@ -16,6 +16,7 @@ const Container = styled.div`
   padding-top: 40px; /* 전체 상단 여백 32px */
   gap: 115px; /* HeadLeft와 HeadRight 사이 간격 */
   justify-content: space-between; /* 좌우 끝으로 배치 */
+  margin-bottom: 18.6px;
 `;
 function HeadLeft() {
   const navigate = useNavigate();
@@ -24,12 +25,11 @@ function HeadLeft() {
     <Left>
       <div
         onClick={() => {
-          navigate("/main"); // /main으로 이동
+          navigate("/main", { replace: true, state: { clearSearch: true } });
         }}
         style={{ cursor: "pointer" }}
       >
         <Logo src={LogoImg} alt="로고" />
-        {/* <LogoMasill src={MainImg} alt="메인페이지" /> */}
       </div>
     </Left>
   );
@@ -61,7 +61,7 @@ const Right = styled.div`
   align-items: center;
   gap: 12px; /* 아이콘들 간격 12px */
   margin-top: 8px;
-  margin-right: 10px;
+  margin-right: 21px;
 `;
 
 const MyHome = styled.img`
