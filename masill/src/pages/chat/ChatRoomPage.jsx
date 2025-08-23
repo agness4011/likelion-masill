@@ -356,10 +356,6 @@ export default function ChatRoomPage() {
                 };
               }
             } catch (error) {
-              console.error(
-                `채팅방 ${room.roomId} 상세 정보 조회 중 오류:`,
-                error
-              );
               // 오류 발생 시 기본 정보 사용
 
               let targetUser = {
@@ -383,7 +379,6 @@ export default function ChatRoomPage() {
         setError("채팅방 목록을 불러올 수 없습니다.");
       }
     } catch (err) {
-      console.error("채팅방 목록 조회 실패:", err);
       setError("채팅방 목록을 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
@@ -413,7 +408,7 @@ export default function ChatRoomPage() {
             }));
           }
         } catch (error) {
-          console.error('[ChatRoomPage] 로컬 스토리지 데이터 파싱 오류:', error);
+          // 로컬 스토리지 데이터 파싱 오류 무시
         }
       }
     };
@@ -513,7 +508,6 @@ export default function ChatRoomPage() {
              subscriptionsRef.current = [chatRoomsUpdateSub, generalChatSub, newMessageSub1, newMessageSub2, newMessageSub3, unreadCountSub];
           },
           (error) => {
-            console.error('[ChatRoomPage] WebSocket 연결 실패:', error);
             setWebsocketConnected(false);
           },
           () => {
@@ -522,7 +516,6 @@ export default function ChatRoomPage() {
           }
         );
       } catch (error) {
-        console.error('[ChatRoomPage] WebSocket 연결 중 오류:', error);
         setWebsocketConnected(false);
       }
     };
@@ -551,7 +544,7 @@ export default function ChatRoomPage() {
            try {
              sub.unsubscribe();
            } catch (error) {
-             console.error('구독 해제 실패:', error);
+             // 구독 해제 실패 무시
            }
          }
        });
