@@ -161,6 +161,7 @@ const ChatRoomInfo = styled.div`
   min-width: 0; /* 텍스트 오버플로우를 위한 설정 */
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 `;
 
 const UserName = styled.div`
@@ -171,6 +172,9 @@ const UserName = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const TimeContainer = styled.div`
@@ -202,13 +206,17 @@ const LastMessage = styled.div`
   max-width: calc(
     100vw - 160px
   ); /* 화면 너비에서 두 개의 아바타와 패딩을 뺀 값 */
-  line-height: 1.4;
+  line-height: 1.2;
   width: 100%;
+  display: block;
 `;
 
 const MessageTime = styled.div`
   font-size: 12px;
   color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const UnreadBadge = styled.div`

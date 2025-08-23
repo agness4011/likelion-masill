@@ -932,7 +932,7 @@ const SearchInput = styled.input`
 const SearchImg = styled.img`
   position: absolute;
   right: 35px;
-  top: 22px;
+  top: 21px;
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
