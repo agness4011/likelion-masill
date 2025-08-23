@@ -76,13 +76,14 @@ const InputContainer = styled.div`
   margin-bottom: 30px;
   align-items: center;
   position: relative;
+  display: flex;
+  justify-content: center;
 `;
 
 const Input = styled.input`
-  width: 70%;
-  min-width: 250px;
+  width: 100%;
+  max-width: 280px;
   padding: 16px 0;
-  padding-right: 90px;
   border: none;
   border-bottom: 0.5px solid #000000;
   font-size: 16px;
