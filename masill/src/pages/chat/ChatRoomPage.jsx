@@ -718,7 +718,7 @@ export default function ChatRoomPage() {
             marginLeft: '8px',
             fontWeight: 'normal'
           }}>
-            {websocketConnected ? '● 실시간' : '○ HTTP'}
+         
           </span>
         </HeaderTitle>
       </Header>
