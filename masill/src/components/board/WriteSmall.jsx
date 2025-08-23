@@ -317,8 +317,10 @@ function InputForm() {
         startAt: formatDateTimeLocal(startAt),
       };
 
-      await addSmallGroup(eventId, payload);
-      navigate(`/detail/${eventId}`);
+      const res = await addSmallGroup(eventId, payload);
+      const newClubId = res.data.clubId;
+
+      navigate(`/detail/${eventId}/clubId/${newClubId}`);
     } catch (error) {
       console.error("저장 실패:", error);
     }
