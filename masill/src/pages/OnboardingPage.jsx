@@ -19,43 +19,43 @@ export default function OnboardingPage() {
   const bottomGradientRef = useRef(null);
 
   useEffect(() => {
-    // 페이지 로드 후 약간의 지연을 두고 애니메이션 시작
-    const timer = setTimeout(() => {
-      // 초기 상태 설정 - 모든 요소를 숨김
-      gsap.set(
-        [
-          birdRef.current,
-          titleRef.current,
-          indicatorRef.current,
-          arrowRef.current,
-          btnAreaRef.current,
-        ],
-        {
-          opacity: 0,
-          y: 50,
-        }
-      );
-
-      gsap.set(
-        [
-          circleTopRef.current,
-          circleBottomRef.current,
-          bottomGradientRef.current,
-        ],
-        {
-          scale: 0,
-          opacity: 0,
-        }
-      );
-
-      // 새를 화면 밖에서 시작
-      gsap.set(birdRef.current, {
-        x: -300,
-        y: 100,
-        rotation: -15,
+    // 즉시 초기 상태 설정 - 모든 요소를 숨김
+    gsap.set(
+      [
+        birdRef.current,
+        titleRef.current,
+        indicatorRef.current,
+        arrowRef.current,
+        btnAreaRef.current,
+      ],
+      {
         opacity: 0,
-      });
+        y: 50,
+      }
+    );
 
+    gsap.set(
+      [
+        circleTopRef.current,
+        circleBottomRef.current,
+        bottomGradientRef.current,
+      ],
+      {
+        scale: 0,
+        opacity: 0,
+      }
+    );
+
+    // 새를 화면 밖에서 시작
+    gsap.set(birdRef.current, {
+      x: -300,
+      y: 100,
+      rotation: -15,
+      opacity: 0,
+    });
+
+    // 약간의 지연 후 애니메이션 시작 (DOM이 완전히 렌더링되도록)
+    const timer = setTimeout(() => {
       // 애니메이션 타임라인
       const tl = gsap.timeline();
 
@@ -123,7 +123,7 @@ export default function OnboardingPage() {
           },
           "-=0.4"
         );
-    }, 500); // 0.5초 지연 후 애니메이션 시작
+    }, 100); // 0.1초로 단축
 
     return () => clearTimeout(timer);
   }, []);
@@ -170,6 +170,14 @@ const Wrap = styled.div`
   inset: 0;
   background: #ffffff;
   overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 0.1s ease-out forwards;
+  
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
 `;
 
 /* 모든 좌표와 크기는 Figma px 값 그대로 */

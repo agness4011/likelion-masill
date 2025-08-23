@@ -258,7 +258,6 @@ const SignupLink = styled.span`
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const nav = useNavigate();
   const { updateNickname } = useUser();
 
@@ -267,9 +266,6 @@ export default function LoginPage() {
       alert("이메일과 비밀번호를 입력해주세요.");
       return;
     }
-    if (isLoading) return;
-
-    setIsLoading(true);
 
     try {
       const loginData = { email, password };
@@ -340,8 +336,6 @@ export default function LoginPage() {
     } catch (error) {
       console.error("[LoginPage] 로그인 오류:", error);
       alert("로그인 중 오류가 발생했습니다.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -393,7 +387,7 @@ export default function LoginPage() {
 
         <FormSection>
           <LoginButton onClick={handleLogin}>
-            {isLoading ? "로그인 중..." : "로그인"}
+            로그인
           </LoginButton>
 
           <SocialLoginSection>
