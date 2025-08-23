@@ -211,19 +211,26 @@ const NicknameChangePage = () => {
     try {
       const response = await checkNicknameDuplicate(nickname);
       
+      console.log('중복 확인 응답:', response);
+      console.log('response.available:', response?.available);
+      console.log('response.success:', response?.success);
       
-      if (response.available) {
+      // 응답 구조에 따라 다르게 처리
+      if (response && response.available === true && response.success !== false) {
+        console.log('사용 가능으로 설정');
         setDuplicateStatus('available');
         setStep(3);
       } else {
+        // available이 false이거나 undefined인 경우, 또는 success가 false인 경우 모두 사용 불가로 처리
+        console.log('사용 불가로 설정');
         setDuplicateStatus('unavailable');
         setStep(4);
       }
     } catch (error) {
       console.error('닉네임 중복 확인 오류:', error);
-      alert('닉네임 중복 확인 중 오류가 발생했습니다.');
-      setDuplicateStatus('idle');
-      setStep(1);
+      // 에러 발생 시에도 사용 불가로 처리
+      setDuplicateStatus('unavailable');
+      setStep(4);
     } finally {
       setIsLoading(false);
     }
@@ -236,19 +243,27 @@ const NicknameChangePage = () => {
       try {
         const response = await updateNickname(nickname);
       
+        console.log('닉네임 변경 API 응답:', response);
         
-        if (response.success) {
+        if (response && response.success === true) {
           // UserContext 업데이트
           updateUserNickname(nickname);
           // localStorage 업데이트
           localStorage.setItem('nickname', nickname);
           setStep(5);
         } else {
-          alert(response.message || '닉네임 변경에 실패했습니다.');
+          // success가 false인 경우 사용 불가로 처리
+          console.log('닉네임 변경 실패 - 사용 불가로 설정');
+          setDuplicateStatus('unavailable');
+          setStep(4);
+          alert(response?.message || '이미 사용 중인 닉네임입니다.');
         }
       } catch (error) {
         console.error('닉네임 변경 오류:', error);
-        alert('닉네임 변경 중 오류가 발생했습니다.');
+        // API 오류 시에도 사용 불가로 처리
+        setDuplicateStatus('unavailable');
+        setStep(4);
+        alert('이미 사용 중인 닉네임입니다.');
       } finally {
         setIsLoading(false);
       }

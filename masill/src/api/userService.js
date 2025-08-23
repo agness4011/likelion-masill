@@ -300,11 +300,37 @@ export const checkNicknameDuplicate = async (nickname) => {
     
     // 백엔드 응답 형식에 맞게 처리
     if (data && typeof data === 'object') {
-      // 다양한 응답 형식 처리
+      console.log('원본 API 응답:', data);
+      
+      // success 필드가 false인 경우 중복으로 처리
+      if (data.success === false) {
+        const available = false;
+        const message = data.message || '이미 사용 중인 닉네임입니다.';
+        console.log('처리된 응답 (중복):', { available, message });
+        return { available, message };
+      }
+      
+      // success 필드가 true인 경우 data.duplicate 확인
+      if (data.success === true) {
+        // data.duplicate가 true인 경우 중복으로 처리
+        if (data.data && data.data.duplicate === true) {
+          const available = false;
+          const message = data.message || '이미 사용 중인 닉네임입니다.';
+          console.log('처리된 응답 (success true, duplicate true):', { available, message });
+          return { available, message };
+        }
+        
+        // data.duplicate가 false이거나 없는 경우 사용 가능으로 처리
+        const available = true;
+        const message = data.message || '사용 가능한 닉네임입니다.';
+        console.log('처리된 응답 (사용 가능):', { available, message });
+        return { available, message };
+      }
+      
+      // 기존 로직 (다양한 응답 형식 처리)
       const available = data.available !== undefined ? data.available : 
                        data.isAvailable !== undefined ? data.isAvailable :
-                       data.duplicate !== undefined ? !data.duplicate :
-                       data.success !== undefined ? data.success : true;
+                       data.duplicate !== undefined ? !data.duplicate : false;
       
       const message = data.message || data.msg || 
                      (available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
@@ -312,6 +338,10 @@ export const checkNicknameDuplicate = async (nickname) => {
       console.log('처리된 응답:', { available, message });
       return { available, message };
     }
+    
+    // data가 없거나 객체가 아닌 경우
+    console.log('예상치 못한 응답 형태:', data);
+    return { available: false, message: '응답 처리 중 오류가 발생했습니다.' };
     
     return data; // { available: boolean, message: string } 형태 가정
   } catch (apiError) {
@@ -325,19 +355,43 @@ export const checkNicknameDuplicate = async (nickname) => {
     
     const status = apiError.response?.status;
     
-    // 403 오류를 포함한 모든 오류를 더미 응답으로 처리
-    if ([400, 401, 403, 500].includes(status)) {
+    // 400 오류인 경우 API 응답 데이터를 사용
+    if (status === 400 && apiError.response?.data) {
+      console.log('400 오류 - API 응답 데이터 사용:', apiError.response.data);
+      const data = apiError.response.data;
+      
+      if (data.success === false) {
+        return {
+          available: false,
+          message: data.message || '이미 사용 중인 닉네임입니다.'
+        };
+      }
+    }
+    
+    // 다른 오류들 (401, 403, 500)을 더미 응답으로 처리
+    if ([401, 403, 500].includes(status)) {
       console.warn(`${status} 오류로 인해 더미 응답 사용`);
       
       // 더미 응답으로 처리
       return await new Promise((resolve) => {
         setTimeout(() => {
-          // 실제로는 중복되지 않은 닉네임들을 사용가능하게 처리
+          // 실제 사용 중인 닉네임들을 확인
+          const dummyUsers = JSON.parse(localStorage.getItem('dummyUsers') || '[]');
+          const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
           const reservedNicknames = ['admin', 'test', 'user', '관리자', '테스트', '비쿠'];
-          const isDup = reservedNicknames.includes(String(nickname).toLowerCase());
-          console.log('더미 응답 - 닉네임:', nickname, '중복여부:', isDup);
           
-          // 대부분의 닉네임을 사용가능하게 처리 (테스트용)
+          // 현재 사용자의 닉네임은 제외하고 중복 확인
+          const existingNicknames = dummyUsers
+            .filter(user => user.nickname !== currentUser.nickname)
+            .map(user => user.nickname);
+          
+          const isDup = existingNicknames.includes(nickname) || 
+                       reservedNicknames.includes(String(nickname).toLowerCase());
+          
+          console.log('더미 응답 - 닉네임:', nickname, '중복여부:', isDup);
+          console.log('기존 닉네임들:', existingNicknames);
+          console.log('현재 사용자 닉네임:', currentUser.nickname);
+          
           const available = !isDup;
           resolve({
             available: available,
