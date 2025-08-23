@@ -27,13 +27,14 @@ export const LocationDiv = styled.div`
 `;
 export const LocationImg = styled.img`
   display: flex;
-  width: 17px;
-  height: 17px;
+  width: 20px;
+  height: 20px;
   padding: 0.354px 1.652px 0.355px 1.771px;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
   margin: 0;
+  margin-top: -2px;
 `;
 export const LocationP = styled.p`
   color: var(--Dark-Text, #060d1d);
@@ -93,7 +94,6 @@ export const BoardTitleH1 = styled.p`
   width: 230px;
   max-width: 230px;
   margin-bottom: 6px;
-  /* 고정 폭 내에서 ... 표시 */
 `;
 export const BoardLocationP = styled.p`
   overflow: hidden;
@@ -150,8 +150,8 @@ export const ToggleP = styled.p`
 export const ToggleOpenDiv = styled.div`
   cursor: pointer;
   display: flex;
-  gap: 2px;
-  width: 120px;
+  gap: 4px;
+  width: 100px;
 
   color: var(--Dark-Text, #060d1d);
   /* 카테고리 */

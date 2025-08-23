@@ -20,7 +20,7 @@ const Container = styled.div`
 const Header = styled.div`
   display: flex;
   align-items: center;
-  padding: 35px;
+  padding: 25px;
   border-bottom: 1px solid #f0f0f0;
   position: relative;
 `;
@@ -41,7 +41,7 @@ const BackIcon = styled.img`
 
 const Title = styled.h1`
   margin: 0;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: bold;
   color: #333;
   text-align: center;
@@ -49,7 +49,7 @@ const Title = styled.h1`
 `;
 
 const Content = styled.div`
-  padding: 100px 20px 20px 20px;
+  padding: 60px 20px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -76,13 +76,14 @@ const InputContainer = styled.div`
   margin-bottom: 30px;
   align-items: center;
   position: relative;
+  display: flex;
+  justify-content: center;
 `;
 
 const Input = styled.input`
-  width: 70%;
-  min-width: 250px;
+  width: 100%;
+  max-width: 280px;
   padding: 16px 0;
-  padding-right: 90px;
   border: none;
   border-bottom: 0.5px solid #000000;
   font-size: 16px;

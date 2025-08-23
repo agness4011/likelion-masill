@@ -24,16 +24,29 @@ export default defineConfig({
         name: 'Masill',
         short_name: 'Masill',
         description: '우리 동네 마실, 어디로 가볼까요?',
-        theme_color: '#ffffff',
+        theme_color: '#1B409C',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
         scope: '/',
+        orientation: 'portrait',
         icons: [
           {
             src: 'favicons/favicon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: 'favicons/web-app-manifest-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: 'favicons/web-app-manifest-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ]

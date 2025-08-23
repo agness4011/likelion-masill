@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import chatsendIcon from "../../assets/logo/chat/chatsend.svg";
 import MainArrowLeftIcon from "../../assets/logo/main/main-arrowleft.svg";
+import { useUser } from "../../contexts/UserContext";
 
 // Styled Components
 const Container = styled.div`
@@ -164,12 +165,27 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 
 export default function ChatAi() {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messageContainerRef = useRef(null);
   const [aiPost, setAiPost] = useState("");
+
+  // 사용자 정보 디버깅
+  useEffect(() => {
+    console.log('=== ChatAi 사용자 정보 ===');
+    console.log('user:', user);
+    console.log('user.nickname:', user?.nickname);
+    console.log('user.username:', user?.username);
+    
+    // localStorage에서 직접 확인
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    console.log('localStorage currentUser:', currentUser);
+    console.log('localStorage currentUser.nickname:', currentUser?.nickname);
+    console.log('========================');
+  }, [user]);
 
   // 메시지 시간 포맷
   const formatMessageTime = (date) => {
@@ -296,16 +312,16 @@ export default function ChatAi() {
             return (
               <div key={msg.id}>
                 {/* 안내 문구 추가 */}
-                <AiMessage
-                  style={{
-                    textAlign: "left",
-                    margin: "12px 0",
-                    fontWeight: "bold",
-                    color: "#555",
-                  }}
-                >
-                  좋아하실만한 힐링 행사들을 찾아봤어요! 🎉
-                </AiMessage>
+                                 <AiMessage
+                   style={{
+                     textAlign: "left",
+                     margin: "12px 0",
+                     fontWeight: "bold",
+                     color: "#555",
+                   }}
+                 >
+                   {(user?.nickname || user?.username || JSON.parse(localStorage.getItem('currentUser') || 'null')?.nickname || "사용자")}님이 좋아하실만한 행사들을 찾아봤어요! 🎉
+                 </AiMessage>
 
                 {msg.posts.map((item, index) => (
                   <RecommendPost

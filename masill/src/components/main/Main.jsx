@@ -117,7 +117,7 @@ function CategoryBar({ children }) {
 
   return (
     <CategoryWrapper>
-      {showLeft && <LeftBtn onClick={scrollLeftFn} src={Btn} />}
+      {showLeft && <LeftBtn onClick={scrollLeftFn} src={MainArrowLeftIcon} />}
       <CategoryScroll ref={scrollRef}>
         {React.Children.map(children, (child) =>
           React.cloneElement(child, {
@@ -157,8 +157,9 @@ function CategoryItem({
         background: isActive
           ? "linear-gradient(#fff, #fff) padding-box, linear-gradient(17deg, #1B409C 5.84%, #FF7852 68.23%) border-box"
           : "#e5ecff",
-        border: isActive ? "2px solid transparent" : "none",
+        border: isActive ? "1px solid transparent" : "1px solid transparent",
         color: isActive ? "#000" : "var(--Gray-900, #727C94)",
+        boxSizing: "border-box",
       }}
       onClick={handleClick}
     >
@@ -416,6 +417,7 @@ function Post() {
     }
   }, [category, regionId, sortType, isSearchActive]);
 
+
   // AI 채팅 추천 게시물 처리
   useEffect(() => {
     if (location.state?.aiPosts && !searchResults) {
@@ -472,7 +474,7 @@ function Post() {
         </LocationDiv>
 
         {!isSearchActive && (
-          <div style={{ position: "relative", width: 220, marginTop: "10px" }}>
+          <div style={{ position: "relative", width: 180, marginTop: "10px" }}>
             <ToggleOpenDiv onClick={toggleOpen}>
               <p style={{ margin: 0 }}>{sortType}</p>
               <Recommandimg src={Recommand} alt="toggle icon" />
@@ -848,9 +850,10 @@ const MemberLogo = styled.img`
   border-radius: 24px;
 `;
 const Recommandimg = styled.img`
-  width: 17px;
-  height: 17px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
+  margin-top: 2px;
 `;
 const GoHeartImg = styled.img`
   width: 50px;
@@ -871,7 +874,7 @@ const CategoryBtn = styled.button`
   flex: 0 0 auto;
   border-radius: 10px;
   background: var(--Gray-300, #e5ecff);
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   color: var(--Gray-900, #727c94);
   /* 카테고리 */
@@ -969,7 +972,7 @@ const SearchInput = styled.input`
 const SearchImg = styled.img`
   position: absolute;
   right: 35px;
-  top: 22px;
+  top: 21px;
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
