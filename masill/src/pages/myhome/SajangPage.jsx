@@ -207,6 +207,18 @@ const SajangPage = () => {
       } else {
         formattedValue = numbers.slice(0, 4) + '-' + numbers.slice(4, 6) + '-' + numbers.slice(6, 8);
       }
+    } else if (field === 'businessNumber') {
+      // 사업자 등록번호 포맷팅 (XXX-XX-XXXXX)
+      const numbers = value.replace(/[^0-9]/g, '');
+      if (numbers.length <= 3) {
+        formattedValue = numbers;
+      } else if (numbers.length <= 5) {
+        formattedValue = numbers.slice(0, 3) + '-' + numbers.slice(3);
+      } else if (numbers.length <= 10) {
+        formattedValue = numbers.slice(0, 3) + '-' + numbers.slice(3, 5) + '-' + numbers.slice(5);
+      } else {
+        formattedValue = numbers.slice(0, 3) + '-' + numbers.slice(3, 5) + '-' + numbers.slice(5, 10);
+      }
     }
 
     setFormData(prev => ({
@@ -214,7 +226,15 @@ const SajangPage = () => {
       [field]: formattedValue
     }));
 
-    if (formattedValue.trim()) {
+    // 사업자 등록번호 완성 여부 확인 (10자리 숫자)
+    if (field === 'businessNumber') {
+      const numbers = formattedValue.replace(/[^0-9]/g, '');
+      const isValid = numbers.length === 10;
+      setCompletedFields(prev => ({
+        ...prev,
+        [field]: isValid
+      }));
+    } else if (formattedValue.trim()) {
       setCompletedFields(prev => ({
         ...prev,
         [field]: true
@@ -360,7 +380,7 @@ const SajangPage = () => {
             <InputField
               type="text"
               value={formData.businessNumber}
-              placeholder="사업자 등록번호를 입력하세요"
+              placeholder="XXX-XX-XXXXX"
               onChange={(e) => handleInputChange('businessNumber', e.target.value)}
               onFocus={() => setFocusedField('businessNumber')}
               onBlur={() => setFocusedField(null)}
