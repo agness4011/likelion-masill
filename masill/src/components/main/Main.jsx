@@ -275,6 +275,13 @@ function Post() {
   };
   const toggleOpen = () => setIsOpen((prev) => !prev);
 
+  useEffect(() => {
+    if (location.state?.reset) {
+      setSearchResults(null);
+      setIsSearchActive(false);
+    }
+  }, [location.state, setIsSearchActive, setSearchResults]);
+
   const handleRegionClick = () => {
     if (isSearchActive) {
       setSearchResults(null);
@@ -341,10 +348,10 @@ function Post() {
       }
     };
 
-    // 검색 중이 아니면 일반 게시글 불러오기
+    // ✅ 검색 중이 아닐 때만 전체 게시글 불러오기
     if (!isSearchActive) {
       loadPosts();
-      setSearchResults(null); // 검색 결과 초기화
+      // ❌ setSearchResults(null) 지움 (검색 유지해야 함)
     }
   }, [category, regionId, isSearchActive]);
 
