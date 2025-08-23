@@ -23,23 +23,17 @@ export default defineConfig({
         id: '/',
         name: 'Masill',
         short_name: 'Masill',
-        description: 'Masill PWA App',
-        theme_color: '#ffffff',
+        description: '우리 동네 마실, 어디로 가볼까요?',
+        theme_color: '#1B409C',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
         scope: '/',
         icons: [
           {
-            src: '/favicons/web-app-manifest-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/favicons/web-app-manifest-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: 'favicons/favicon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
             purpose: 'any maskable'
           }
         ]
