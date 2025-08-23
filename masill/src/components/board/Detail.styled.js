@@ -242,7 +242,9 @@ export const UserDiv = styled.div`
   height: 28px;
   margin-top: 20px;
   margin-bottom: 14px;
+  position: relative; /* ✅ CeoMark 기준 */
 `;
+
 export const TabContainer = styled.div`
   display: flex;
   border-radius: 12px;
