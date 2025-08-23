@@ -20,7 +20,7 @@ const Container = styled.div`
 const Header = styled.div`
   display: flex;
   align-items: center;
-  padding: 35px;
+  padding: 25px;
   border-bottom: 1px solid #f0f0f0;
   position: relative;
 `;
@@ -41,7 +41,7 @@ const BackIcon = styled.img`
 
 const Title = styled.h1`
   margin: 0;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: bold;
   color: #333;
   text-align: center;
@@ -49,7 +49,7 @@ const Title = styled.h1`
 `;
 
 const Content = styled.div`
-  padding: 100px 20px 20px 20px;
+  padding: 60px 20px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;

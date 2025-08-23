@@ -61,6 +61,7 @@ const Title = styled.h1`
   font-size: 18px;
   font-weight: 600;
   color: #333;
+  margin-left: 55px;
 `;
 
 const Content = styled.div`
