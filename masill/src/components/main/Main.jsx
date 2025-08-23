@@ -22,6 +22,7 @@ import {
   eventTypeBoards,
   getMyRegionName,
   AiRecommend,
+  TodayPost,
 } from "../../api/boardApi";
 
 import { privateAPI } from "../../api/axios";
@@ -239,6 +240,13 @@ function Post() {
   const options = ["날짜순", "AI 추천순", "댓글순", "인기순"];
   const regionId = JSON.parse(localStorage.getItem("currentUser"))?.regionId;
 
+  const SORT_MAP = {
+    날짜순: "DATE",
+    댓글순: "COMMENTS",
+    인기순: "POPULARITY",
+    "AI 추천순": null, // AI 추천은 별도 API
+  };
+
   const CATEGORY_MAP = {
     market: "FLEA_MARKET",
     art: "CULTURE_ART",
@@ -255,25 +263,79 @@ function Post() {
     localStorage.setItem("sortType", type);
     setIsOpen(false);
 
-    // ✅ "AI 추천순" 선택 시 API 호출
     if (type === "AI 추천순") {
       try {
-        const today = false; // 필요 시 true로 변경 가능
-        const eventType = category ? CATEGORY_MAP[category] : null;
+        const today = category === "event"; // 오늘의 이벤트 탭이면 true
+        const eventType =
+          category && category !== "event" ? CATEGORY_MAP[category] : null;
 
-        const aiPosts = await AiRecommend(eventType, today, 1, 100);
+        const aiPosts = await AiRecommend({
+          regionId,
+          eventType,
+          today,
+          page: 1,
+          size: 20,
+        });
+
         const mapped = aiPosts.map((post) => ({
           ...post,
           isHeartClicked: post.liked ?? false,
           isBusinessVerified: post.businessVerified || false,
         }));
-
         setPosts(mapped);
       } catch (err) {
         console.error("AI 추천순 불러오기 실패:", err);
       }
+      return;
+    }
+
+    try {
+      let allPosts = [];
+
+      if (category === "event") {
+        const res = await TodayPost(regionId, 1, 100, SORT_MAP[type]);
+        allPosts = res?.data?.content || [];
+      } else if (!category) {
+        const res = await fetchAllBoards(
+          regionId,
+          1,
+          20,
+          "desc",
+          SORT_MAP[type]
+        );
+        allPosts = res?.data?.content || [];
+      } else {
+        const eventType = CATEGORY_MAP[category];
+        const res = await eventTypeBoards(eventType, regionId, SORT_MAP[type]);
+        allPosts = res?.data?.content || [];
+      }
+
+      const mapped = allPosts.map((post) => ({
+        ...post,
+        isHeartClicked: post.liked ?? false,
+        isBusinessVerified: post.businessVerified || false,
+      }));
+      setPosts(mapped);
+    } catch (err) {
+      console.error("정렬된 게시물 불러오기 실패:", err);
     }
   };
+
+  // 1️⃣ myRegion 단독 useEffect
+  useEffect(() => {
+    const fetchRegion = async () => {
+      if (!myRegion) {
+        try {
+          const regionName = await getMyRegionName(regionId);
+          setMyRegion(regionName);
+        } catch (err) {
+          console.error("지역 불러오기 실패:", err);
+        }
+      }
+    };
+    fetchRegion();
+  }, [regionId, myRegion]);
+
   const toggleOpen = () => setIsOpen((prev) => !prev);
 
   useEffect(() => {
@@ -303,57 +365,58 @@ function Post() {
     }
   }, [location.state, setSearchTerm, setIsSearchActive]);
 
-  // 게시물 불러오기
+  // 2️⃣ 게시물 불러오기 useEffect
   useEffect(() => {
-    const loadPosts = async () => {
-      try {
-        const regionName = await getMyRegionName(regionId);
-        setMyRegion(regionName);
+    if (!isSearchActive) {
+      const loadPosts = async () => {
+        let allPosts = [];
 
-        let content = [];
-        const today = dayjs().startOf("day");
-        const endOfToday = dayjs().endOf("day");
-
-        if (!category || category === "event") {
-          const res = await fetchAllBoards(regionId);
-          const allPosts = res?.data?.content || [];
-
-          content = allPosts.filter((post) => {
-            const start = dayjs(post.startAt).startOf("day");
-            const end = dayjs(post.endAt).endOf("day");
-            if (category === "event") {
-              return (
-                start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today)
-              );
-            }
-            return end.isSameOrAfter(today);
+        if (sortType === "AI 추천순") {
+          const today = category === "event";
+          const eventType =
+            category && category !== "event" ? CATEGORY_MAP[category] : null;
+          allPosts = await AiRecommend({
+            regionId,
+            eventType,
+            today,
+            page: 1,
+            size: 20,
           });
+        } else if (category === "event") {
+          const res = await TodayPost(regionId, 1, 100, SORT_MAP[sortType]);
+          allPosts = res?.data?.content || [];
+        } else if (!category) {
+          const res = await fetchAllBoards(
+            regionId,
+            1,
+            20,
+            "desc",
+            SORT_MAP[sortType]
+          );
+          allPosts = res?.data?.content || [];
         } else {
           const eventType = CATEGORY_MAP[category];
-          const res = await eventTypeBoards(eventType, regionId);
-          const allPosts = res?.data?.content || [];
-          content = allPosts.filter((post) =>
-            dayjs(post.endAt).endOf("day").isSameOrAfter(today)
+          const res = await eventTypeBoards(
+            eventType,
+            regionId,
+            SORT_MAP[sortType]
           );
+          allPosts = res?.data?.content || [];
         }
 
-        const mappedPosts = content.map((post) => ({
+        const mappedPosts = allPosts.map((post) => ({
           ...post,
           isHeartClicked: post.liked ?? false,
           isBusinessVerified: post.businessVerified || false,
         }));
 
         setPosts(mappedPosts);
-      } catch (err) {
-        console.error("게시물 불러오기 실패", err);
-      }
-    };
+      };
 
-    // ✅ 검색 중이 아니고 검색 결과가 없을 때만 전체 게시글 불러오기
-    if (!isSearchActive && !searchResults) {
       loadPosts();
     }
-  }, [category, regionId, isSearchActive, searchResults]);
+  }, [category, regionId, sortType, isSearchActive]);
+
 
   // AI 채팅 추천 게시물 처리
   useEffect(() => {
@@ -398,32 +461,8 @@ function Post() {
   const displayPosts =
     searchResults && searchResults.length > 0 ? searchResults : posts;
 
-  const sortedPosts = (() => {
-    // AI 채팅 추천일 경우 (검색 결과가 있고, 검색어가 'masill_bird PICK')
-    if (isSearchActive && searchTerm === "masill_bird PICK") {
-      return [...displayPosts].sort((a, b) => {
-        if (sortType === "날짜순")
-          return dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf();
-        if (sortType === "댓글순") return b.commentCount - a.commentCount;
-        if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
-        return 0;
-      });
-    }
-
-    // 기본 로직 (광고 고정)
-    const upPosts = displayPosts.filter((p) => p.up);
-    const normalPosts = displayPosts.filter((p) => !p.up);
-
-    const sortedNormalPosts = [...normalPosts].sort((a, b) => {
-      if (sortType === "날짜순")
-        return dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf();
-      if (sortType === "댓글순") return b.commentCount - a.commentCount;
-      if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
-      return 0;
-    });
-
-    return [...upPosts, ...sortedNormalPosts];
-  })();
+  // API에서 이미 정렬해주므로, 여기서는 그대로 사용
+  const sortedPosts = displayPosts;
 
   return (
     <BoardContanier>
