@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { getRegions } from "../../api/userService";
+import MainArrowLeftIcon from '@logo/main/main-arrowleft.svg';
 
 export default function ChangeRegion() {
   const nav = useNavigate();
@@ -40,7 +41,7 @@ export default function ChangeRegion() {
     <Container>
       <TopBar>
         <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
-          &#8592;
+          <BackIcon src={MainArrowLeftIcon} alt="뒤로가기" />
         </BackBtn>
         <TitleText>지역 선택</TitleText>
       </TopBar>
