@@ -72,7 +72,6 @@ const Content = styled.div`
 `;
 
 const PostCard = styled.div`
-  padding: 0 0 20px 0;
   border-bottom: 1px solid #ddd;
   margin-top: 13px;
   cursor: pointer;
@@ -233,6 +232,7 @@ const UpBird = styled.img`
 import UpPromtionImg from "../../assets/up/up.svg";
 import UpBirdImg from "../../assets/up/bird.svg";
 import UpModalIconImg from "../../assets/up/upmodal.svg";
+import OffAdvers from "../../assets/up/onadver.svg";
 const MyPostsPage = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
@@ -294,27 +294,43 @@ const MyPostsPage = () => {
   const [showUpModal, setShowUpModal] = useState(false);
 
   // 남은 시간을 시:분:초 형태로 변환하는 헬퍼
+  // 남은 시간을 "n일 hh:mm:ss" 형태로 변환하는 헬퍼
   const formatRemainingTime = (seconds) => {
-    if (!seconds || seconds <= 0) return "0초";
-    const h = Math.floor(seconds / 3600);
+    if (!seconds || seconds <= 0) return "0일 00:00:00";
+
+    const d = Math.floor(seconds / (3600 * 24));
+    const h = Math.floor((seconds % (3600 * 24)) / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-    return `${h}시간 ${m}분 ${s}초`;
+
+    // 두 자리수 맞추기 (01, 02 형태)
+    const pad = (num) => String(num).padStart(2, "0");
+
+    return `${d}일 ${pad(h)}:${pad(m)}:${pad(s)}`;
   };
 
   useEffect(() => {
     const interval = setInterval(() => {
       setPosts((prev) =>
-        prev.map((p) =>
-          p.up && p.upRemainingSeconds > 0
-            ? {
-                ...p,
-                upRemainingSeconds: Math.max(0, p.upRemainingSeconds - 1),
-              }
-            : p
-        )
+        prev.map((p) => {
+          if (p.up && p.upRemainingSeconds > 0) {
+            return {
+              ...p,
+              upRemainingSeconds: Math.max(0, p.upRemainingSeconds - 1),
+            };
+          }
+          // ⬇️ 남은 시간이 0이 되면 자동으로 up 종료
+          if (p.up && p.upRemainingSeconds <= 0) {
+            return {
+              ...p,
+              up: false,
+              upRemainingSeconds: 0,
+            };
+          }
+          return p;
+        })
       );
-    }, 1000); // 30초마다 실행
+    }, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -543,7 +559,7 @@ const MyPostsPage = () => {
                       </>
                     ) : (
                       <PromotionIconImg
-                        src={PromotionIcon}
+                        src={OffAdvers}
                         alt="프로모션 아이콘"
                         onClick={() => handleUpClick(post.eventId)}
                         style={{ cursor: "pointer" }}
@@ -570,7 +586,7 @@ const UpP = styled.p`
 
   text-align: center;
   font-family: Pretendard;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 120%;
   white-space: nowrap;
