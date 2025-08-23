@@ -662,7 +662,7 @@ function ChatRoomDetailPage() {
             <UserName>
               {targetUser?.username || '사용자'}
               <ConnectionStatus connected={websocketConnected ? "true" : "false"}>
-                {websocketConnected ? '실시간' : 'HTTP'}
+            
               </ConnectionStatus>
             </UserName>
           </UserInfo>
@@ -697,7 +697,7 @@ function ChatRoomDetailPage() {
             <UserName>
               {targetUser?.username || '사용자'}
               <ConnectionStatus connected={websocketConnected ? "true" : "false"}>
-                {websocketConnected ? '실시간' : 'HTTP'}
+            
               </ConnectionStatus>
             </UserName>
           </UserInfo>
