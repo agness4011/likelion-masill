@@ -787,49 +787,25 @@ const SearchPage = () => {
               </SearchResultsContainer>
                         )}
 
-            {/* 검색 결과가 없을 때 메시지 */}
-            {searchTerm.trim() &&
-              searchResults.length === 0 &&
-              !isSearching && (
-                <>
-                  <NoResultsContainer>
-                    <NoResultsMessage>
-                      <NoResults>{searchTerm}</NoResults>
-                      <NoResultsText>
-                        에 대한 검색결과가 없습니다.
-                      </NoResultsText>
-                    </NoResultsMessage>
-                    <BirdsContainer>
-                      <NoResultsBirdImage src={BirdIcon2} alt="새" />
-                    </BirdsContainer>
-                  </NoResultsContainer>
-                  {/* 하트 블로팅 버튼 (메인화면과 동일한 위치) */}
-                  <GoHeartImg
-                    src={Goheart}
-                    alt="하트 블로팅"
-                    onClick={handleHeartClick}
-                    style={{ cursor: "pointer" }}
-                  />
-                </>
-              )}
+            
 
-            {/* 추천 섹션 */}
-            {!searchTerm.trim() && (
-              <RecommendationSection>
-                <BirdContainer>
-                  <RecommendationBirdImage src={BirdIcon} alt="마실새" />
-                </BirdContainer>
-                <RecommendationBubbles>
-                  <Bubble variant="primary">
-                    masill_love님의 취향에 꼭 맞춘 마실코스를 추천해드릴까요?
-                  </Bubble>
-                  <Bubble variant="secondary" onClick={handleRecommendation}>
-                    masill_bird에게 추천받기
-                    <ArrowIcon src={SearchArrowRight} alt="화살표" />
-                  </Bubble>
-                </RecommendationBubbles>
-              </RecommendationSection>
-            )}
+                         {/* 추천 섹션 */}
+             {(!searchTerm.trim() || (searchTerm.trim() && searchResults.length === 0 && !isSearching)) && (
+               <RecommendationSection>
+                 <BirdContainer>
+                   <RecommendationBirdImage src={BirdIcon} alt="마실새" />
+                 </BirdContainer>
+                 <RecommendationBubbles>
+                   <Bubble variant="primary">
+                     masill_love님의 취향에 꼭 맞춘 마실코스를 추천해드릴까요?
+                   </Bubble>
+                   <Bubble variant="secondary" onClick={handleRecommendation}>
+                     masill_bird에게 추천받기
+                     <ArrowIcon src={SearchArrowRight} alt="화살표" />
+                   </Bubble>
+                 </RecommendationBubbles>
+               </RecommendationSection>
+             )}
           </>
         )}
       </Content>
