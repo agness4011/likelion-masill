@@ -89,6 +89,7 @@ const Stage = styled.div`
   inset: 0;
   overflow: hidden;
   background: ${({ $bg }) => $bg};
+  margin: auto;
 `;
 
 const Canvas = styled.div`
@@ -101,6 +102,7 @@ const Canvas = styled.div`
   border-radius: ${({ $showFrame }) => ($showFrame ? "12px" : "0")};
   box-shadow: ${({ $showFrame }) =>
     $showFrame ? "0 10px 30px rgba(0,0,0,.12)" : "none"};
+  margin: auto;
 `;
 
 const Inner = styled.div`

@@ -90,8 +90,10 @@ export const BoardTitleH1 = styled.p`
   letter-spacing: 0.36px;
 
   margin: 0;
-
-  max-width: 250px; /* 고정 폭 내에서 ... 표시 */
+  width: 230px;
+  max-width: 230px;
+  margin-bottom: 6px;
+  /* 고정 폭 내에서 ... 표시 */
 `;
 export const BoardLocationP = styled.p`
   overflow: hidden;
@@ -130,7 +132,6 @@ export const ToggleLoctionDiv = styled.div`
   gap: 160px;
   cursor: pointer;
   margin-bottom: 12px;
-  margin-top: 12px;
   margin-left: 24px;
 `;
 export const ToggleP = styled.p`
@@ -202,7 +203,7 @@ export const MemberLogoContainer = styled.div`
 export const ImageContainer = styled.div`
   position: relative;
   display: inline-block;
-  width: 100%;
+
   height: 100%;
   overflow: visible;
 `;

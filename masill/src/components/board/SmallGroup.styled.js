@@ -473,7 +473,8 @@ export const ShowReply = styled.div`
   line-height: 120%; /* 14.4px */
   letter-spacing: 0.12px;
   margin: 0;
-
+  margin-top: 8px;
+  margin-bottom: 8px;
   cursor: pointer;
   display: flex; /* 텍스트와 아이콘을 가로 배치 */
   align-items: center; /* 세로 중앙 정렬 */

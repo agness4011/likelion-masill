@@ -9,7 +9,7 @@ import Heart from "@assets/logo/mainImg/heart.png";
 import Comment from "@assets/logo/mainImg/commant.png";
 import PromotionIcon from "@logo/myhome/promotion.svg";
 import dayjs from "dayjs";
-import { fetchMyPosts } from "../../api/boardApi";
+import { fetchMyPosts, UpPost } from "../../api/boardApi";
 import {
   BoardTitleH1,
   BoardLocationP,
@@ -211,43 +211,50 @@ const MemberLogo = styled.img`
 
 const PromotionContainer = styled.div`
   margin: 8px 0;
-  margin-left: -140px;
   text-align: left;
-  display: flex;
   justify-content: flex-end;
+  position: relative;
 `;
 
 const PromotionIconImg = styled.img`
-  width: 80%;
-  height: 100px;
-  border-radius: 20px;
+  width: 345px;
+  height: 103px;
+  border-radius: 10px;
 `;
 
+const UpBird = styled.img`
+  position: absolute;
+  top: -48px;
+  right: 48px;
+  width: 64px;
+  height: 64px;
+`;
+
+import UpPromtionImg from "../../assets/up/up.svg";
+import UpBirdImg from "../../assets/up/bird.svg";
+import UpModalIconImg from "../../assets/up/upmodal.svg";
 const MyPostsPage = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [openModalId, setOpenModalId] = useState(null); // ✅ 현재 열린 모달의 eventId 저장
+
+  const toggleUpModal = (eventId) => {
+    setOpenModalId((prev) => (prev === eventId ? null : eventId));
+  };
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const res = await fetchMyPosts();
-     
+        const data = await fetchMyPosts(); // ✅ data가 바로 { content: [...] }
 
-        // 실제 데이터 구조에 맞게 접근
-        const content = res?.data?.content || [];
-  
+        const content = data?.content || [];
 
-        // postType별로 게시글 분류
-        const clubPosts = content.filter((post) => post.postType === "CLUB");
-        const eventPosts = content.filter((post) => post.postType === "EVENT");
-
-        if (content.length > 0) {
-       
-        }
-        setPosts(content);
+        setPosts(content); // posts 배열 안에 바로 up이 들어옴
+        console.log("첫 번째 게시물 up 값:", content[0]?.up); // true / false 확인
       } catch (err) {
         console.error("내가 작성한 게시물 불러오기 실패", err);
         setError(err);
@@ -268,12 +275,10 @@ const MyPostsPage = () => {
 
   const handlePostClick = (post) => {
     try {
-     
-
       // postType에 따라 다른 경로로 이동
       if (post.postType === "CLUB" && post.clubId) {
         // 소모임 게시글: /events/{eventId}/clubs/{clubId}
-     
+
         navigate(`/smallgroup/${post.eventId}/${post.clubId}`);
       } else if (post.postType === "EVENT") {
         // 이벤트 게시글: /events/{eventId}
@@ -284,6 +289,55 @@ const MyPostsPage = () => {
       }
     } catch (error) {
       console.error("게시글 클릭 처리 중 오류:", error);
+    }
+  };
+  const [showUpModal, setShowUpModal] = useState(false);
+
+  // 남은 시간을 시:분:초 형태로 변환하는 헬퍼
+  const formatRemainingTime = (seconds) => {
+    if (!seconds || seconds <= 0) return "0초";
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h}시간 ${m}분 ${s}초`;
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.up && p.upRemainingSeconds > 0
+            ? {
+                ...p,
+                upRemainingSeconds: Math.max(0, p.upRemainingSeconds - 1),
+              }
+            : p
+        )
+      );
+    }, 1000); // 30초마다 실행
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleUpClick = async (eventId) => {
+    try {
+      const updated = await UpPost(eventId); // API 호출
+
+      // ✅ 해당 게시글만 업데이트
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.eventId === eventId
+            ? {
+                ...p,
+                up: updated.up,
+                upRemainingSeconds: updated.upRemainingSeconds,
+              }
+            : p
+        )
+      );
+    } catch (err) {
+      console.error("업 시작 실패:", err);
+      alert("업 시작에 실패했습니다.");
     }
   };
 
@@ -363,93 +417,139 @@ const MyPostsPage = () => {
         ) : (
           <div style={{ padding: "0 24px 0 16px" }}>
             {posts.map((post, index) => (
-              <React.Fragment key={post.eventId}>
-                <PostCard onClick={() => handlePostClick(post)}>
-                  <ImageScrollWrapper>
-                    {Array.isArray(post.images) &&
-                      post.images.map((img, idx) => (
-                        <BoardImage
-                          key={idx}
-                          src={img.imageUrl}
-                          alt={`${post.title}-${idx}`}
+              <React.Fragment key={`${post.eventId}-${index}`}>
+                <PostCard>
+                  <div onClick={() => handlePostClick(post)}>
+                    <ImageScrollWrapper>
+                      {Array.isArray(post.images) &&
+                        post.images.map((img, idx) => (
+                          <BoardImage
+                            key={idx}
+                            src={img.imageUrl}
+                            alt={`${post.title}-${idx}`}
+                          />
+                        ))}
+                    </ImageScrollWrapper>
+
+                    <ContentWrapper>
+                      <LeftContent>
+                        <MemberLogo src={post.userImage} alt="회원로고" />
+                        <TextInfo>
+                          <BoardTitleH1>
+                            {post.title}
+                            {post.postType === "CLUB" && (
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  color: "#154ad0",
+                                  marginLeft: "8px",
+                                  fontWeight: "normal",
+                                }}
+                              >
+                                [소모임]
+                              </span>
+                            )}
+                            {post.postType === "EVENT" && (
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  color: "#ff6b35",
+                                  marginLeft: "8px",
+                                  fontWeight: "normal",
+                                }}
+                              >
+                                [이벤트]
+                              </span>
+                            )}
+                          </BoardTitleH1>
+                          <BoardLocationP>{post.location}</BoardLocationP>
+                          <BoardDateP>
+                            {post.endAt
+                              ? `${dayjs(post.startAt).format(
+                                  "YYYY.MM.DD.(dd)"
+                                )} ~ ${dayjs(post.endAt).format(
+                                  "YYYY.MM.DD.(dd)"
+                                )} ${dayjs(post.startAt).format(
+                                  "HH:mm"
+                                )}~${dayjs(post.endAt).format("HH:mm")}`
+                              : `${dayjs(post.startAt).format(
+                                  "YYYY.MM.DD.(dd)"
+                                )} ${dayjs(post.startAt).format("HH:mm")}`}
+                          </BoardDateP>
+                        </TextInfo>
+                      </LeftContent>
+
+                      <RightContent>
+                        <HeartArea>
+                          <TextStyle>
+                            {formatLikes(post.favoriteCount)}
+                          </TextStyle>
+                          <HeartImg
+                            src={Heart}
+                            alt="하트"
+                            style={{ width: "24px", height: "24px" }}
+                          />
+                        </HeartArea>
+
+                        <CommentArea>
+                          <TextStyle>{post.commentCount}</TextStyle>
+                          <CommentImg src={Comment} alt="댓글" />
+                        </CommentArea>
+                      </RightContent>
+                    </ContentWrapper>
+                  </div>
+
+                  {/* PromotionIcon을 소모임이 아닌 경우에만 표시 */}
+                  <PromotionContainer>
+                    {post.up ? (
+                      <>
+                        <UpIconBack
+                          src={UpPromtionImg}
+                          alt="업 프로모션 아이콘"
+                          style={{ position: "relative" }}
                         />
-                      ))}
-                  </ImageScrollWrapper>
+                        <UpBird src={UpBirdImg} alt="업 새 아이콘" />
 
-                  <ContentWrapper>
-                    <LeftContent>
-                      <MemberLogo src={post.userImage} alt="회원로고" />
-                      <TextInfo>
-                        <BoardTitleH1>
-                          {post.title}
-                          {post.postType === "CLUB" && (
-                            <span
-                              style={{
-                                fontSize: "12px",
-                                color: "#154ad0",
-                                marginLeft: "8px",
-                                fontWeight: "normal",
-                              }}
-                            >
-                              [소모임]
-                            </span>
-                          )}
-                          {post.postType === "EVENT" && (
-                            <span
-                              style={{
-                                fontSize: "12px",
-                                color: "#ff6b35",
-                                marginLeft: "8px",
-                                fontWeight: "normal",
-                              }}
-                            >
-                              [이벤트]
-                            </span>
-                          )}
-                        </BoardTitleH1>
-                        <BoardLocationP>{post.location}</BoardLocationP>
-                        <BoardDateP>
-                          {post.endAt
-                            ? `${dayjs(post.startAt).format(
-                                "YYYY.MM.DD.(dd)"
-                              )} ~ ${dayjs(post.endAt).format(
-                                "YYYY.MM.DD.(dd)"
-                              )} ${dayjs(post.startAt).format("HH:mm")}~${dayjs(
-                                post.endAt
-                              ).format("HH:mm")}`
-                            : `${dayjs(post.startAt).format(
-                                "YYYY.MM.DD.(dd)"
-                              )} ${dayjs(post.startAt).format("HH:mm")}`}
-                        </BoardDateP>
-                      </TextInfo>
-                    </LeftContent>
-
-                    <RightContent>
-                      <HeartArea>
-                        <TextStyle>{formatLikes(post.favoriteCount)}</TextStyle>
-                        <HeartImg
-                          src={Heart}
-                          alt="하트"
-                          style={{ width: "24px", height: "24px" }}
+                        {/* ✅ 업 모달 아이콘 */}
+                        <UpModalIcon
+                          src={UpModalIconImg}
+                          alt="업 정보 아이콘"
+                          onClick={() => toggleUpModal(post.eventId)}
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            cursor: "pointer",
+                            position: "relative",
+                          }}
                         />
-                      </HeartArea>
 
-                      <CommentArea>
-                        <TextStyle>{post.commentCount}</TextStyle>
-                        <CommentImg src={Comment} alt="댓글" />
-                      </CommentArea>
-                    </RightContent>
-                  </ContentWrapper>
+                        {/* ✅ 해당 post만 모달 열리도록 */}
+                        {openModalId === post.eventId && (
+                          <UpModalWrapper>
+                            [UP광고 정보]
+                            <br />
+                            게시물 전지역 노출
+                            <br />
+                            게시물 상단 노출
+                            <br />
+                            노출 빈도 UP
+                          </UpModalWrapper>
+                        )}
 
-                                     {/* PromotionIcon을 소모임이 아닌 경우에만 표시 (마지막 게시글이 이벤트인 경우에도 표시) */}
-                   {post.postType !== "CLUB" && (
-                     <PromotionContainer>
-                       <PromotionIconImg
-                         src={PromotionIcon}
-                         alt="프로모션 아이콘"
-                       />
-                     </PromotionContainer>
-                   )}
+                        <UpP>
+                          남은 시간 :{" "}
+                          {formatRemainingTime(post.upRemainingSeconds)}
+                        </UpP>
+                      </>
+                    ) : (
+                      <PromotionIconImg
+                        src={PromotionIcon}
+                        alt="프로모션 아이콘"
+                        onClick={() => handleUpClick(post.eventId)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    )}
+                  </PromotionContainer>
                 </PostCard>
               </React.Fragment>
             ))}
@@ -461,3 +561,62 @@ const MyPostsPage = () => {
 };
 
 export default MyPostsPage;
+const UpP = styled.p`
+  color: #fff;
+  position: absolute;
+  top: 16px;
+  left: 66%; /* 부모 기준 중앙 */
+  transform: translateX(-50%); /* 중앙 정렬 */
+
+  text-align: center;
+  font-family: Pretendard;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 120%;
+  white-space: nowrap;
+  text-align: left;
+
+  width: 160px; /* 고정 폭 */
+  z-index: 10;
+`;
+
+const UpIconBack = styled.img`
+  width: 350px;
+  height: 73px;
+  object-fit: contain;
+  position: relative;
+  z-index: 0; /* 배경은 아래 */
+`;
+
+const UpModalIcon = styled.img`
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: -25px;
+  right: 210px;
+  z-index: 2; /* 아이콘은 위 */
+`;
+
+const UpModalWrapper = styled.div`
+  padding: 8px;
+  position: absolute;
+  top: calc(30px + 14px + 3px); /* 아이콘 아래 3px */
+  left: 145px;
+  transform: translateX(-50%);
+  z-index: 3; /* 모달이 제일 위 */
+
+  border-radius: 6px;
+  border: 1px solid var(--Gray-900, #727c94);
+  background: rgba(198, 200, 210, 0.7);
+  backdrop-filter: blur(1.1px);
+
+  width: 112px;
+  height: 85px;
+  color: #454e63;
+  font-family: Pretendard;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 130%;
+  letter-spacing: 0.24px;
+  text-align: center;
+`;
