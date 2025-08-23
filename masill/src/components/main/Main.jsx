@@ -435,7 +435,7 @@ function Post() {
         </LocationDiv>
 
         {!isSearchActive && (
-          <div style={{ position: "relative", width: 220, marginTop: "10px" }}>
+          <div style={{ position: "relative", width: 180, marginTop: "10px" }}>
             <ToggleOpenDiv onClick={toggleOpen}>
               <p style={{ margin: 0 }}>{sortType}</p>
               <Recommandimg src={Recommand} alt="toggle icon" />
@@ -811,9 +811,10 @@ const MemberLogo = styled.img`
   border-radius: 24px;
 `;
 const Recommandimg = styled.img`
-  width: 17px;
-  height: 17px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
+  margin-top: 2px;
 `;
 const GoHeartImg = styled.img`
   width: 50px;
