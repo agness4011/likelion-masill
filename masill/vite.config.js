@@ -23,7 +23,7 @@ export default defineConfig({
         id: '/',
         name: 'Masill',
         short_name: 'Masill',
-        description: 'Masill PWA App',
+        description: '우리 동네 마실, 어디로 가볼까요?',
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
