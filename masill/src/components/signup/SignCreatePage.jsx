@@ -177,12 +177,12 @@ const EmailDomainSelect = styled.select`
 `;
 
 const CheckButton = styled.button`
-  background: #e8eaf2;
-
+  background: ${({ $isDuplicate }) => ($isDuplicate ? "#fff" : "#e8eaf2")};
+  border: ${({ $isDuplicate }) => ($isDuplicate ? "1px solid #ff4757" : "none")};
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 10px;
-  color: #727C94;
+  color: ${({ $isDuplicate }) => ($isDuplicate ? "#ff4757" : "#727C94")};
   cursor: pointer;
   font-weight: 700;
 `;
@@ -380,23 +380,37 @@ export default function SignCreatePage() {
         return;
       }
       
+      setDuplicateCheckAttempted(true);
       const response = await checkNicknameDuplicate(nickname);
       console.log("닉네임 중복 확인 결과:", response);
       
-      // API 응답에 따라 처리
-      if (response.available) {
+      // API 응답에 따라 처리 - duplicate: true일 때만 사용불가로 처리
+      if (response && response.available === true && response.success !== false) {
         setNicknameCompleted(true);
         // 중복확인 성공 시 자동으로 다음 단계로 이동
         setCurrentStep(3);
       } else {
-        alert(response.message || "이미 사용 중인 닉네임입니다.");
+        alert("이미 사용 중인 닉네임입니다.");
         setNicknameCompleted(false);
       }
     } catch (error) {
       console.error("닉네임 중복 확인 오류:", error);
       alert("닉네임 중복 확인 중 오류가 발생했습니다.");
+      setNicknameCompleted(false);
     }
   };
+
+  // 중복확인 상태에 따른 버튼 텍스트 결정
+  const getDuplicateCheckButtonText = () => {
+    if (nickname.length === 0) return "중복확인";
+    if (nicknameCompleted) return "사용가능";
+    // 중복확인을 시도했지만 실패한 경우에만 "사용불가" 표시
+    if (duplicateCheckAttempted && !nicknameCompleted) return "사용불가";
+    return "중복확인";
+  };
+
+  // 중복확인 시도 여부를 추적하는 상태 추가
+  const [duplicateCheckAttempted, setDuplicateCheckAttempted] = useState(false);
 
   const handleNicknameNext = () => {
     if (nickname.length > 0) {
@@ -432,8 +446,8 @@ export default function SignCreatePage() {
   // 이메일 유효성 검사
   const isEmailValid = emailId.length > 0 && emailDomain.length > 0;
   
-  // 닉네임 유효성 검사 - 중복확인 없이도 다음으로 넘어갈 수 있도록 수정
-  const isNicknameValid = nickname.length > 0;
+  // 닉네임 유효성 검사 - 중복확인 완료된 경우에만 다음으로 넘어갈 수 있도록 수정
+  const isNicknameValid = nickname.length > 0 && nicknameCompleted;
   
   // 비밀번호 유효성 검사
   const isPasswordValid = () => {
@@ -553,22 +567,28 @@ export default function SignCreatePage() {
               <Input
                 id="nickname"
                 value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                onChange={(e) => {
+                  setNickname(e.target.value);
+                  // 닉네임이 변경되면 중복확인 완료 상태를 초기화
+                  setNicknameCompleted(false);
+                  setDuplicateCheckAttempted(false);
+                }}
                 style={{ flex: 1 }}
                 disabled={currentStep > 2}
               />
               <CheckButton 
                 onClick={handleNicknameCheck}
                 disabled={currentStep > 2}
+                $isDuplicate={duplicateCheckAttempted && !nicknameCompleted}
               >
-                중복확인
+                {getDuplicateCheckButtonText()}
               </CheckButton>
             </div>
           </InputBox>
           <InfoText 
             $visible={currentStep >= 2} 
-            color={nicknameCompleted ? "#1B409C" : "#b0b4c0"}
-            style={nicknameCompleted ? { marginTop: "-15px", marginBottom: "5px", marginLeft: "10px" } : {}}
+            color={nicknameCompleted ? "#1B409C" : "#ff4757"}
+            style={nicknameCompleted ? { marginTop: "-15px", marginBottom: "5px", marginLeft: "10px" } : { marginTop: "-15px", marginBottom: "5px", marginLeft: "10px" }}
           >
             {nicknameCompleted ? "사용가능한 닉네임입니다." : ""}
           </InfoText>
