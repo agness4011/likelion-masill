@@ -7,6 +7,7 @@ import ChatIcon from "@logo/myhome/chat.svg";
 import Fullheart from "@assets/logo/mainImg/fullheart.png";
 import Heart from "@assets/logo/mainImg/heart.png";
 import Comment from "@assets/logo/mainImg/commant.png";
+import OwnerHat from "@assets/logo/main/owner-hat.svg";
 
 import dayjs from "dayjs";
 import { fetchMyFavorites } from "../../api/boardApi";
@@ -211,6 +212,24 @@ const MemberLogo = styled.img`
   border-radius: 24px;
 `;
 
+const OwnerHatOverlay = styled.img`
+  position: absolute;
+  top: -18px;
+  left: -8px;
+  width: 30px;
+  height: 30px;
+  z-index: 20;
+`;
+
+const MemberLogoContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const PostCardContainer = styled.div`
+  position: relative;
+`;
+
 
 
 // 더미 데이터 제거 - 실제 좋아요한 게시물을 사용
@@ -232,7 +251,17 @@ const WishlistPage = () => {
         const content = res?.data?.content || [];
      
         if (content.length > 0) {
-
+          console.log("관심목록 데이터:", content);
+          // 사업자 인증 상태 확인
+          content.forEach((post, index) => {
+            console.log(`게시글 ${index + 1}:`, {
+              title: post.title,
+              isBusinessVerified: post.isBusinessVerified,
+              businessVerified: post.businessVerified,
+              userRole: post.userRole,
+              role: post.role
+            });
+          });
         }
         setLikedPosts(content);
       } catch (err) {
@@ -394,25 +423,30 @@ const WishlistPage = () => {
             메인페이지에서 관심 있는 게시물에 하트를 눌러보세요!
           </div>
         ) : (
-          <div style={{ padding: "0 24px 0 24px" }}>
+                     <div style={{ padding: "0 24px 0 24px" }}>
                          {likedPosts.map((post, index) => (
                <React.Fragment key={post.eventId || post.postId || post.id}>
-                <PostCard onClick={() => handlePostClick(post)}>
-                  <ImageScrollWrapper>
-                    {Array.isArray(post.images) &&
-                      post.images.map((img, idx) => (
-                        <BoardImage
-                          key={idx}
-                          src={img.imageUrl}
-                          alt={`${post.title}-${idx}`}
-                        />
-                      ))}
-                  </ImageScrollWrapper>
+                <PostCardContainer>
+                  {/* 사업자 인증된 게시글에만 모자 표시 */}
+                  {(post.isBusinessVerified || post.businessVerified || post.userRole === 'BUSINESS' || post.role === 'BUSINESS' || post.user?.role === 'BUSINESS') && (
+                    <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
+                  )}
+                  <PostCard onClick={() => handlePostClick(post)}>
+                    <ImageScrollWrapper>
+                      {Array.isArray(post.images) &&
+                        post.images.map((img, idx) => (
+                          <BoardImage
+                            key={idx}
+                            src={img.imageUrl}
+                            alt={`${post.title}-${idx}`}
+                          />
+                        ))}
+                    </ImageScrollWrapper>
 
-                  <ContentWrapper>
-                    <LeftContent>
-                      <MemberLogo src={post.userImage} alt="회원로고" />
-                      <TextInfo>
+                                     <ContentWrapper>
+                     <LeftContent>
+                       <MemberLogo src={post.userImage} alt="회원로고" />
+                       <TextInfo>
                         <BoardTitleH1>{post.title}</BoardTitleH1>
                         <BoardLocationP>{post.location}</BoardLocationP>
                         <BoardDateP>
@@ -445,12 +479,13 @@ const WishlistPage = () => {
                         <TextStyle>{post.commentCount}</TextStyle>
                         <CommentImg src={Comment} alt="댓글" />
                       </CommentArea>
-                    </RightContent>
-                  </ContentWrapper>
+                                         </RightContent>
+                   </ContentWrapper>
 
 
-                </PostCard>
-              </React.Fragment>
+                 </PostCard>
+                </PostCardContainer>
+               </React.Fragment>
             ))}
           </div>
         )}
