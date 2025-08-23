@@ -245,6 +245,7 @@ const Title = styled.p`
   line-height: 1.5;
   letter-spacing: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  max-width: 280px;
 `;
 const IndicatorWrapper = styled.div`
   position: absolute;

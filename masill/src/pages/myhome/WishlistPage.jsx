@@ -458,6 +458,30 @@ const WishlistPage = () => {
                             post.endAt
                           ).format("HH:mm")}`}
                         </BoardDateP>
+                        {post.postType === "CLUB" && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#154ad0",
+                              fontWeight: "normal",
+                              marginTop: "4px",
+                            }}
+                          >
+                            [소모임]
+                          </span>
+                        )}
+                        {post.postType === "EVENT" && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#ff6b35",
+                              fontWeight: "normal",
+                              marginTop: "4px",
+                            }}
+                          >
+                            [이벤트]
+                          </span>
+                        )}
                       </TextInfo>
                     </LeftContent>
 
