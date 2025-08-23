@@ -22,18 +22,17 @@ const Container = styled.div`
 // HeadLeft.jsx
 import { useSearchContext } from "../../main/SearchContext";
 function HeadLeft() {
-  const navigate = useNavigate();
   const { setSearchTerm, setIsSearchActive, setSearchResults } =
     useSearchContext();
+  const navigate = useNavigate();
 
   const handleClickLogo = () => {
-    // 검색 상태 초기화
     setSearchTerm("");
     setIsSearchActive(false);
     setSearchResults(null);
 
-    // location.state 제거하고 main 이동
-    navigate("/main", { replace: true, state: null });
+    // ✅ 게시글 다시 불러오도록 강제 트리거
+    navigate("/main", { replace: true, state: { reset: true } });
   };
 
   return (
