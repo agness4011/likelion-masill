@@ -20,7 +20,7 @@ const SajangContainer = styled.div`
 const Header = styled.div`
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 10px;
   background: white;
   border-bottom: 1px solid #f0f0f0;
 `;
@@ -45,15 +45,16 @@ const Title = styled.h1`
   margin: 0;
   flex: 1;
   text-align: center;
+  margin-left: -60px;
 `;
 
 const Content = styled.div`
-  padding: 30px 20px;
+  padding: 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 400px;
+  min-height: 350px;
 `;
 
 const BirdContainer = styled.div`

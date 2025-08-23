@@ -63,6 +63,8 @@ const Title = styled.h1`
   font-size: 18px;
   font-weight: 600;
   color: #333;
+  text-align: center;
+  margin-left: 90px;
 `;
 
 const Content = styled.div`

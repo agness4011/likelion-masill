@@ -32,7 +32,7 @@ const Container = styled.div`
 const Header = styled.div`
   display: flex;
   align-items: center;
-  padding: 16px 20px;
+  padding: 10px 20px;
   border-bottom: 1px solid #e5e5e5;
   background: #fff;
   width: 100%;
@@ -42,10 +42,11 @@ const Header = styled.div`
 
 const HeaderTitle = styled.h1`
   font-size: 18px;
-  font-weight: 600;
+  font-weight: bold;
   color: #000;
   margin: 0;
   flex: 1;
+  margin-left: 100px;
 `;
 
 const BackButton = styled.button`
