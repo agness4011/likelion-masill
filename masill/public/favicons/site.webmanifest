@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Masill",
   "short_name": "Masill",
   "description": "우리 동네 마실, 어디로 가볼까요?",
@@ -7,7 +8,7 @@
       "src": "/favicons/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "theme_color": "#1B409C",
