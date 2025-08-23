@@ -16,6 +16,7 @@ import OnSummaryImg from "../../assets/detail/onsummary.png";
 import KeyboardButton from "../../assets/detail/keyboard.png";
 import Aply from "../../assets/detail/aply.png";
 import GoChatRoom from "../../assets/detail/gochatroom.svg";
+import Hat from "../../assets/detail/hat.svg";
 
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
@@ -474,7 +475,8 @@ function MiddleWho() {
           username: detailData.username,
           userImage: detailData.userImage,
           userId: detailData.userId,
-          author: detailData.author, // 작성자 ID 추가
+          author: detailData.author,
+          businessVerified: detailData.businessVerified, // ✅ 추가
         });
       } catch (error) {
         console.error("이벤트 조회 실패", error);
@@ -546,6 +548,7 @@ function MiddleWho() {
 
   return (
     <UserDiv>
+      {eventData.businessVerified && <CeoMark src={Hat} />}
       <UserImg src={eventData.userImage} alt="유저 이미지" />
       <UserNickName>{eventData.username}</UserNickName>
 
@@ -565,6 +568,15 @@ function MiddleWho() {
     </UserDiv>
   );
 }
+
+const CeoMark = styled.img`
+  position: absolute;
+  top: -12px; /* 프로필 이미지 위에 걸치도록 */
+  left: 1px;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+`;
 
 function TabMenu({ activeTab, setActiveTab }) {
   const tabs = [
