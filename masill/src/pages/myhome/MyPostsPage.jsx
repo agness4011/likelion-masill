@@ -437,30 +437,6 @@ const MyPostsPage = () => {
                         <TextInfo>
                           <BoardTitleH1>
                             {post.title}
-                            {post.postType === "CLUB" && (
-                              <span
-                                style={{
-                                  fontSize: "12px",
-                                  color: "#154ad0",
-                                  marginLeft: "8px",
-                                  fontWeight: "normal",
-                                }}
-                              >
-                                [소모임]
-                              </span>
-                            )}
-                            {post.postType === "EVENT" && (
-                              <span
-                                style={{
-                                  fontSize: "12px",
-                                  color: "#ff6b35",
-                                  marginLeft: "8px",
-                                  fontWeight: "normal",
-                                }}
-                              >
-                                [이벤트]
-                              </span>
-                            )}
                           </BoardTitleH1>
                           <BoardLocationP>{post.location}</BoardLocationP>
                           <BoardDateP>
@@ -476,6 +452,30 @@ const MyPostsPage = () => {
                                   "YYYY.MM.DD.(dd)"
                                 )} ${dayjs(post.startAt).format("HH:mm")}`}
                           </BoardDateP>
+                          {post.postType === "CLUB" && (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#154ad0",
+                                fontWeight: "normal",
+                                marginTop: "4px",
+                              }}
+                            >
+                              [소모임]
+                            </span>
+                          )}
+                          {post.postType === "EVENT" && (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#ff6b35",
+                                fontWeight: "normal",
+                                marginTop: "4px",
+                              }}
+                            >
+                              [이벤트]
+                            </span>
+                          )}
                         </TextInfo>
                       </LeftContent>
 

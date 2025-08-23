@@ -93,7 +93,6 @@ export const BoardTitleH1 = styled.p`
   width: 230px;
   max-width: 230px;
   margin-bottom: 6px;
-  /* 고정 폭 내에서 ... 표시 */
 `;
 export const BoardLocationP = styled.p`
   overflow: hidden;
