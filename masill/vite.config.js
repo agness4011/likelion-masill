@@ -31,16 +31,16 @@ export default defineConfig({
         scope: '/',
         icons: [
           {
-            src: 'favicons/favicon-96x96.png',
-            sizes: '96x96',
+            src: 'favicons/web-app-manifest-192x192.png',
+            sizes: '192x192',
             type: 'image/png',
-            purpose: 'any'
+            purpose: 'any maskable'
           },
           {
-            src: 'favicons/apple-touch-icon.png',
-            sizes: '180x180',
+            src: 'favicons/web-app-manifest-512x512.png',
+            sizes: '512x512',
             type: 'image/png',
-            purpose: 'any'
+            purpose: 'any maskable'
           }
         ]
       }
