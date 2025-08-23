@@ -156,8 +156,9 @@ function CategoryItem({
         background: isActive
           ? "linear-gradient(#fff, #fff) padding-box, linear-gradient(17deg, #1B409C 5.84%, #FF7852 68.23%) border-box"
           : "#e5ecff",
-        border: isActive ? "2px solid transparent" : "none",
+        border: isActive ? "1px solid transparent" : "1px solid transparent",
         color: isActive ? "#000" : "var(--Gray-900, #727C94)",
+        boxSizing: "border-box",
       }}
       onClick={handleClick}
     >
@@ -834,7 +835,7 @@ const CategoryBtn = styled.button`
   flex: 0 0 auto;
   border-radius: 10px;
   background: var(--Gray-300, #e5ecff);
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   color: var(--Gray-900, #727c94);
   /* 카테고리 */
