@@ -348,12 +348,11 @@ function Post() {
       }
     };
 
-    // ✅ 검색 중이 아닐 때만 전체 게시글 불러오기
-    if (!isSearchActive) {
+    // ✅ 검색 중이 아니고 검색 결과가 없을 때만 전체 게시글 불러오기
+    if (!isSearchActive && !searchResults) {
       loadPosts();
-      // ❌ setSearchResults(null) 지움 (검색 유지해야 함)
     }
-  }, [category, regionId, isSearchActive]);
+  }, [category, regionId, isSearchActive, searchResults]);
 
   // AI 채팅 추천 게시물 처리
   useEffect(() => {
