@@ -80,6 +80,8 @@ const PostCard = styled.div`
   }
   width: 380px;
   margin-bottom: 0;
+  padding-bottom: 5px;
+  min-height: 0px;
 `;
 
 const ImageScrollWrapper = styled.div`
@@ -515,57 +517,59 @@ const MyPostsPage = () => {
                     </ContentWrapper>
                   </div>
 
-                  {/* PromotionIcon을 소모임이 아닌 경우에만 표시 */}
-                  <PromotionContainer>
-                    {post.up ? (
-                      <>
-                        <UpIconBack
-                          src={UpPromtionImg}
-                          alt="업 프로모션 아이콘"
-                          style={{ position: "relative" }}
-                        />
-                        <UpBird src={UpBirdImg} alt="업 새 아이콘" />
+                                     {/* PromotionIcon을 소모임이 아닌 경우에만 표시 */}
+                   {post.postType !== "CLUB" && (
+                     <PromotionContainer>
+                       {post.up ? (
+                         <>
+                           <UpIconBack
+                             src={UpPromtionImg}
+                             alt="업 프로모션 아이콘"
+                             style={{ position: "relative" }}
+                           />
+                           <UpBird src={UpBirdImg} alt="업 새 아이콘" />
 
-                        {/* ✅ 업 모달 아이콘 */}
-                        <UpModalIcon
-                          src={UpModalIconImg}
-                          alt="업 정보 아이콘"
-                          onClick={() => toggleUpModal(post.eventId)}
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            cursor: "pointer",
-                            position: "relative",
-                          }}
-                        />
+                           {/* ✅ 업 모달 아이콘 */}
+                           <UpModalIcon
+                             src={UpModalIconImg}
+                             alt="업 정보 아이콘"
+                             onClick={() => toggleUpModal(post.eventId)}
+                             style={{
+                               width: "20px",
+                               height: "20px",
+                               cursor: "pointer",
+                               position: "relative",
+                             }}
+                           />
 
-                        {/* ✅ 해당 post만 모달 열리도록 */}
-                        {openModalId === post.eventId && (
-                          <UpModalWrapper>
-                            [UP광고 정보]
-                            <br />
-                            게시물 전지역 노출
-                            <br />
-                            게시물 상단 노출
-                            <br />
-                            노출 빈도 UP
-                          </UpModalWrapper>
-                        )}
+                           {/* ✅ 해당 post만 모달 열리도록 */}
+                           {openModalId === post.eventId && (
+                             <UpModalWrapper>
+                               [UP광고 정보]
+                               <br />
+                               게시물 전지역 노출
+                               <br />
+                               게시물 상단 노출
+                               <br />
+                               노출 빈도 UP
+                             </UpModalWrapper>
+                           )}
 
-                        <UpP>
-                          남은 시간 :{" "}
-                          {formatRemainingTime(post.upRemainingSeconds)}
-                        </UpP>
-                      </>
-                    ) : (
-                      <PromotionIconImg
-                        src={OffAdvers}
-                        alt="프로모션 아이콘"
-                        onClick={() => handleUpClick(post.eventId)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    )}
-                  </PromotionContainer>
+                           <UpP>
+                             남은 시간 :{" "}
+                             {formatRemainingTime(post.upRemainingSeconds)}
+                           </UpP>
+                         </>
+                       ) : (
+                         <PromotionIconImg
+                           src={OffAdvers}
+                           alt="프로모션 아이콘"
+                           onClick={() => handleUpClick(post.eventId)}
+                           style={{ cursor: "pointer" }}
+                         />
+                       )}
+                     </PromotionContainer>
+                   )}
                 </PostCard>
               </React.Fragment>
             ))}

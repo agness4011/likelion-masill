@@ -508,6 +508,7 @@ const WishlistPage = () => {
 
 
                  </PostCard>
+                 {/* 소모임 게시글에는 프로모션 아이콘이 표시되지 않음 */}
                 </PostCardContainer>
                </React.Fragment>
             ))}
