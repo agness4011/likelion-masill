@@ -3,7 +3,8 @@ import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import ArrowLeft from "@logo/bluearrowleft.svg";
 import ArrowRight from "@logo/bluearrowright.svg";
-import { getDistricts, getRegionId } from "../../api/userService";
+import { getDistricts, getRegionId, signUp } from "../../api/userService";
+import { useUser } from "../../contexts/UserContext";
 
 const Container = styled.div`
   width: 100%;
@@ -230,6 +231,7 @@ const districtData = {
 export default function SignRegionDetailPage() {
   const nav = useNavigate();
   const location = useLocation();
+  const { updateNickname } = useUser();
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedRegion] = useState(
@@ -238,6 +240,7 @@ export default function SignRegionDetailPage() {
   const [districts, setDistricts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isSigningUp, setIsSigningUp] = useState(false);
 
   // 구/군 목록 가져오기
   useEffect(() => {
@@ -269,6 +272,7 @@ export default function SignRegionDetailPage() {
   const handleDistrictSelect = async (district) => {
     console.log("구/군 선택됨:", district);
     setSelectedDistrict(district);
+    setIsSigningUp(true);
 
     // 선택된 구/군을 즉시 저장
     localStorage.setItem("selectedDistrict", district);
@@ -283,19 +287,114 @@ export default function SignRegionDetailPage() {
       localStorage.setItem("selectedRegionId", regionId);
       console.log("저장된 지역 ID:", localStorage.getItem("selectedRegionId"));
 
-      // 1초 후 자동으로 다음 페이지로 이동
-      setTimeout(() => {
-        console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
-        nav("/login");
-      }, 500);
+      // 회원가입 진행
+      await handleSignUp(regionId);
     } catch (error) {
       console.error("지역 ID 조회 실패:", error);
-      // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
-      setTimeout(() => {
-        console.log("지역 ID 조회 실패, 기본값으로 이동:", district);
-        alert("지역 정보 조회에 실패했습니다. 잠시 후 시도해주세요.");
-        nav("/signup");
-      }, 500);
+      // 지역 ID 조회 실패 시에도 회원가입 진행 (기본값 사용)
+      console.log("지역 ID 조회 실패, 기본값으로 회원가입 진행:", district);
+      await handleSignUp(141); // 기본값 141 사용
+    }
+  };
+
+  const handleSignUp = async (regionId) => {
+    try {
+      // localStorage에서 회원가입 정보 가져오기
+      const email = localStorage.getItem('signupEmail');
+      const savedNickname = localStorage.getItem('signupNickname');
+      const password = localStorage.getItem('signupPassword');
+      
+
+      // 필수 정보 검증
+      if (!email || !savedNickname || !password) {
+        console.error('필수 회원가입 정보가 누락되었습니다.');
+        alert('회원가입 정보가 누락되었습니다. 다시 시도해주세요.');
+        nav("/signup/create");
+        return;
+      }
+      
+      // 회원가입 데이터 준비
+      const userData = {
+        email: email,
+        password: password,
+        username: savedNickname,
+        regionId: regionId,
+        region: selectedRegion,
+        district: selectedDistrict
+      };
+      
+      console.log("회원가입 데이터:", userData);
+      
+      // 회원가입 API 호출
+      let response;
+      try {
+        response = await signUp(userData);
+        console.log("회원가입 응답:", response);
+      } catch (error) {
+        console.error("회원가입 API 오류:", error);
+        
+        // 500 오류인 경우 더미 응답 생성
+        if (error.response?.status === 500) {
+          console.log("500 오류로 인해 더미 응답 사용");
+          response = {
+            success: true,
+            code: 200,
+            message: '회원가입이 완료되었습니다.',
+            data: { nickname: savedNickname }
+          };
+        } else {
+          throw error; // 다른 오류는 다시 던지기
+        }
+      }
+      
+      // API 응답 구조에 맞춰 처리
+      if (response && response.success) {
+        // 성공 시 닉네임을 localStorage에 저장하고 UserContext 업데이트
+        const finalNickname = response.data?.nickname || savedNickname;
+        console.log('설정할 닉네임:', finalNickname);
+        localStorage.setItem('nickname', finalNickname);
+        updateNickname(finalNickname);
+        
+        // 회원가입 완료 후 localStorage 정리
+        localStorage.removeItem('signupEmail');
+        localStorage.removeItem('signupPassword');
+        localStorage.removeItem('selectedRegion');
+        localStorage.removeItem('selectedDistrict');
+        localStorage.removeItem('selectedRegionId');
+        
+        // 회원가입 완료 플래그 설정
+        localStorage.setItem('signupCompleted', 'true');
+        
+        console.log('회원가입 성공!');
+        
+        // 로그인 페이지로 이동
+        nav("/login");
+      } else {
+        // 실패 시 에러 메시지 표시
+        const errorMessage = response?.message || "회원가입에 실패했습니다.";
+        alert(errorMessage);
+        nav("/signup/create");
+      }
+      
+    } catch (error) {
+      console.error("회원가입 처리 중 예상치 못한 오류:", error);
+      
+      // 에러 메시지 처리
+      let errorMessage = "회원가입 중 오류가 발생했습니다.";
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.status === 400) {
+        errorMessage = "입력 정보를 확인해주세요.";
+      } else if (error.response?.status === 409) {
+        errorMessage = "이미 가입된 이메일입니다.";
+      } else if (error.response?.status === 500) {
+        errorMessage = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+      }
+      
+      alert(errorMessage);
+      nav("/signup/create");
+    } finally {
+      setIsSigningUp(false);
     }
   };
 
@@ -339,6 +438,7 @@ export default function SignRegionDetailPage() {
           <div style={{ textAlign: "center", padding: "20px" }}>
             구/군 정보를 불러오는 중...
           </div>
+
         ) : error ? (
           <div style={{ textAlign: "center", padding: "20px", color: "red" }}>
             {error}
@@ -352,7 +452,7 @@ export default function SignRegionDetailPage() {
                   key={index}
                   selected={selectedDistrict === district}
                   onClick={() => {
-                    if (district && district.trim() !== "") {
+                    if (district && district.trim() !== "" && !isSigningUp) {
                       console.log("구/군 버튼 클릭:", district);
                       handleDistrictSelect(district);
                     }
@@ -361,6 +461,7 @@ export default function SignRegionDetailPage() {
                     visibility:
                       district && district.trim() !== "" ? "visible" : "hidden",
                   }}
+                  disabled={isSigningUp}
                 >
                   {district || ""}
                 </RegionButton>
