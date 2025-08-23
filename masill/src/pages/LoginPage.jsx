@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import MasilLogo from "@/assets/masill-logo.svg";
-import KakaoLogo from "@logo/kakao.svg";
-import NaverLogo from "@logo/naver.svg";
+
 import { login } from "../api/userService";
 import { useUser } from "../contexts/UserContext";
 
@@ -74,7 +73,7 @@ const BottomGradient = styled.div`
   width: 674.37px;
   height: 674.37px;
   left: -320px;
-  bottom: -700px;
+  bottom: -850px;
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
   filter: blur(2.25px);
   transform: rotate(-95.46deg);
@@ -99,11 +98,10 @@ const LogoImage = styled.img`
 const FormSection = styled.div`
   width: 100%;
   max-width: 340px;
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: 40px;
+  align-items: center;
+  margin-top: 40px;
   overflow: visible;
 `;
 
@@ -176,75 +174,25 @@ const LoginButton = styled.button`
   }
 `;
 
-const SocialLoginSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 35px;
-`;
 
-const SocialDivider = styled.div`
-  width: 100%;
-  height: 1px;
-  background: #e1e5e9;
-  position: relative;
-  margin-bottom: 26px;
-
-  &::before {
-    content: "소셜 로그인";
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #fff;
-    padding: 0 16px;
-    font-size: 14px;
-    color: #727c94;
-  }
-`;
-
-const SocialButtons = styled.div`
-  display: flex;
-  gap: 24px;
-`;
-
-const SocialButton = styled.button`
-  width: 48px;
-  height: 49px;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.05);
-  }
-`;
-
-const KakaoIcon = styled.img`
-  width: 32px;
-  height: 32px;
-`;
-
-const NaverIcon = styled.img`
-  width: 32px;
-  height: 32px;
-`;
 
 const SignupSection = styled.div`
   text-align: center;
-  margin-top: -35px;
-  margin-bottom: 65px;
-  position: relative;
+  position: fixed;
+  bottom: 240px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 `;
 
 const SignupText = styled.span`
   font-size: 14px;
   color: #727c94;
+  white-space: nowrap;
 `;
 
 const SignupLink = styled.span`
@@ -253,6 +201,7 @@ const SignupLink = styled.span`
   text-decoration: underline;
   cursor: pointer;
   margin-left: 5px;
+  white-space: nowrap;
 `;
 
 export default function LoginPage() {
@@ -344,70 +293,60 @@ export default function LoginPage() {
   };
 
   return (
-    <Container>
-      <CircleTopRight />
-      <BottomGradient />
+    <>
+      <Container>
+        <CircleTopRight />
+        <BottomGradient />
 
-      <TopBar>
-        <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
-          &#8592;
-        </BackBtn>
-      </TopBar>
+        <TopBar>
+          <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
+            &#8592;
+          </BackBtn>
+        </TopBar>
 
-      <ContentSection>
-        <LogoSection>
-          <LogoImage src={MasilLogo} alt="마실" />
-        </LogoSection>
+        <ContentSection>
+          <LogoSection>
+            <LogoImage src={MasilLogo} alt="마실" />
+          </LogoSection>
 
-        <InputSection>
-          <InputGroup>
-            <InputContainer>
-              <InputLabel htmlFor="email">아이디</InputLabel>
-              <InputField
-                id="email"
-                type="email"
-                placeholder="이메일 주소를 입력해주세요."
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </InputContainer>
+          <InputSection>
+            <InputGroup>
+              <InputContainer>
+                <InputLabel htmlFor="email">아이디</InputLabel>
+                <InputField
+                  id="email"
+                  type="email"
+                  placeholder="이메일 주소를 입력해주세요."
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </InputContainer>
 
-            <InputContainer>
-              <InputLabel htmlFor="password">비밀번호</InputLabel>
-              <InputField
-                id="password"
-                type="password"
-                placeholder="비밀번호를 입력해주세요."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </InputContainer>
-          </InputGroup>
-        </InputSection>
+              <InputContainer>
+                <InputLabel htmlFor="password">비밀번호</InputLabel>
+                <InputField
+                  id="password"
+                  type="password"
+                  placeholder="비밀번호를 입력해주세요."
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </InputContainer>
+            </InputGroup>
+          </InputSection>
 
-        <FormSection>
-          <LoginButton onClick={handleLogin}>
-            로그인
-          </LoginButton>
-
-          <SocialLoginSection>
-            <SocialDivider />
-            <SocialButtons>
-              <SocialButton>
-                <KakaoIcon src={KakaoLogo} alt="카카오" />
-              </SocialButton>
-              <SocialButton>
-                <NaverIcon src={NaverLogo} alt="네이버" />
-              </SocialButton>
-            </SocialButtons>
-          </SocialLoginSection>
-        </FormSection>
-      </ContentSection>
+          <FormSection>
+            <LoginButton onClick={handleLogin}>
+              로그인
+            </LoginButton>
+          </FormSection>
+        </ContentSection>
+      </Container>
 
       <SignupSection>
-        <SignupText>아직 회원이 아니신가요?</SignupText>
+        <SignupText>아직 회원이 아니신가요? </SignupText>
         <SignupLink onClick={handleSignup}>회원가입</SignupLink>
       </SignupSection>
-    </Container>
+    </>
   );
 }
