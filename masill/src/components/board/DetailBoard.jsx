@@ -74,9 +74,6 @@ import {
   KeyboardInput,
   KeyboardDiv,
   KeyboardBtn,
-  ReplyKeyboard,
-  ReplyKeyboardDiv,
-  ReplyKeyboardBtn,
   CommentUserImg,
   CommentUserName,
   CommentContent,
@@ -626,7 +623,7 @@ function DetailContent() {
 
   return (
     <DetailDiv>
-      <div>
+      <div style={{ justifyContent: "space-between" }}>
         <SummaryBtn
           summaryDone={summaryDone}
           onClick={() => setSummaryDone((prev) => !prev)}
@@ -978,18 +975,33 @@ function AddCommentMessage({
           alignItems: "center",
           gap: "12px",
           marginBottom: "8px",
+
+          justifyContent: "space-between" /* 양 끝으로 정렬하는 예시 */,
         }}
       >
-        <CommentUserImg
-          src={
-            userData?.profileImage || "https://via.placeholder.com/32x32?text=?"
-          }
-          alt="내 프로필"
-          style={{ width: "32px", height: "32px", borderRadius: "50%" }}
-        />
-        <span style={{ fontSize: "14px", color: "#666" }}>
-          {userData?.nickname || "사용자"}
-        </span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CommentUserImg
+            src={
+              userData?.profileImage ||
+              "https://via.placeholder.com/32x32?text=?"
+            }
+            alt="내 프로필"
+            style={{ width: "32px", height: "32px", borderRadius: "50%" }}
+          />
+          <span style={{ fontSize: "14px", color: "#666", margin: "0" }}>
+            {userData?.nickname || "사용자"}
+          </span>
+        </div>
+
+        {parentCommentId && (
+          <CancelBtn onClick={onCancel}>취소</CancelBtn> // 취소 버튼
+        )}
       </div>
 
       <KeyboardDiv>
@@ -1002,65 +1014,11 @@ function AddCommentMessage({
           onChange={(e) => setComment(e.target.value)}
         />
         <KeyboardBtn src={KeyboardButton} onClick={handleAdd} />
-        {parentCommentId && (
-          <CancelBtn onClick={onCancel}>취소</CancelBtn> // 취소 버튼
-        )}
       </KeyboardDiv>
     </div>
   );
 }
 
-function AddReplyMessage({ eventId, parentCommentId, onReplyAdded, onCancel }) {
-  const [content, setContent] = useState("");
-  const { userData } = useUser(); // 현재 로그인한 사용자 정보
-
-  const handleAddReply = async () => {
-    if (!content.trim()) return;
-
-    try {
-      const newReply = await addReply(eventId, parentCommentId, content);
-      if (onReplyAdded) onReplyAdded(newReply, parentCommentId);
-      setContent("");
-      if (onCancel) onCancel(); // 입력창 닫기
-    } catch (error) {
-      console.error("대댓글 작성 실패", error);
-    }
-  };
-
-  return (
-    <div style={{ marginLeft: "40px", marginTop: "6px" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "8px",
-        }}
-      >
-        {/* 본인 프로필 이미지 */}
-        <CommentUserImg
-          src={
-            userData?.profileImage || "https://via.placeholder.com/32x32?text=?"
-          }
-          alt="내 프로필"
-          style={{ width: "28px", height: "28px", borderRadius: "50%" }}
-        />
-        <span style={{ fontSize: "13px", color: "#666" }}>
-          {userData?.nickname || "사용자"}
-        </span>
-      </div>
-      <ReplyKeyboardDiv>
-        <ReplyKeyboard
-          type="text"
-          placeholder="답글을 입력하세요"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <ReplyKeyboardBtn src={KeyboardButton} onClick={handleAddReply} />
-      </ReplyKeyboardDiv>
-    </div>
-  );
-}
 function ChatModal({ user, onClose, commentId }) {
   const modalRoot = document.getElementById("modal-root");
   const navigate = useNavigate();
@@ -1224,49 +1182,55 @@ function Group() {
           <p>소모임을 불러오는 중...</p>
         ) : groups.length > 0 ? (
           groups.map((group) => (
-            <GroupComponent
+            <div
+              style={{
+                borderTop: "0.5px solid var(--Gray-500, #c1cae0)",
+                borderBottom: "0.5px solid var(--Gray-500, #c1cae0)",
+              }}
               key={group.clubId}
               onClick={() =>
                 navigate(`/detail/${eventId}/clubId/${group.clubId}`)
               }
             >
-              <GroupMainImage src={group.coverImage} alt="cover" />
-              <GroupRight>
-                {/* 상단 영역 */}
-                <GroupTopRow>
-                  <GroupUserAndText>
-                    <GroupUserImg src={group.userImage} alt="user" />
-                    <GroupTextBox>
-                      <GroupEventID>{eventTitle}</GroupEventID>
-                      <GroupTitle>{group.title}</GroupTitle>
-                    </GroupTextBox>
-                  </GroupUserAndText>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    <GroupHeart
-                      src={group.liked ? FullHeart : Heart}
-                      alt="heart"
-                      onClick={(e) => clickHeart(e, group.clubId)}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </div>
-                </GroupTopRow>
+              <GroupComponent>
+                <GroupMainImage src={group.coverImage} alt="cover" />
+                <GroupRight>
+                  {/* 상단 영역 */}
+                  <GroupTopRow>
+                    <GroupUserAndText>
+                      <GroupUserImg src={group.userImage} alt="user" />
+                      <GroupTextBox>
+                        <GroupEventID>{eventTitle}</GroupEventID>
+                        <GroupTitle>{group.title}</GroupTitle>
+                      </GroupTextBox>
+                    </GroupUserAndText>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      <GroupHeart
+                        src={group.liked ? FullHeart : Heart}
+                        alt="heart"
+                        onClick={(e) => clickHeart(e, group.clubId)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </div>
+                  </GroupTopRow>
 
-                {/* 중단 영역 */}
-                <GroupSummary>{group.content}</GroupSummary>
+                  {/* 중단 영역 */}
+                  <GroupSummary>{group.content}</GroupSummary>
 
-                {/* 하단 영역 */}
-                <GroupBottomRow>
-                  <GroupCommentImg src={CommentImg} alt="comment" />
-                  <GroupCommentNum>{group.commentCount}</GroupCommentNum>
-                </GroupBottomRow>
-              </GroupRight>
-            </GroupComponent>
+                  {/* 하단 영역 */}
+                  <GroupBottomRow>
+                    <GroupCommentImg src={CommentImg} alt="comment" />
+                    <GroupCommentNum>{group.commentCount}</GroupCommentNum>
+                  </GroupBottomRow>
+                </GroupRight>
+              </GroupComponent>
+            </div>
           ))
         ) : (
           <p>아직 등록된 소모임이 없습니다.</p>

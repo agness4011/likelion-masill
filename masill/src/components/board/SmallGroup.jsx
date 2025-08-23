@@ -399,10 +399,7 @@ function MiddleWho() {
     try {
       setChatLoading(true);
 
-     
-      
       const response = await startClubChat(eventId, clubId);
-     
 
       if (response?.data?.roomId) {
         navigate(`/chat/room/${response.data.roomId}`);
@@ -472,7 +469,6 @@ function DetailContent() {
       try {
         const data = await smallGroupDetail(eventId, clubId);
         setEvent(data);
- 
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -546,12 +542,10 @@ function UserChat() {
     }));
   };
 
-
   const handleProfileClick = (user, commentId) => {
     if (user.username === currentNickname) return;
     setSelectedUser({ ...user, commentId });
     setChatModalOpen(true);
-
   };
 
   const handleCloseModal = () => {
@@ -592,12 +586,16 @@ function UserChat() {
   if (loading) return <p>로딩 중...</p>;
 
   return (
-    <div style={{ position: "relative", paddingBottom: "150px" }}>
+    <div
+      style={{
+        position: "relative",
+        paddingBottom: "150px",
+      }}
+    >
       {comments.length === 0 ? (
         <p>작성된 댓글이 없습니다.</p>
       ) : (
         comments.map((comment) => (
-
           <CommentWrapper key={comment.commentId}>
             <div style={{ display: "flex", gap: "14px", marginTop: "26px" }}>
               <CommentUserImg
@@ -615,7 +613,6 @@ function UserChat() {
                 }
                 onError={(e) => {
                   e.currentTarget.src = "/default-profile.png";
-
                 }}
               />
               <div style={{ flex: 1 }}>
@@ -660,7 +657,6 @@ function UserChat() {
                         marginLeft: "40px",
                       }}
                     >
-
                       <CommentUserImg
                         src={
                           reply.userProfileImageUrl || "/default-profile.png"
@@ -740,7 +736,6 @@ function UserChat() {
         />
       </div>
 
-
       {chatModalOpen && selectedUser && (
         <ChatModal
           user={selectedUser}
@@ -748,7 +743,6 @@ function UserChat() {
           commentId={selectedUser.commentId}
         />
       )}
-
     </div>
   );
 }
@@ -804,17 +798,28 @@ function AddCommentMessage({
           alignItems: "center",
           gap: "12px",
           marginBottom: "8px",
+          justifyContent: "space-between",
         }}
       >
-        <CommentUserImg
-          src={profileImg}
-          alt={nickname}
-          style={{ width: "32px", height: "32px", borderRadius: "50%" }}
-          onError={(e) => {
-            e.currentTarget.src = "/default-profile.png";
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        />
-        <span style={{ fontSize: "14px", color: "#666" }}>{nickname}</span>
+        >
+          <CommentUserImg
+            src={profileImg}
+            alt={nickname}
+            style={{ width: "32px", height: "32px", borderRadius: "50%" }}
+            onError={(e) => {
+              e.currentTarget.src = "/default-profile.png";
+            }}
+          />
+          <span style={{ fontSize: "14px", color: "#666" }}>{nickname}</span>
+        </div>
+
+        {parentCommentId && <CancelBtn onClick={onCancel}>취소</CancelBtn>}
       </div>
 
       <KeyboardDiv>
@@ -827,7 +832,6 @@ function AddCommentMessage({
           onChange={(e) => setComment(e.target.value)}
         />
         <KeyboardBtn src={KeyboardButton} onClick={handleAdd} />
-        {parentCommentId && <CancelBtn onClick={onCancel}>취소</CancelBtn>}
       </KeyboardDiv>
     </div>
   );
@@ -875,7 +879,6 @@ function AddReplyMessage({
   );
 }
 function ChatModal({ user, onClose }) {
-
   console.log("=== ChatModal 컴포넌트 시작 ===");
   console.log("ChatModal props:", { user, onClose });
   console.log("user.commentId:", user?.commentId);

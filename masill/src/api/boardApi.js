@@ -2,6 +2,31 @@ import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 
 /* --- API 호출 --- */
 // api.js 같은 곳
+// ✅ 업하기 API 호출 함수
+export const UpPostMain = async (eventId) => {
+  try {
+    const res = await privateAPI.get(`/events/ai-recommendations`, { params });
+
+    // 정상적으로 content 반환
+    return res.data?.data?.content || [];
+  } catch (error) {
+    console.error("AI 추천 조회 실패", error);
+    throw error;
+  }
+};
+
+export const UpPost = async (eventId) => {
+  try {
+    const res = await privateAPI.post(
+      `/events/${eventId}/up/start?days=7` // days=7 쿼리 파라미터 추가
+    );
+    return res.data.data;
+  } catch (error) {
+    console.error("게시글 업하기 실패", error);
+    throw error;
+  }
+};
+
 export const AiRecommend = async (
   category = null, // 기본값 null
   today = false, // 기본값 false
@@ -20,8 +45,6 @@ export const AiRecommend = async (
     if (category) {
       params.eventType = category;
     }
-
-
 
     const res = await privateAPI.get(`/events/ai-recommendations`, { params });
 
@@ -255,7 +278,6 @@ export const fetchAllBoards = async (
   sortDir = "desc"
 ) => {
   try {
-
     const res = await privateAPI.get(`/events/all`, {
       params: { regionId, page, size, sortBy, sortDir },
     });
@@ -274,7 +296,6 @@ export const fetchAllBoardsForSearch = async (
   sortDir = "desc"
 ) => {
   try {
-
     const res = await privateAPI.get(`/events/all/search`, {
       params: { page, size, sortBy, sortDir },
     });
@@ -286,6 +307,7 @@ export const fetchAllBoardsForSearch = async (
 };
 
 // GET: 내가 작성한 게시글 목록
+// api/posts.js
 export const fetchMyPosts = async (
   page = 1,
   size = 20,
@@ -293,11 +315,10 @@ export const fetchMyPosts = async (
   sortDir = "desc"
 ) => {
   try {
-  
     const res = await privateAPI.get(`/users/me/posts`, {
       params: { page, size, sortBy, sortDir },
     });
-    return res.data;
+    return res.data.data; // ✅ 여기서 바로 data만 리턴
   } catch (error) {
     console.error("내가 작성한 게시물 불러오기 실패:", error);
     throw error;
@@ -312,7 +333,6 @@ export const fetchMyFavorites = async (
   sortDir = "desc"
 ) => {
   try {
-  
     const res = await privateAPI.get(`/users/me/favorites`, {
       params: { page, size, sortBy, sortDir },
     });
@@ -326,8 +346,6 @@ export const fetchMyFavorites = async (
 // boardApi.js
 export const eventTypeBoards = async (eventType, regionId) => {
   try {
-   
-
     const params = {
       regionId,
       eventType, // ENUM 값 직접 받음
@@ -351,10 +369,7 @@ export const eventTypeBoards = async (eventType, regionId) => {
 // POST: 게시글 이벤트 추가
 export const addBoard = async (formData) => {
   try {
-  
-
     for (let [key, value] of formData.entries()) {
-
     }
 
     // private 인스턴스가 없으면 그냥 multipartAPI로
@@ -371,9 +386,7 @@ export const addBoard = async (formData) => {
 // 지역 API
 export const getRegions = async () => {
   try {
-  
     const { data } = await publicAPI.get("/regions/sidos");
-  
 
     // API 응답 구조에 맞게 처리
     if (data && data.data && data.data.items) {
@@ -433,9 +446,7 @@ export const getRegions = async () => {
 
 export const getDistricts = async (region) => {
   try {
-    
     const { data } = await publicAPI.get(`/regions/sidos/${region}/sigungus`);
-
 
     // API 응답 구조에 맞게 처리
     if (data && data.data && data.data.items) {
@@ -727,31 +738,26 @@ export const getRegionId = async (sido, sigungu) => {
       throw new Error("sido와 sigungu는 필수 파라미터입니다.");
     }
 
-
     const { data } = await publicAPI.get("/regions/id", {
       params: { sido, sigungu },
     });
- 
 
     // API 응답 구조에 맞게 처리 (Swagger 문서 기반)
 
     if (data && typeof data === "object") {
       // Swagger 문서의 응답 구조: { success: true, code: 200, message: "...", data: { regionId: 141 } }
       if (data.success && data.data && data.data.regionId !== undefined) {
-   
         return data.data.regionId;
       }
       // 다른 가능한 구조들
       else if (data.regionId !== undefined) {
-
         return data.regionId;
       } else if (data.data && data.data.regionId !== undefined) {
-   
         return data.data.regionId;
       }
     } else if (typeof data === "number") {
       // 직접 숫자로 반환되는 경우
-      
+
       return data;
     }
 
@@ -943,10 +949,7 @@ export const getMyRegionName = async (regionId) => {
 // 게시글 수정 API
 export const updateEvent = async (eventId, formData) => {
   try {
-
-
     for (let [key, value] of formData.entries()) {
-  
     }
 
     // addBoard와 동일한 방식으로 multipartAPI.private 사용

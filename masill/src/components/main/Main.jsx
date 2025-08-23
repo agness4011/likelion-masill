@@ -10,6 +10,7 @@ import Recommand from "../../assets/logo/main/main-sort.svg";
 import SetLocation from "../../assets/logo/main/main-location.svg";
 import BirdIcon2 from "../../assets/logo/search/twobird.svg";
 import OwnerHat from "../../assets/logo/main/owner-hat.svg";
+import AdvertisingIcon from "../../assets/advertising.svg";
 
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -77,55 +78,7 @@ const BackImg = styled.img`
   z-index: -10; /* 배경으로 두기 */
 `;
 // 검색창
-function SearchBar() {
-  const [text, setText] = useState("");
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // 검색 결과가 있을 때 검색어 표시
-  useEffect(() => {
-    if (location.state?.searchTerm) {
-      setText(location.state.searchTerm);
-    }
-  }, [location.state]);
-
-  const handleSearchClick = () => {
-    // 검색 페이지로 이동하면서 검색어 전달
-    navigate("/search", { state: { searchQuery: text } });
-  };
-
-  const handleInputClick = () => {
-    // 입력창 클릭 시에도 검색 페이지로 이동
-    navigate("/search", { state: { searchQuery: text } });
-  };
-
-  const handleKeyPress = (e) => {
-    // 엔터키 입력 시 검색 페이지로 이동
-    if (e.key === "Enter") {
-      handleSearchClick();
-    }
-  };
-
-  return (
-    <SearchWrapper>
-      <SearchInput
-        type="text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyPress={handleKeyPress}
-        onClick={handleInputClick}
-        placeholder="가게 행사하는.. 차리점..."
-        readOnly
-      />
-      <SearchImg
-        src={SearchGlass}
-        alt="서치버튼"
-        onClick={handleSearchClick}
-        style={{ cursor: "pointer" }}
-      />
-    </SearchWrapper>
-  );
-}
+import { useSearchContext } from "./SearchContext";
 
 // 카테고리 바
 function CategoryBar({ children }) {
@@ -225,34 +178,64 @@ dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale("ko");
 
-// 게시글 목록
+function SearchBar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { searchTerm, setSearchTerm, setIsSearchActive } = useSearchContext();
+
+  // 검색 실행
+  const handleSearch = () => {
+    setIsSearchActive(true);
+    navigate("/search", { state: { searchQuery: searchTerm } });
+  };
+
+  // 입력창 클릭 시
+  const handleInputClick = () => {
+    setIsSearchActive(true);
+    navigate("/search", { state: { searchQuery: searchTerm } });
+  };
+
+  // Enter 키
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") handleSearch();
+  };
+
+  return (
+    <SearchWrapper>
+      <SearchInput
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyPress={handleKeyPress}
+        onClick={handleInputClick}
+        placeholder="가게 행사하는 치킨집"
+        style={{ cursor: "pointer" }}
+      />
+      <SearchImg src={SearchGlass} onClick={handleSearch} alt="검색" />
+    </SearchWrapper>
+  );
+}
+
 function Post() {
   const location = useLocation();
   const { userData } = useUser();
+  const navigate = useNavigate();
+  const { isSearchActive, setIsSearchActive, searchTerm, setSearchTerm } =
+    useSearchContext(); // context에서 searchTerm 가져오기
+
   const category =
     location.pathname === "/main"
       ? null
       : location.pathname.replace("/main/", "");
 
-  const [sortType, setSortType] = useState("날짜순");
+  const [sortType, setSortType] = useState(
+    localStorage.getItem("sortType") || "날짜순"
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [myRegion, setMyRegion] = useState("");
-
   const [searchResults, setSearchResults] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const { isSearchActive, setIsSearchActive } = useOutletContext();
-
-  // SearchPage에서 전달받은 검색 결과 처리
-  useEffect(() => {
-    if (location.state?.searchResults !== undefined) {
-      setSearchResults(location.state.searchResults);
-      setSearchTerm(location.state.searchTerm || "");
-      setIsSearchActive(true);
-    }
-  }, [location.state, setIsSearchActive]);
-
+  const options = ["날짜순", "AI 추천순", "댓글순", "인기순"];
   const regionId = JSON.parse(localStorage.getItem("currentUser"))?.regionId;
 
   const CATEGORY_MAP = {
@@ -266,144 +249,31 @@ function Post() {
     etc: "ETC",
   };
 
-  const navigate = useNavigate();
-  const options = ["날짜순", "AI 추천순", "댓글순", "인기순"];
-
-  // posts 불러오기
-  // posts 불러오기 useEffect
-  useEffect(() => {
-    const loadPosts = async () => {
-      try {
-        const regionName = await getMyRegionName(regionId);
-        setMyRegion(regionName);
-
-        let content = [];
-        const today = dayjs().startOf("day");
-        const endOfToday = dayjs().endOf("day");
-
-        if (!category) {
-          const res = await fetchAllBoards(regionId);
-          const allPosts = res?.data?.content || [];
-
-          content = allPosts.filter((post) =>
-            dayjs(post.endAt).endOf("day").isSameOrAfter(today)
-          );
-        } else if (category === "event") {
-          const res = await fetchAllBoards(regionId);
-          const allPosts = res?.data?.content || [];
-
-          content = allPosts.filter((post) => {
-            const start = dayjs(post.startAt).startOf("day");
-            const end = dayjs(post.endAt).endOf("day");
-            return start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today);
-          });
-        } else {
-          const eventType = CATEGORY_MAP[category];
-          const res = await eventTypeBoards(eventType, regionId);
-          const allPosts = res?.data?.content || [];
-
-          content = allPosts.filter((post) =>
-            dayjs(post.endAt).endOf("day").isSameOrAfter(today)
-          );
-        }
-
-        setPosts(
-          content.map((post) => {
-            // 서버에서 받아온 businessVerified 필드 사용
-            const isVerified = post.businessVerified || false;
-            
-            return {
-              ...post,
-              isHeartClicked: post.liked ?? false,
-              isBusinessVerified: isVerified,
-            };
-          })
-        );
-      } catch (err) {
-        console.error("게시물 불러오기 실패", err);
-      }
-    };
-
-    if (!searchResults) loadPosts();
-  }, [category, regionId, searchResults]);
-
-  // AI 채팅으로 추천받은 게시물 useEffect
-  useEffect(() => {
-    if (location.state?.aiPosts && !searchResults) {
-      // ✅ searchResults가 없을 때만 세팅
-      setSearchResults(
-        location.state.aiPosts.map((post) => {
-          // 서버에서 받아온 businessVerified 필드 사용
-          const isVerified = post.businessVerified || false;
-          
-          return {
-            ...post,
-            isHeartClicked: post.liked ?? false,
-            isBusinessVerified: isVerified,
-          };
-        })
-      );
-      setSearchTerm("AI 추천 전체보기");
-      setIsSearchActive(true);
-    }
-  }, [location.state, searchResults]);
-
-  // 토글 AI 춘천 순
-  useEffect(() => {
-    const loadAiRecommendations = async () => {
-      try {
-        if (sortType === "AI 추천순") {
-          // today 판단
-          const isTodayEvent = category === "event";
-
-          // category를 서버용 eventType으로 변환
-          const eventType = category ? CATEGORY_MAP[category] : null;
-
-          // 안전하게 API 호출
-          const aiPosts = await AiRecommend(eventType, isTodayEvent, 1, 100);
-
-          setPosts(
-            aiPosts.map((post) => {
-              // 서버에서 받아온 businessVerified 필드 사용
-              const isVerified = post.businessVerified || false;
-              
-              return {
-                ...post,
-                isHeartClicked: post.liked ?? false,
-                isBusinessVerified: isVerified,
-              };
-            })
-          );
-        }
-      } catch (err) {
-        console.error("AI 추천 게시물 불러오기 실패", err);
-      }
-    };
-
-    loadAiRecommendations();
-  }, [sortType, regionId, category]);
-
-  // 검색 결과가 있으면 검색 결과, 검색 결과가 없으면서 검색어가 있으면 일반 posts, 그 외에는 일반 posts
-  const displayPosts =
-    searchResults && searchResults.length > 0 ? searchResults : posts;
-
-  // 정렬
-  const sortedPosts = [...displayPosts].sort((a, b) => {
-    if (sortType === "날짜순")
-      return dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf();
-    if (sortType === "AI 추천순") return 0;
-    if (sortType === "댓글순") return b.commentCount - a.commentCount;
-    if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
-
-    return 0;
-  });
-
-  const toggleOpen = () => setIsOpen((prev) => !prev);
-
-  const handleSelect = (type) => {
+  const handleSelect = async (type) => {
     setSortType(type);
+    localStorage.setItem("sortType", type);
     setIsOpen(false);
+
+    // ✅ "AI 추천순" 선택 시 API 호출
+    if (type === "AI 추천순") {
+      try {
+        const today = false; // 필요 시 true로 변경 가능
+        const eventType = category ? CATEGORY_MAP[category] : null;
+
+        const aiPosts = await AiRecommend(eventType, today, 1, 100);
+        const mapped = aiPosts.map((post) => ({
+          ...post,
+          isHeartClicked: post.liked ?? false,
+          isBusinessVerified: post.businessVerified || false,
+        }));
+
+        setPosts(mapped);
+      } catch (err) {
+        console.error("AI 추천순 불러오기 실패:", err);
+      }
+    }
   };
+  const toggleOpen = () => setIsOpen((prev) => !prev);
 
   const handleRegionClick = () => {
     if (isSearchActive) {
@@ -415,60 +285,150 @@ function Post() {
       navigate("/changeRegion");
     }
   };
-  useEffect(() => {
-    if (location.state?.clearSearch) {
-      setSearchResults(null);
-      setSearchTerm("");
-      setIsSearchActive(false);
 
-      // location.state 초기화 (중복 실행 방지)
+  // ★ 검색어와 검색결과 처리
+  useEffect(() => {
+    if (location.state?.searchResults) {
+      setSearchResults(location.state.searchResults);
+      setSearchTerm(location.state.searchTerm || ""); // SearchBar에 검색어 반영
+      setIsSearchActive(true);
+    }
+  }, [location.state, setSearchTerm, setIsSearchActive]);
+
+  // 게시물 불러오기
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const regionName = await getMyRegionName(regionId);
+        setMyRegion(regionName);
+
+        let content = [];
+        const today = dayjs().startOf("day");
+        const endOfToday = dayjs().endOf("day");
+
+        if (!category || category === "event") {
+          const res = await fetchAllBoards(regionId);
+          const allPosts = res?.data?.content || [];
+
+          content = allPosts.filter((post) => {
+            const start = dayjs(post.startAt).startOf("day");
+            const end = dayjs(post.endAt).endOf("day");
+            if (category === "event") {
+              return (
+                start.isSameOrBefore(endOfToday) && end.isSameOrAfter(today)
+              );
+            }
+            return end.isSameOrAfter(today);
+          });
+        } else {
+          const eventType = CATEGORY_MAP[category];
+          const res = await eventTypeBoards(eventType, regionId);
+          const allPosts = res?.data?.content || [];
+          content = allPosts.filter((post) =>
+            dayjs(post.endAt).endOf("day").isSameOrAfter(today)
+          );
+        }
+
+        const mappedPosts = content.map((post) => ({
+          ...post,
+          isHeartClicked: post.liked ?? false,
+          isBusinessVerified: post.businessVerified || false,
+        }));
+
+        setPosts(mappedPosts);
+      } catch (err) {
+        console.error("게시물 불러오기 실패", err);
+      }
+    };
+
+    // 검색 중이 아니면 일반 게시글 불러오기
+    if (!isSearchActive) {
+      loadPosts();
+      setSearchResults(null); // 검색 결과 초기화
+    }
+  }, [category, regionId, isSearchActive]);
+
+  // AI 채팅 추천 게시물 처리
+  useEffect(() => {
+    if (location.state?.aiPosts && !searchResults) {
+      const aiMapped = location.state.aiPosts.map((post) => ({
+        ...post,
+        isHeartClicked: post.liked ?? false,
+        isBusinessVerified: post.businessVerified || false,
+      }));
+
+      setSearchResults(aiMapped);
+
+      // SearchBar input에 문구 반영
+      const aiSearchTerm = "masill_bird PICK";
+      setSearchTerm(aiSearchTerm);
+      setIsSearchActive(true);
+
+      // 상태 초기화 (페이지 새로고침 시 중복 적용 방지)
       navigate(location.pathname, { replace: true, state: null });
     }
-  }, [location.state, navigate]);
+  }, [location.state, searchResults, setSearchTerm, setIsSearchActive]);
 
-  // 하트 클릭
   const clickHeart = async (eventId) => {
     try {
       const res = await privateAPI.post(`/events/${eventId}/favorites`);
       const { favoriteCount, favorite } = res.data.data;
 
-      setPosts((prev) =>
+      const updatePosts = (prev) =>
         prev.map((post) =>
           post.eventId === eventId
             ? { ...post, isHeartClicked: favorite, favoriteCount }
             : post
-        )
-      );
-
-      if (searchResults) {
-        setSearchResults((prev) =>
-          prev.map((post) =>
-            post.eventId === eventId
-              ? { 
-                  ...post, 
-                  isHeartClicked: favorite, 
-                  favoriteCount,
-                  // 사업자 인증 상태 유지
-                  isBusinessVerified: post.businessVerified || false
-                }
-              : post
-          )
         );
-      }
+
+      setPosts(updatePosts);
+      if (searchResults) setSearchResults(updatePosts);
     } catch (err) {
       console.error("clickHeart 에러:", err);
     }
   };
 
+  const displayPosts =
+    searchResults && searchResults.length > 0 ? searchResults : posts;
+
+  const sortedPosts = (() => {
+    // AI 채팅 추천일 경우 (검색 결과가 있고, 검색어가 'masill_bird PICK')
+    if (isSearchActive && searchTerm === "masill_bird PICK") {
+      return [...displayPosts].sort((a, b) => {
+        if (sortType === "날짜순")
+          return dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf();
+        if (sortType === "댓글순") return b.commentCount - a.commentCount;
+        if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
+        return 0;
+      });
+    }
+
+    // 기본 로직 (광고 고정)
+    const upPosts = displayPosts.filter((p) => p.up);
+    const normalPosts = displayPosts.filter((p) => !p.up);
+
+    const sortedNormalPosts = [...normalPosts].sort((a, b) => {
+      if (sortType === "날짜순")
+        return dayjs(b.createAt).valueOf() - dayjs(a.createAt).valueOf();
+      if (sortType === "댓글순") return b.commentCount - a.commentCount;
+      if (sortType === "인기순") return b.favoriteCount - a.favoriteCount;
+      return 0;
+    });
+
+    return [...upPosts, ...sortedNormalPosts];
+  })();
+
   return (
     <BoardContanier>
+      {/* 상단 지역 + 정렬 */}
       <ToggleLoctionDiv>
         <LocationDiv onClick={handleRegionClick} style={{ marginTop: "10px" }}>
           <LocationImg src={SetLocation} />
           <LocationP>우리 마을 [ {myRegion} ]</LocationP>
         </LocationDiv>
-        {!searchResults && (
-          <div style={{ position: "relative", width: 220 }}>
+
+        {!isSearchActive && (
+          <div style={{ position: "relative", width: 220, marginTop: "10px" }}>
             <ToggleOpenDiv onClick={toggleOpen}>
               <p style={{ margin: 0 }}>{sortType}</p>
               <Recommandimg src={Recommand} alt="toggle icon" />
@@ -487,103 +447,117 @@ function Post() {
         )}
       </ToggleLoctionDiv>
 
-      {searchResults && searchResults.length === 0 && searchTerm.trim() && (
-        <NoSearchResultsHeader>
-          <NoSearchResultsText>
-            <UnderlinedSearchTerm>"{searchTerm}"</UnderlinedSearchTerm>에 대한
-            검색결과가 없습니다.
-          </NoSearchResultsText>
-          <SubText>{myRegion}의 다른 행사는 어떠세요?</SubText>
-        </NoSearchResultsHeader>
-      )}
+      {/* 검색 결과 없을 때 */}
+      {searchResults &&
+        searchResults.length === 0 &&
+        isSearchActive &&
+        searchTerm.trim() && (
+          <NoSearchResultsHeader>
+            <NoSearchResultsText>
+              <UnderlinedSearchTerm>"{searchTerm}"</UnderlinedSearchTerm>에 대한
+              검색결과가 없습니다.
+            </NoSearchResultsText>
+            <SubText>{myRegion}의 다른 행사는 어떠세요?</SubText>
+          </NoSearchResultsHeader>
+        )}
 
+      {/* 게시글 리스트 */}
       <BoardDiv>
         {sortedPosts.length === 0 ? (
           <NoPostsMessage>여러분의 게시글을 공유해보세요</NoPostsMessage>
         ) : (
-          sortedPosts.map((item) => {
-            const now = dayjs();
-            const eventEnd = dayjs(item.endAt);
-            const diffDays = eventEnd
-              .startOf("day")
-              .diff(now.startOf("day"), "day");
-            const isClosingSoon = diffDays >= 0 && diffDays <= 3;
-            const deadline = diffDays === 0 ? "오늘" : `D-${diffDays}`;
-
-            return (
-              <PostWrapper
-                key={item.eventId}
-                onClick={() => navigate(`/detail/${item.eventId}`)}
-              >
-                {item.isBusinessVerified && (
-                  <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
-                )}
-                <div style={{ marginLeft: "24px" }}>
-                  <ImageScrollWrapper>
-                    {Array.isArray(item.images) &&
-                      item.images.map((img, idx) => (
-                        <ImageContainer key={idx}>
-                          <BoardImage
-                            src={img.imageUrl}
-                            alt={`${item.title}-${idx}`}
-                          />
-                        </ImageContainer>
-                      ))}
-                  </ImageScrollWrapper>
-
-                  <ContentWrapper>
-                    <LeftContent>
-                      <MemberLogo src={item.userImage} alt="회원로고" />
-                      <TextInfo>
-                        <BoardTitleH1>{item.title}</BoardTitleH1>
-                        {isClosingSoon && (
-                          <ClosingTag>{deadline} 기한이 임박해요!</ClosingTag>
-                        )}
-                        <BoardLocationP>
-                          {item.region?.sido} {item.region?.sigungu}{" "}
-                          {item.location}
-                        </BoardLocationP>
-                        <BoardDateP>
-                          {`${dayjs(item.startAt).format(
-                            "YYYY.MM.DD.(dd)"
-                          )} ~ ${dayjs(item.endAt).format(
-                            "YYYY.MM.DD.(dd)"
-                          )} ${dayjs(item.startAt).format("HH:mm")}~${dayjs(
-                            item.endAt
-                          ).format("HH:mm")}`}
-                        </BoardDateP>
-                      </TextInfo>
-                    </LeftContent>
-
-                    <RightContent>
-                      <HeartArea
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          clickHeart(item.eventId);
-                        }}
-                      >
-                        <TextStyle>{item.favoriteCount}</TextStyle>
-                        <HeartImg
-                          src={item.isHeartClicked ? Fullheart : Heart}
-                          alt="하트"
-                        />
-                      </HeartArea>
-
-                      <CommentArea>
-                        <TextStyle>{item.commentCount}</TextStyle>
-                        <CommentImg src={Comment} alt="댓글" />
-                      </CommentArea>
-                    </RightContent>
-                  </ContentWrapper>
-                </div>
-              </PostWrapper>
-            );
-          })
+          sortedPosts.map((post) => (
+            <PostCard key={post.eventId} post={post} clickHeart={clickHeart} />
+          ))
         )}
       </BoardDiv>
     </BoardContanier>
   );
 }
+
+// 개별 게시글 카드
+function PostCard({ post, clickHeart }) {
+  const navigate = useNavigate();
+
+  const now = dayjs();
+  const eventEnd = dayjs(post.endAt);
+  const diffDays = eventEnd.startOf("day").diff(now.startOf("day"), "day");
+  const isClosingSoon = diffDays >= 0 && diffDays <= 3;
+  const deadline = diffDays === 0 ? "오늘" : `D-${diffDays}`;
+
+  return (
+    <PostWrapper
+      key={post.eventId}
+      onClick={() => navigate(`/detail/${post.eventId}`)}
+    >
+      {post.isBusinessVerified && (
+        <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
+      )}
+      <div style={{ marginLeft: "24px" }}>
+        <ImageScrollWrapper>
+          {Array.isArray(post.images) &&
+            post.images.map((img, idx) => (
+              <ImageContainer key={idx}>
+                <BoardImage src={img.imageUrl} alt={`${post.title}-${idx}`} />
+              </ImageContainer>
+            ))}
+        </ImageScrollWrapper>
+
+        <ContentWrapper>
+          <LeftContent>
+            <MemberLogo src={post.userImage} alt="회원로고" />
+            <TextInfo>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <BoardTitleH1>{post.title}</BoardTitleH1>
+                {post.up && <AdvertisingMark src={AdvertisingIcon} />}
+              </div>
+
+              {isClosingSoon && (
+                <ClosingTag>{deadline} 기한이 임박해요!</ClosingTag>
+              )}
+              <BoardLocationP>
+                {post.region?.sido} {post.region?.sigungu} {post.location}
+              </BoardLocationP>
+              <BoardDateP>
+                {`${dayjs(post.startAt).format("YYYY.MM.DD.(dd)")} ~ ${dayjs(
+                  post.endAt
+                ).format("YYYY.MM.DD.(dd)")} ${dayjs(post.startAt).format(
+                  "HH:mm"
+                )}~${dayjs(post.endAt).format("HH:mm")}`}
+              </BoardDateP>
+            </TextInfo>
+          </LeftContent>
+
+          <RightContent>
+            <HeartArea
+              onClick={(e) => {
+                e.stopPropagation();
+                clickHeart(post.eventId);
+              }}
+            >
+              <TextStyle>{post.favoriteCount}</TextStyle>
+              <HeartImg
+                src={post.isHeartClicked ? Fullheart : Heart}
+                alt="하트"
+              />
+            </HeartArea>
+
+            <CommentArea>
+              <TextStyle>{post.commentCount}</TextStyle>
+              <CommentImg src={Comment} alt="댓글" />
+            </CommentArea>
+          </RightContent>
+        </ContentWrapper>
+      </div>
+    </PostWrapper>
+  );
+}
+
 function MoveInterest() {
   return (
     <div>
@@ -593,6 +567,10 @@ function MoveInterest() {
     </div>
   );
 }
+const AdvertisingMark = styled.img`
+  width: 25px;
+  height: 15px;
+`;
 // 스타일링
 const NoPostsMessage = styled.p`
   text-align: center;
@@ -764,7 +742,6 @@ const RightContent = styled.div`
   align-items: flex-end;
   justify-content: flex-start;
   padding-top: 2px;
-  padding-bottom: 2px;
   min-height: 100%; /* 세로 위치 계산 위해 높이 유지 */
   right: 45px;
   bottom: 22px;
@@ -932,6 +909,18 @@ const SearchInput = styled.input`
   outline: none;
   padding-left: 16px;
   font-weight: 600;
+  color: var(--Dark-Text, #060d1d);
+
+  /* SUB BIGEST */
+  font-family: Pretendard;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%; /* 22.4px */
+  letter-spacing: 0.32px;
+  ::placeholder {
+    color: var(--Gray-700, #959eb7);
+  }
 `;
 const SearchImg = styled.img`
   position: absolute;

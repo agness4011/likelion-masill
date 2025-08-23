@@ -325,7 +325,9 @@ export const SummaryImgSize = styled.img`
   width: 24px;
   height: 24px;
 `;
-export const DetailDiv = styled.div``;
+export const DetailDiv = styled.div`
+  margin-left: 24px;
+`;
 
 export const SummaryIcon = styled.img`
   width: 24px;
@@ -401,6 +403,7 @@ export const CommentUserImg = styled.img`
   border-radius: 50%;
   cursor: pointer;
   margin-top: 10px;
+  margin-left: 24px;
 `;
 export const CommentUserName = styled.p`
   display: -webkit-box;
@@ -465,7 +468,8 @@ export const ShowReply = styled.div`
   line-height: 120%; /* 14.4px */
   letter-spacing: 0.12px;
   margin: 0;
-
+  margin-top: 8px;
+  margin-bottom: 8px;
   cursor: pointer;
   display: flex; /* 텍스트와 아이콘을 가로 배치 */
   align-items: center; /* 세로 중앙 정렬 */
@@ -673,11 +677,9 @@ export const MakeGroupBtn = styled.button`
   display: flex; /* 텍스트와 아이콘을 가로 배치 */
   align-items: center; /* 세로 중앙 정렬 */
   justify-content: center; /* 필요하면 가운데 정렬 */
-  width: 120px;
+  width: fit-content;
   height: 34px;
   padding: 2px 12px 2px 13px;
-  justify-content: center;
-  align-items: center;
   gap: 6px;
   flex-shrink: 0;
   border-radius: 24px;
@@ -691,6 +693,8 @@ export const MakeGroupBtn = styled.button`
   line-height: 140%; /* 19.6px */
   letter-spacing: 0.28px;
   cursor: pointer;
+  margin-left: 254px;
+  margin-bottom: 8px;
 `;
 
 export const MakeGroupImg = styled.img`
@@ -739,8 +743,7 @@ export const GroupComponent = styled.div`
   gap: 12px;
   padding: 12px 0;
   cursor: pointer;
-  border-bottom: 0.5px solid var(--Gray-500, #c1cae0);
-  border-top: 0.5px solid var(--Gray-500, #c1cae0);
+  margin: 0 24px;
 `;
 
 export const GroupMainImage = styled.img`
@@ -800,7 +803,6 @@ export const GroupBottomRow = styled.div`
   gap: 6px; /* 댓글 이미지와 숫자 간격 */
 `;
 export const LowWrapper = styled.div`
-  margin-left: 24px;
   margin-top: 10px;
 `;
 export const Wrapper = styled.div`

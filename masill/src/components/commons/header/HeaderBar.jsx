@@ -18,22 +18,33 @@ const Container = styled.div`
   justify-content: space-between; /* 좌우 끝으로 배치 */
   margin-bottom: 18.6px;
 `;
+
+// HeadLeft.jsx
+import { useSearchContext } from "../../main/SearchContext";
 function HeadLeft() {
   const navigate = useNavigate();
+  const { setSearchTerm, setIsSearchActive, setSearchResults } =
+    useSearchContext();
+
+  const handleClickLogo = () => {
+    // 검색 상태 초기화
+    setSearchTerm("");
+    setIsSearchActive(false);
+    setSearchResults(null);
+
+    // location.state 제거하고 main 이동
+    navigate("/main", { replace: true, state: null });
+  };
 
   return (
     <Left>
-      <div
-        onClick={() => {
-          navigate("/main", { replace: true, state: { clearSearch: true } });
-        }}
-        style={{ cursor: "pointer" }}
-      >
+      <div onClick={handleClickLogo} style={{ cursor: "pointer" }}>
         <Logo src={LogoImg} alt="로고" />
       </div>
     </Left>
   );
 }
+
 const Left = styled.div`
   display: flex;
   align-items: center;
