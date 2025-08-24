@@ -63,6 +63,8 @@ const Title = styled.h1`
   font-size: 18px;
   font-weight: 600;
   color: #333;
+  text-align: center;
+  margin-left: 90px;
 `;
 
 const Content = styled.div`
@@ -252,10 +254,15 @@ const WishlistPage = () => {
      
         if (content.length > 0) {
           console.log("관심목록 데이터:", content);
-          // 사업자 인증 상태 확인
+          // 사업자 인증 상태 확인 및 날짜 정보 디버깅
           content.forEach((post, index) => {
             console.log(`게시글 ${index + 1}:`, {
               title: post.title,
+              postType: post.postType,
+              startAt: post.startAt,
+              endAt: post.endAt,
+              startAtType: typeof post.startAt,
+              endAtType: typeof post.endAt,
               isBusinessVerified: post.isBusinessVerified,
               businessVerified: post.businessVerified,
               userRole: post.userRole,
@@ -450,14 +457,46 @@ const WishlistPage = () => {
                         <BoardTitleH1>{post.title}</BoardTitleH1>
                         <BoardLocationP>{post.location}</BoardLocationP>
                         <BoardDateP>
-                          {`${dayjs(post.startAt).format(
-                            "YYYY.MM.DD.(dd)"
-                          )} ~ ${dayjs(post.endAt).format(
-                            "YYYY.MM.DD.(dd)"
-                          )} ${dayjs(post.startAt).format("HH:mm")}~${dayjs(
-                            post.endAt
-                          ).format("HH:mm")}`}
+                          {post.startAt && post.endAt ? (
+                            `${dayjs(post.startAt).format(
+                              "YYYY.MM.DD.(dd)"
+                            )} ~ ${dayjs(post.endAt).format(
+                              "YYYY.MM.DD.(dd)"
+                            )} ${dayjs(post.startAt).format("HH:mm")}~${dayjs(
+                              post.endAt
+                            ).format("HH:mm")}`
+                          ) : post.startAt ? (
+                            `${dayjs(post.startAt).format(
+                              "YYYY.MM.DD.(dd)"
+                            )} ${dayjs(post.startAt).format("HH:mm")}`
+                          ) : (
+                            "날짜 정보 없음"
+                          )}
                         </BoardDateP>
+                        {post.postType === "CLUB" && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#154ad0",
+                              fontWeight: "normal",
+                              marginTop: "4px",
+                            }}
+                          >
+                            [소모임]
+                          </span>
+                        )}
+                        {post.postType === "EVENT" && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#ff6b35",
+                              fontWeight: "normal",
+                              marginTop: "4px",
+                            }}
+                          >
+                            [이벤트]
+                          </span>
+                        )}
                       </TextInfo>
                     </LeftContent>
 
@@ -484,6 +523,7 @@ const WishlistPage = () => {
 
 
                  </PostCard>
+                 {/* 소모임 게시글에는 프로모션 아이콘이 표시되지 않음 */}
                 </PostCardContainer>
                </React.Fragment>
             ))}

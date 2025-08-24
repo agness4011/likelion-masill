@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import ArrowLeft from "@logo/bluearrowleft.svg";
 import ArrowRight from "@logo/bluearrowright.svg";
+import MainArrowLeftIcon from '../../assets/logo/main/main-arrowleft.svg';
 import { getDistricts, getRegionId } from "../../api/userService";
 
 const Container = styled.div`
@@ -32,9 +33,15 @@ const BackBtn = styled.button`
   left: 16px;
   background: none;
   border: none;
-  font-size: 24px;
-  color: #222;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const BackIcon = styled.img`
+  width: 24px;
+  height: 24px;
 `;
 
 const TitleText = styled.div`
@@ -354,7 +361,7 @@ export default function SelectRegionDetail() {
     <Container>
       <TopBar>
         <BackBtn onClick={() => nav(-1)} aria-label="뒤로가기">
-          &#8592;
+          <BackIcon src={MainArrowLeftIcon} alt="뒤로가기" />
         </BackBtn>
         <TitleText>지역 선택</TitleText>
       </TopBar>

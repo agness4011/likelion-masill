@@ -61,6 +61,7 @@ const Title = styled.h1`
   font-size: 18px;
   font-weight: 600;
   color: #333;
+  margin-left: 55px;
 `;
 
 const Content = styled.div`
@@ -80,6 +81,8 @@ const PostCard = styled.div`
   }
   width: 380px;
   margin-bottom: 0;
+  padding-bottom: 5px;
+  min-height: 0px;
 `;
 
 const ImageScrollWrapper = styled.div`
@@ -453,30 +456,6 @@ const MyPostsPage = () => {
                         <TextInfo>
                           <BoardTitleH1>
                             {post.title}
-                            {post.postType === "CLUB" && (
-                              <span
-                                style={{
-                                  fontSize: "12px",
-                                  color: "#154ad0",
-                                  marginLeft: "8px",
-                                  fontWeight: "normal",
-                                }}
-                              >
-                                [소모임]
-                              </span>
-                            )}
-                            {post.postType === "EVENT" && (
-                              <span
-                                style={{
-                                  fontSize: "12px",
-                                  color: "#ff6b35",
-                                  marginLeft: "8px",
-                                  fontWeight: "normal",
-                                }}
-                              >
-                                [이벤트]
-                              </span>
-                            )}
                           </BoardTitleH1>
                           <BoardLocationP>{post.location}</BoardLocationP>
                           <BoardDateP>
@@ -492,6 +471,30 @@ const MyPostsPage = () => {
                                   "YYYY.MM.DD.(dd)"
                                 )} ${dayjs(post.startAt).format("HH:mm")}`}
                           </BoardDateP>
+                          {post.postType === "CLUB" && (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#154ad0",
+                                fontWeight: "normal",
+                                marginTop: "4px",
+                              }}
+                            >
+                              [소모임]
+                            </span>
+                          )}
+                          {post.postType === "EVENT" && (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#ff6b35",
+                                fontWeight: "normal",
+                                marginTop: "4px",
+                              }}
+                            >
+                              [이벤트]
+                            </span>
+                          )}
                         </TextInfo>
                       </LeftContent>
 
@@ -515,57 +518,59 @@ const MyPostsPage = () => {
                     </ContentWrapper>
                   </div>
 
-                  {/* PromotionIcon을 소모임이 아닌 경우에만 표시 */}
-                  <PromotionContainer>
-                    {post.up ? (
-                      <>
-                        <UpIconBack
-                          src={UpPromtionImg}
-                          alt="업 프로모션 아이콘"
-                          style={{ position: "relative" }}
-                        />
-                        <UpBird src={UpBirdImg} alt="업 새 아이콘" />
+                                     {/* PromotionIcon을 소모임이 아닌 경우에만 표시 */}
+                   {post.postType !== "CLUB" && (
+                     <PromotionContainer>
+                       {post.up ? (
+                         <>
+                           <UpIconBack
+                             src={UpPromtionImg}
+                             alt="업 프로모션 아이콘"
+                             style={{ position: "relative" }}
+                           />
+                           <UpBird src={UpBirdImg} alt="업 새 아이콘" />
 
-                        {/* ✅ 업 모달 아이콘 */}
-                        <UpModalIcon
-                          src={UpModalIconImg}
-                          alt="업 정보 아이콘"
-                          onClick={() => toggleUpModal(post.eventId)}
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            cursor: "pointer",
-                            position: "relative",
-                          }}
-                        />
+                           {/* ✅ 업 모달 아이콘 */}
+                           <UpModalIcon
+                             src={UpModalIconImg}
+                             alt="업 정보 아이콘"
+                             onClick={() => toggleUpModal(post.eventId)}
+                             style={{
+                               width: "20px",
+                               height: "20px",
+                               cursor: "pointer",
+                               position: "relative",
+                             }}
+                           />
 
-                        {/* ✅ 해당 post만 모달 열리도록 */}
-                        {openModalId === post.eventId && (
-                          <UpModalWrapper>
-                            [UP광고 정보]
-                            <br />
-                            게시물 전지역 노출
-                            <br />
-                            게시물 상단 노출
-                            <br />
-                            노출 빈도 UP
-                          </UpModalWrapper>
-                        )}
+                           {/* ✅ 해당 post만 모달 열리도록 */}
+                           {openModalId === post.eventId && (
+                             <UpModalWrapper>
+                               [UP광고 정보]
+                               <br />
+                               게시물 전지역 노출
+                               <br />
+                               게시물 상단 노출
+                               <br />
+                               노출 빈도 UP
+                             </UpModalWrapper>
+                           )}
 
-                        <UpP>
-                          남은 시간 :{" "}
-                          {formatRemainingTime(post.upRemainingSeconds)}
-                        </UpP>
-                      </>
-                    ) : (
-                      <PromotionIconImg
-                        src={OffAdvers}
-                        alt="프로모션 아이콘"
-                        onClick={() => handleUpClick(post.eventId)}
-                        style={{ cursor: "pointer" }}
-                      />
-                    )}
-                  </PromotionContainer>
+                           <UpP>
+                             남은 시간 :{" "}
+                             {formatRemainingTime(post.upRemainingSeconds)}
+                           </UpP>
+                         </>
+                       ) : (
+                         <PromotionIconImg
+                           src={OffAdvers}
+                           alt="프로모션 아이콘"
+                           onClick={() => handleUpClick(post.eventId)}
+                           style={{ cursor: "pointer" }}
+                         />
+                       )}
+                     </PromotionContainer>
+                   )}
                 </PostCard>
               </React.Fragment>
             ))}

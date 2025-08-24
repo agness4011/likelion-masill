@@ -190,7 +190,7 @@ const MessageInput = styled.input`
   flex: 1;
   min-width: 300px;
   padding: 12px 16px;
-  padding-right: 30px;
+  padding-right: 50px;
   margin-top: 0px;
   border: 1px solid #F4F7FF;
   border-radius: 24px;
@@ -198,6 +198,9 @@ const MessageInput = styled.input`
   outline: none;
   background-color: #F4F7FF;
   position: relative;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
   
   &::placeholder {
     color: #999;
@@ -662,7 +665,7 @@ function ChatRoomDetailPage() {
             <UserName>
               {targetUser?.username || '사용자'}
               <ConnectionStatus connected={websocketConnected ? "true" : "false"}>
-                {websocketConnected ? '실시간' : 'HTTP'}
+            
               </ConnectionStatus>
             </UserName>
           </UserInfo>
@@ -697,7 +700,7 @@ function ChatRoomDetailPage() {
             <UserName>
               {targetUser?.username || '사용자'}
               <ConnectionStatus connected={websocketConnected ? "true" : "false"}>
-                {websocketConnected ? '실시간' : 'HTTP'}
+            
               </ConnectionStatus>
             </UserName>
           </UserInfo>
