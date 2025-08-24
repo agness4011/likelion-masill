@@ -740,7 +740,7 @@ export default function ChatRoomPage() {
       <ChatRoomList>
         {chatRooms.length === 0 ? (
           <EmptyContainer>
-            <EmptyIcon>💬</EmptyIcon>
+           
             <div>아직 채팅방이 없습니다.</div>
             <div>이벤트나 댓글에서 대화를 시작해보세요!</div>
           </EmptyContainer>
