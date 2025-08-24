@@ -413,6 +413,36 @@ function EventDateTimePicker({
           </TimeInput>
         </Row>
       </div>
+      {modalConfig.open && (
+        <div style={overlayStyle}>
+          <div style={modalStyle}>
+            <DatePicker
+              selected={
+                modalConfig.type === "startDate"
+                  ? startDate || new Date()
+                  : modalConfig.type === "endDate"
+                  ? endDate || new Date()
+                  : modalConfig.type === "startTime"
+                  ? startTime || new Date()
+                  : modalConfig.type === "endTime"
+                  ? endTime || new Date()
+                  : null
+              }
+              onChange={handleSelect}
+              inline
+              showTimeSelect={modalConfig.type.includes("Time")}
+              showTimeSelectOnly={modalConfig.type.includes("Time")}
+              timeIntervals={10}
+              dateFormat={
+                modalConfig.type.includes("Date") ? "yyyy-MM-dd" : "HH:mm"
+              }
+            />
+            <button onClick={closeModal} style={{ marginTop: "10px" }}>
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </Div>
   );
 }
