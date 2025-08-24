@@ -527,6 +527,7 @@ function PostCard({ post, clickHeart }) {
   const navigate = useNavigate();
   const imageScrollRef = useRef(null);
   const [isAtEnd, setIsAtEnd] = useState(false);
+  const [isScrollingLeft, setIsScrollingLeft] = useState(false);
 
   const now = dayjs();
   const eventEnd = dayjs(post.endAt);
@@ -538,7 +539,15 @@ function PostCard({ post, clickHeart }) {
   const checkScrollPosition = () => {
     if (imageScrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = imageScrollRef.current;
-      setIsAtEnd(scrollLeft + clientWidth >= scrollWidth - 1);
+      const atEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+      setIsAtEnd(atEnd);
+      
+      // 왼쪽으로 스크롤 중이면 계속 왼쪽 버튼 유지
+      if (isScrollingLeft && scrollLeft > 0) {
+        setIsScrollingLeft(true);
+      } else if (scrollLeft === 0) {
+        setIsScrollingLeft(false);
+      }
     }
   };
 
@@ -549,7 +558,7 @@ function PostCard({ post, clickHeart }) {
       checkScrollPosition(); // 초기 상태 확인
       return () => scrollElement.removeEventListener('scroll', checkScrollPosition);
     }
-  }, [post.images]);
+  }, [post.images, isScrollingLeft]);
 
 
 
@@ -561,31 +570,34 @@ function PostCard({ post, clickHeart }) {
       {post.isBusinessVerified && (
         <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
       )}
-      <div style={{ marginLeft: "24px" }}>
-        <ImageScrollWrapper ref={imageScrollRef}>
-          {Array.isArray(post.images) &&
-            post.images.map((img, idx) => (
-              <ImageContainer key={idx}>
-                <BoardImage src={img.imageUrl} alt={`${post.title}-${idx}`} />
-                                 {post.images.length > 2 && idx < post.images.length - 1 && (
-                   <ImageNextButton onClick={(e) => {
-                     e.stopPropagation();
-                     if (imageScrollRef.current) {
-                       if (isAtEnd) {
-                         // 마지막에 도달했으면 첫 번째 이미지로 이동
-                         imageScrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
-                       } else {
-                         // 다음 이미지로 이동
-                         imageScrollRef.current.scrollBy({ left: 144, behavior: "smooth" });
-                       }
-                     }
-                   }}>
-                     <ImageNextIcon src={isAtEnd ? LeftButton : Btn} alt={isAtEnd ? "첫 번째 이미지" : "다음 이미지"} />
-                   </ImageNextButton>
-                 )}
-              </ImageContainer>
-            ))}
-        </ImageScrollWrapper>
+             <div style={{ marginLeft: "24px", position: "relative" }}>
+         <ImageScrollWrapper ref={imageScrollRef}>
+           {Array.isArray(post.images) &&
+             post.images.map((img, idx) => (
+               <ImageContainer key={idx}>
+                 <BoardImage src={img.imageUrl} alt={`${post.title}-${idx}`} />
+               </ImageContainer>
+             ))}
+         </ImageScrollWrapper>
+         
+                   {post.images.length > 2 && (
+            <ImageNextButton onClick={(e) => {
+              e.stopPropagation();
+              if (imageScrollRef.current) {
+                if (isAtEnd || isScrollingLeft) {
+                  // 마지막에 도달했거나 왼쪽 스크롤 중이면 왼쪽으로 이동
+                  setIsScrollingLeft(true);
+                  imageScrollRef.current.scrollBy({ left: -144, behavior: "smooth" });
+                } else {
+                  // 다음 이미지로 이동
+                  setIsScrollingLeft(false);
+                  imageScrollRef.current.scrollBy({ left: 144, behavior: "smooth" });
+                }
+              }
+            }}>
+              <ImageNextIcon src={(isAtEnd || isScrollingLeft) ? LeftButton : Btn} alt={(isAtEnd || isScrollingLeft) ? "이전 이미지" : "다음 이미지"} />
+            </ImageNextButton>
+          )}
 
         <ContentWrapper>
           <LeftContent>
@@ -779,8 +791,8 @@ const ImageScrollWrapper = styled.div`
 
 const ImageNextButton = styled.button`
   position: absolute;
-  right: -31px;
-  top: 50%;
+  left:300px;
+  top: 70px;
   transform: translateY(-50%);
   background: none;
   border: none;
