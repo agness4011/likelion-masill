@@ -1,6 +1,8 @@
 import BackGround from "../../assets/logo/mainImg/highback.png";
 import SearchGlass from "../../assets/logo/main/main-search.svg";
 import Btn from "../../assets/logo/mainImg/rightbutton.svg";
+import LeftButton from "../../assets/logo/mainImg/leftbutton.svg";
+import MainArrowRightIcon from "../../assets/logo/main/main-arrowright.svg";
 
 import Comment from "../../assets/logo/mainImg/commant.png";
 import Fullheart from "../../assets/logo/mainImg/fullheart.png";
@@ -523,12 +525,33 @@ function Post() {
 // 개별 게시글 카드
 function PostCard({ post, clickHeart }) {
   const navigate = useNavigate();
+  const imageScrollRef = useRef(null);
+  const [isAtEnd, setIsAtEnd] = useState(false);
 
   const now = dayjs();
   const eventEnd = dayjs(post.endAt);
   const diffDays = eventEnd.startOf("day").diff(now.startOf("day"), "day");
   const isClosingSoon = diffDays >= 0 && diffDays <= 3;
   const deadline = diffDays === 0 ? "오늘" : `D-${diffDays}`;
+
+  // 스크롤 위치 확인
+  const checkScrollPosition = () => {
+    if (imageScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = imageScrollRef.current;
+      setIsAtEnd(scrollLeft + clientWidth >= scrollWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    const scrollElement = imageScrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', checkScrollPosition);
+      checkScrollPosition(); // 초기 상태 확인
+      return () => scrollElement.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, [post.images]);
+
+
 
   return (
     <PostWrapper
@@ -539,11 +562,27 @@ function PostCard({ post, clickHeart }) {
         <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
       )}
       <div style={{ marginLeft: "24px" }}>
-        <ImageScrollWrapper>
+        <ImageScrollWrapper ref={imageScrollRef}>
           {Array.isArray(post.images) &&
             post.images.map((img, idx) => (
               <ImageContainer key={idx}>
                 <BoardImage src={img.imageUrl} alt={`${post.title}-${idx}`} />
+                                 {post.images.length > 2 && idx < post.images.length - 1 && (
+                   <ImageNextButton onClick={(e) => {
+                     e.stopPropagation();
+                     if (imageScrollRef.current) {
+                       if (isAtEnd) {
+                         // 마지막에 도달했으면 첫 번째 이미지로 이동
+                         imageScrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+                       } else {
+                         // 다음 이미지로 이동
+                         imageScrollRef.current.scrollBy({ left: 144, behavior: "smooth" });
+                       }
+                     }
+                   }}>
+                     <ImageNextIcon src={isAtEnd ? LeftButton : Btn} alt={isAtEnd ? "첫 번째 이미지" : "다음 이미지"} />
+                   </ImageNextButton>
+                 )}
               </ImageContainer>
             ))}
         </ImageScrollWrapper>
@@ -726,6 +765,7 @@ const ImageScrollWrapper = styled.div`
   gap: 4px;
   padding-bottom: 10px;
   margin-top: 20px;
+  position: relative;
 
   /* 스크롤바 스타일 (선택) */
   &::-webkit-scrollbar {
@@ -735,6 +775,35 @@ const ImageScrollWrapper = styled.div`
     background: #ccc;
     border-radius: 3px;
   }
+`;
+
+const ImageNextButton = styled.button`
+  position: absolute;
+  right: -31px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:active {
+    outline: none;
+  }
+`;
+
+const ImageNextIcon = styled.img`
+  width: 20px;
+  height: 20px;
+
 `;
 
 const BoardImage = styled.img`
