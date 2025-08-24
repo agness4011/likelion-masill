@@ -118,13 +118,18 @@ const ChatImage = styled.img`
 const BottomGradient = styled.div`
   position: absolute;
   left: 53.5%;
-  bottom: -90px;
+  bottom: -115px;
   transform: translateX(-50%);
-  width: 150%;
-  height: 63%;
-  border-top-left-radius: 50% 99%;
-  border-top-right-radius: 50% 83%;
+
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
+
+  width: 568px;
+  height: 568px;
+
+  border-radius: 568px;
+
+  /* Blur */
+  filter: blur(2.25px);
 `;
 
 const Title = styled.p`
@@ -146,10 +151,11 @@ const Title = styled.p`
 
 const AccentText = styled.span`
   background: linear-gradient(
-    90deg,
-    #4e7aea -21.92%,
-    #ffdbac 85.22%,
-    #ffbe93 100.53%
+    249deg,
+    #4e7aea -23.43%,
+    #ffc09c 40.35%,
+    #ffc09c 66.32%,
+    #ff9752 101.72%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
