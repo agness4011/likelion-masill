@@ -793,6 +793,7 @@ const ImageNextButton = styled.button`
   position: absolute;
   left:300px;
   top: 70px;
+  opacity: 0.7;
   transform: translateY(-50%);
   background: none;
   border: none;
