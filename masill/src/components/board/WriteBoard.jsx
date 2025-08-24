@@ -767,6 +767,16 @@ function InputForm() {
 
       const regionFullName = await getRegionName(regionId);
 
+      // InputForm handleSubmit 내부
+      localStorage.setItem(
+        "currentUser",
+        JSON.stringify({
+          ...JSON.parse(localStorage.getItem("currentUser")),
+          regionId,
+        })
+      );
+      navigate("/main");
+
       // 날짜 검증
       const startAt = new Date(
         startDate.getFullYear(),

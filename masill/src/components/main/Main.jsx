@@ -117,7 +117,7 @@ function CategoryBar({ children }) {
 
   return (
     <CategoryWrapper>
-      {showLeft && <LeftBtn onClick={scrollLeftFn} src={MainArrowLeftIcon} />}
+      {showLeft && <LeftBtn onClick={scrollLeftFn} src={Btn} />}
       <CategoryScroll ref={scrollRef}>
         {React.Children.map(children, (child) =>
           React.cloneElement(child, {
