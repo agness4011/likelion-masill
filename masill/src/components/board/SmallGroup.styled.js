@@ -882,24 +882,25 @@ export const LowWrapper = styled.div`
   margin-top: 10px;
 `;
 export const EventTitle = styled.p`
-  overflow: hidden;
   color: var(--Gray-900, #727c94);
-  text-overflow: ellipsis;
-  /* 카테고리 */
   font-family: Pretendard;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  line-height: 120%; /* 16.8px */
+  line-height: 120%;
   letter-spacing: -0.14px;
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-decoration-skip-ink: auto;
   text-decoration-thickness: auto;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
   margin: 0;
+  max-width: 272px;
+
+  /* 말줄임 관련 스타일 제거 */
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+  display: block;
 `;
 
 export const ReadMoreBtn = styled.button`
@@ -924,6 +925,7 @@ export const ReadMoreBtn = styled.button`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  height: fit-content;
 `;
 export const CommentWrapper = styled.div`
   display: flex;
@@ -933,3 +935,4 @@ export const CommentWrapper = styled.div`
   min-height: 124px;
 `;
 export const CancelBtn = styled.button``;
+EventTitle;
