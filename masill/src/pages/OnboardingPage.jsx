@@ -240,7 +240,6 @@ const Title = styled.p`
   transform: translateX(-50%);
   bottom: 300px;
   z-index: 1;
-  font: bold;
   text-align: center;
   color: #fff;
   font-family: "Pretendard Variable", system-ui, -apple-system, "Segoe UI",
@@ -251,7 +250,9 @@ const Title = styled.p`
   letter-spacing: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   max-width: 280px;
+  white-space: nowrap; /* 추가: 줄바꿈 방지 */
 `;
+
 const IndicatorWrapper = styled.div`
   position: absolute;
   left: 50%;

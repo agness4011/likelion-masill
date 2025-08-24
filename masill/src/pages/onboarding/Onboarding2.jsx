@@ -17,24 +17,24 @@ import arrowleft from "@logo/arrowleft.png";
 const carouselData = [
   {
     id: 1,
-    image: onbg1
+    image: onbg1,
   },
   {
     id: 2,
-    image: onbg2
+    image: onbg2,
   },
   {
     id: 3,
-    image: onbg3
+    image: onbg3,
   },
   {
     id: 4,
-    image: onbg4
+    image: onbg4,
   },
   {
     id: 5,
-    image: onbg5
-  }
+    image: onbg5,
+  },
 ];
 
 export default function OnboardingPage() {
@@ -57,7 +57,7 @@ export default function OnboardingPage() {
       cards.push({
         ...carouselData[index],
         position: i,
-        isActive: i === 0
+        isActive: i === 0,
       });
     }
     return cards;
@@ -96,7 +96,11 @@ export default function OnboardingPage() {
         <CarouselContainer>
           <CarouselWrapper>
             {getVisibleCards().map((card) => (
-              <CarouselCard key={card.id} position={card.position} isActive={card.isActive}>
+              <CarouselCard
+                key={card.id}
+                position={card.position}
+                isActive={card.isActive}
+              >
                 <CardImage src={card.image} alt="이벤트 이미지" />
               </CarouselCard>
             ))}
@@ -155,13 +159,18 @@ const CircleBottomLeft = styled.div`
 const BottomGradient = styled.div`
   position: absolute;
   left: 53.5%;
-  bottom: -90px;
+  bottom: -115px;
   transform: translateX(-50%);
-  width: 150%;
-  height: 63%;
-  border-top-left-radius: 50% 99%;
-  border-top-right-radius: 50% 83%;
+
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
+
+  width: 568px;
+  height: 568px;
+
+  border-radius: 568px;
+
+  /* Blur */
+  filter: blur(2.25px);
 `;
 
 const Title = styled.p`
@@ -235,24 +244,24 @@ const CarouselCard = styled.div`
   position: absolute;
   width: 200px;
   height: 280px;
-  
+
   border-radius: 16px;
- 
+
   overflow: hidden;
   transition: all 0.5s ease;
   transform: ${({ position, isActive }) => {
-    if (isActive) return 'scale(1) translateX(0)';
-    if (position === 1) return 'scale(0.8) translateX(120px)';
-    if (position === 2) return 'scale(0.8) translateX(-120px)';
-    return 'scale(0.6) translateX(0)';
+    if (isActive) return "scale(1) translateX(0)";
+    if (position === 1) return "scale(0.8) translateX(120px)";
+    if (position === 2) return "scale(0.8) translateX(-120px)";
+    return "scale(0.6) translateX(0)";
   }};
-  filter: ${({ isActive }) => isActive ? 'blur(0px)' : 'blur(2px)'};
+  filter: ${({ isActive }) => (isActive ? "blur(0px)" : "blur(2px)")};
   opacity: ${({ position }) => {
     if (position === 0) return 1;
     if (position === 1 || position === 2) return 0.7;
     return 0.3;
   }};
-  z-index: ${({ isActive }) => isActive ? 3 : 2};
+  z-index: ${({ isActive }) => (isActive ? 3 : 2)};
 `;
 
 const CardImage = styled.img`

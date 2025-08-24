@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { getMyChatRooms, fetchChatRoom } from "../../api/chatService";
 import { useUser } from "../../contexts/UserContext";
-import { connectWebSocket, subscribe, disconnect, isConnected } from "../../utils/websocket";
+import {
+  connectWebSocket,
+  subscribe,
+  disconnect,
+  isConnected,
+} from "../../utils/websocket";
 import Avatar1Icon from "../../assets/logo/profile/avatar1.svg";
 import Avatar2Icon from "../../assets/logo/profile/avatar2.svg";
 import Avatar3Icon from "../../assets/logo/profile/avatar3.svg";
@@ -229,7 +234,8 @@ const UnreadBadge = styled.div`
   font-weight: 600;
   min-width: 19px;
   text-align: center;
-  margin-left: 130px;
+  right: 24px;
+  position: fixed;
 `;
 
 const LoadingContainer = styled.div`
@@ -269,25 +275,26 @@ export default function ChatRoomPage() {
 
   // 새 메시지 처리 함수
   const handleNewMessage = (data) => {
-
-    
     // 데이터에서 roomId 추출 (여러 형식 지원)
     const roomId = data.roomId || data.chatRoomId || data.room_id;
     const content = data.content || data.message || data.text;
-    const timestamp = data.timestamp || data.createdAt || new Date().toISOString();
-    
+    const timestamp =
+      data.timestamp || data.createdAt || new Date().toISOString();
+
     if (roomId && isMountedRef.current) {
-      setChatRooms(prev => prev.map(room => {
-        if (room.roomId === roomId) {
-          return {
-            ...room,
-            myUnreadCount: (room.myUnreadCount || 0) + 1,
-            lastMessage: content,
-            lastMessageAt: timestamp
-          };
-        }
-        return room;
-      }));
+      setChatRooms((prev) =>
+        prev.map((room) => {
+          if (room.roomId === roomId) {
+            return {
+              ...room,
+              myUnreadCount: (room.myUnreadCount || 0) + 1,
+              lastMessage: content,
+              lastMessageAt: timestamp,
+            };
+          }
+          return room;
+        })
+      );
     }
   };
 
@@ -305,17 +312,12 @@ export default function ChatRoomPage() {
       if (response.success && response.data) {
         const rooms = response.data.content || [];
 
-
-
         // 각 채팅방의 상세 정보를 가져와서 상대방 정보 추출 (개별 채팅방과 동일한 방식)
         const roomsWithUserInfo = await Promise.all(
           rooms.map(async (room) => {
-       
-
             try {
               // 개별 채팅방과 동일한 방식으로 채팅방 상세 정보 조회
               const chatRoomResponse = await fetchChatRoom(room.roomId);
-           
 
               if (
                 chatRoomResponse &&
@@ -332,8 +334,6 @@ export default function ChatRoomPage() {
 
                 const targetUserId = chatRoomData.targetUserId;
 
-             
-
                 return {
                   ...room,
                   targetUser,
@@ -341,7 +341,6 @@ export default function ChatRoomPage() {
                 };
               } else {
                 // 상세 정보 조회 실패 시 기본 정보 사용
-            
 
                 let targetUser = {
                   nickname: room.targetUserNickname || "사용자",
@@ -389,24 +388,25 @@ export default function ChatRoomPage() {
   // 로컬 스토리지 이벤트 리스너 (다른 탭/창에서의 업데이트)
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'chatRoomUpdate' && e.newValue) {
+      if (e.key === "chatRoomUpdate" && e.newValue) {
         try {
           const updateData = JSON.parse(e.newValue);
 
-          
-          if (updateData.type === 'chatMessageSent' && isMountedRef.current) {
+          if (updateData.type === "chatMessageSent" && isMountedRef.current) {
             // 해당 채팅방의 안읽은 수 증가
-            setChatRooms(prev => prev.map(room => {
-              if (room.roomId === updateData.roomId) {
-                return {
-                  ...room,
-                  myUnreadCount: (room.myUnreadCount || 0) + 1,
-                  lastMessage: updateData.messageContent,
-                  lastMessageAt: updateData.timestamp
-                };
-              }
-              return room;
-            }));
+            setChatRooms((prev) =>
+              prev.map((room) => {
+                if (room.roomId === updateData.roomId) {
+                  return {
+                    ...room,
+                    myUnreadCount: (room.myUnreadCount || 0) + 1,
+                    lastMessage: updateData.messageContent,
+                    lastMessageAt: updateData.timestamp,
+                  };
+                }
+                return room;
+              })
+            );
           }
         } catch (error) {
           // 로컬 스토리지 데이터 파싱 오류 무시
@@ -416,28 +416,29 @@ export default function ChatRoomPage() {
 
     // 커스텀 이벤트 리스너 (같은 탭에서의 업데이트)
     const handleChatMessageSent = (e) => {
-     
-      if (e.detail.type === 'chatMessageSent' && isMountedRef.current) {
-        setChatRooms(prev => prev.map(room => {
-          if (room.roomId === e.detail.roomId) {
-            return {
-              ...room,
-              myUnreadCount: (room.myUnreadCount || 0) + 1,
-              lastMessage: e.detail.messageContent,
-              lastMessageAt: e.detail.timestamp
-            };
-          }
-          return room;
-        }));
+      if (e.detail.type === "chatMessageSent" && isMountedRef.current) {
+        setChatRooms((prev) =>
+          prev.map((room) => {
+            if (room.roomId === e.detail.roomId) {
+              return {
+                ...room,
+                myUnreadCount: (room.myUnreadCount || 0) + 1,
+                lastMessage: e.detail.messageContent,
+                lastMessageAt: e.detail.timestamp,
+              };
+            }
+            return room;
+          })
+        );
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('chatMessageSent', handleChatMessageSent);
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("chatMessageSent", handleChatMessageSent);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('chatMessageSent', handleChatMessageSent);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("chatMessageSent", handleChatMessageSent);
     };
   }, []);
 
@@ -447,72 +448,82 @@ export default function ChatRoomPage() {
       try {
         connectWebSocket(
           (client) => {
-         
             setWebsocketConnected(true);
-            
-                         // 채팅방 목록 업데이트 구독
-             const chatRoomsUpdateSub = subscribe('/user/queue/chat.rooms.update', (data) => {
-          
-               if (isMountedRef.current) {
-                 fetchChatRooms();
-               }
-             });
-             
-             // 일반적인 채팅 메시지 구독
-             const generalChatSub = subscribe('/user/queue/chat', (data) => {
-          
-               if (isMountedRef.current) {
-                 // 채팅방 목록 새로고침
-                 fetchChatRooms();
-               }
-             });
-            
-                         // 새 메시지 알림 구독 (여러 주제 시도)
-             const newMessageSub1 = subscribe('/user/queue/chat.messages.new', (data) => {
-       
-               if (isMountedRef.current) {
-                 handleNewMessage(data);
-               }
-             });
-             
-             const newMessageSub2 = subscribe('/user/queue/messages', (data) => {
-            
-               if (isMountedRef.current) {
-                 handleNewMessage(data);
-               }
-             });
-             
-             const newMessageSub3 = subscribe('/user/queue/chat', (data) => {
-        
-               if (isMountedRef.current) {
-                 handleNewMessage(data);
-               }
-             });
-            
-                         // 안읽은 수 업데이트 구독
-             const unreadCountSub = subscribe('/user/queue/chat.rooms.unread', (data) => {
-        
-               if (isMountedRef.current) {
-                 setChatRooms(prev => prev.map(room => {
-                   if (room.roomId === data.roomId) {
-                     return {
-                       ...room,
-                       myUnreadCount: data.unreadCount || 0
-                     };
-                   }
-                   return room;
-                 }));
-               }
-             });
-            
-                         // 구독 목록 저장
-             subscriptionsRef.current = [chatRoomsUpdateSub, generalChatSub, newMessageSub1, newMessageSub2, newMessageSub3, unreadCountSub];
+
+            // 채팅방 목록 업데이트 구독
+            const chatRoomsUpdateSub = subscribe(
+              "/user/queue/chat.rooms.update",
+              (data) => {
+                if (isMountedRef.current) {
+                  fetchChatRooms();
+                }
+              }
+            );
+
+            // 일반적인 채팅 메시지 구독
+            const generalChatSub = subscribe("/user/queue/chat", (data) => {
+              if (isMountedRef.current) {
+                // 채팅방 목록 새로고침
+                fetchChatRooms();
+              }
+            });
+
+            // 새 메시지 알림 구독 (여러 주제 시도)
+            const newMessageSub1 = subscribe(
+              "/user/queue/chat.messages.new",
+              (data) => {
+                if (isMountedRef.current) {
+                  handleNewMessage(data);
+                }
+              }
+            );
+
+            const newMessageSub2 = subscribe("/user/queue/messages", (data) => {
+              if (isMountedRef.current) {
+                handleNewMessage(data);
+              }
+            });
+
+            const newMessageSub3 = subscribe("/user/queue/chat", (data) => {
+              if (isMountedRef.current) {
+                handleNewMessage(data);
+              }
+            });
+
+            // 안읽은 수 업데이트 구독
+            const unreadCountSub = subscribe(
+              "/user/queue/chat.rooms.unread",
+              (data) => {
+                if (isMountedRef.current) {
+                  setChatRooms((prev) =>
+                    prev.map((room) => {
+                      if (room.roomId === data.roomId) {
+                        return {
+                          ...room,
+                          myUnreadCount: data.unreadCount || 0,
+                        };
+                      }
+                      return room;
+                    })
+                  );
+                }
+              }
+            );
+
+            // 구독 목록 저장
+            subscriptionsRef.current = [
+              chatRoomsUpdateSub,
+              generalChatSub,
+              newMessageSub1,
+              newMessageSub2,
+              newMessageSub3,
+              unreadCountSub,
+            ];
           },
           (error) => {
             setWebsocketConnected(false);
           },
           () => {
-       
             setWebsocketConnected(false);
           }
         );
@@ -523,41 +534,42 @@ export default function ChatRoomPage() {
 
     // WebSocket 연결 시도
     connectToWebSocket();
-    
+
     // 초기 채팅방 목록 로드
     fetchChatRooms();
-    
-         // 주기적 새로고침 (백업 메커니즘)
-     const intervalId = setInterval(() => {
-       if (isMountedRef.current && websocketConnected) {
-       
-         fetchChatRooms();
-       }
-     }, 10000); // 10초마다
-     
-     // 컴포넌트 언마운트 시 정리
-     return () => {
-       isMountedRef.current = false;
-       clearInterval(intervalId);
-       // 구독 해제
-       subscriptionsRef.current.forEach(sub => {
-         if (sub) {
-           try {
-             sub.unsubscribe();
-           } catch (error) {
-             // 구독 해제 실패 무시
-           }
-         }
-       });
-       // WebSocket 연결 해제
-       disconnect();
-     };
+
+    // 주기적 새로고침 (백업 메커니즘)
+    const intervalId = setInterval(() => {
+      if (isMountedRef.current && websocketConnected) {
+        fetchChatRooms();
+      }
+    }, 10000); // 10초마다
+
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      isMountedRef.current = false;
+      clearInterval(intervalId);
+      // 구독 해제
+      subscriptionsRef.current.forEach((sub) => {
+        if (sub) {
+          try {
+            sub.unsubscribe();
+          } catch (error) {
+            // 구독 해제 실패 무시
+          }
+        }
+      });
+      // WebSocket 연결 해제
+      disconnect();
+    };
   }, []);
 
   // 채팅방 클릭 시 해당 채팅방으로 이동
   const handleChatRoomClick = (roomId, targetProfileImage) => {
     // 프로필 이미지가 있으면 URL 파라미터로 전달
-    const profileImageParam = targetProfileImage ? `?profileImage=${encodeURIComponent(targetProfileImage)}` : '';
+    const profileImageParam = targetProfileImage
+      ? `?profileImage=${encodeURIComponent(targetProfileImage)}`
+      : "";
     navigate(`/chat/room/${roomId}${profileImageParam}`);
   };
 
@@ -714,14 +726,14 @@ export default function ChatRoomPage() {
         </BackButton>
         <HeaderTitle>
           채팅
-          <span style={{ 
-            fontSize: '12px', 
-            color: websocketConnected ? '#4CAF50' : '#FF5722',
-            marginLeft: '8px',
-            fontWeight: 'normal'
-          }}>
-         
-          </span>
+          <span
+            style={{
+              fontSize: "12px",
+              color: websocketConnected ? "#4CAF50" : "#FF5722",
+              marginLeft: "8px",
+              fontWeight: "normal",
+            }}
+          ></span>
         </HeaderTitle>
       </Header>
 
@@ -749,27 +761,32 @@ export default function ChatRoomPage() {
               6: Avatar6Icon,
             };
 
-                         // 상대방의 프로필 이미지 결정
-             let opponentAvatarIcon = room.targetUser?.profileImage || null;
+            // 상대방의 프로필 이미지 결정
+            let opponentAvatarIcon = room.targetUser?.profileImage || null;
 
-                         // 본인 아바타 아이콘 결정 (프로필 이미지 변경 여부에 따라)
-             const currentUserId =
-               userData?.id || localStorage.getItem("currentUserId");
-             const userAvatarId =
-               userData?.avatarId || localStorage.getItem("userAvatarId") || 1;
+            // 본인 아바타 아이콘 결정 (프로필 이미지 변경 여부에 따라)
+            const currentUserId =
+              userData?.id || localStorage.getItem("currentUserId");
+            const userAvatarId =
+              userData?.avatarId || localStorage.getItem("userAvatarId") || 1;
 
-             // 프로필 이미지가 변경되었는지 확인 (로그인 응답의 profileImageUrl 우선)
-             const hasCustomProfileImage =
-               userData?.profileImage && userData.profileImage !== null;
-             const myAvatarIcon = hasCustomProfileImage
-               ? userData.profileImage
-               : avatarIcons[userAvatarId] || Avatar1Icon;
+            // 프로필 이미지가 변경되었는지 확인 (로그인 응답의 profileImageUrl 우선)
+            const hasCustomProfileImage =
+              userData?.profileImage && userData.profileImage !== null;
+            const myAvatarIcon = hasCustomProfileImage
+              ? userData.profileImage
+              : avatarIcons[userAvatarId] || Avatar1Icon;
 
-                         return (
-               <ChatRoomItem
-                 key={room.roomId}
-                 onClick={() => handleChatRoomClick(room.roomId, room.targetUser?.profileImage)}
-               >
+            return (
+              <ChatRoomItem
+                key={room.roomId}
+                onClick={() =>
+                  handleChatRoomClick(
+                    room.roomId,
+                    room.targetUser?.profileImage
+                  )
+                }
+              >
                 {/* 프로필 이미지 컨테이너 */}
                 <ProfileImagesContainer>
                   {/* 본인 프로필 (왼쪽) */}
