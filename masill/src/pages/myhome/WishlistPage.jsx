@@ -232,8 +232,6 @@ const PostCardContainer = styled.div`
   position: relative;
 `;
 
-
-
 // 더미 데이터 제거 - 실제 좋아요한 게시물을 사용
 
 const WishlistPage = () => {
@@ -248,10 +246,10 @@ const WishlistPage = () => {
       try {
         setLoading(true);
         const res = await fetchMyFavorites();
-      
+
         // 실제 데이터 구조에 맞게 접근
         const content = res?.data?.content || [];
-     
+
         if (content.length > 0) {
           console.log("관심목록 데이터:", content);
           // 사업자 인증 상태 확인 및 날짜 정보 디버깅
@@ -266,13 +264,12 @@ const WishlistPage = () => {
               isBusinessVerified: post.isBusinessVerified,
               businessVerified: post.businessVerified,
               userRole: post.userRole,
-              role: post.role
+              role: post.role,
             });
           });
         }
         setLikedPosts(content);
       } catch (err) {
-      
         setError(err);
       } finally {
         setLoading(false);
@@ -307,41 +304,40 @@ const WishlistPage = () => {
 
       // 하트가 해제되면 목록에서 제거
       if (!favorite) {
-        setLikedPosts(prevPosts => {
-
-          const filteredPosts = prevPosts.filter(post => {
+        setLikedPosts((prevPosts) => {
+          const filteredPosts = prevPosts.filter((post) => {
             const postId = post.eventId || post.postId || post.id;
             const shouldKeep = postId !== eventId;
             if (!shouldKeep) {
-
             }
             return shouldKeep;
           });
-      
+
           return filteredPosts;
         });
       } else {
         // 하트가 다시 눌려지면 상태 업데이트
-        setLikedPosts(prevPosts => prevPosts.map(post => {
-          const postId = post.eventId || post.postId || post.id;
-          if (postId === eventId) {
-            return { ...post, isHeartClicked: favorite, favoriteCount };
-          }
-          return post;
-        }));
+        setLikedPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            const postId = post.eventId || post.postId || post.id;
+            if (postId === eventId) {
+              return { ...post, isHeartClicked: favorite, favoriteCount };
+            }
+            return post;
+          })
+        );
       }
     } catch (err) {
       console.error("clickHeart 에러:", err);
-      
+
       // 500 에러나 다른 서버 오류의 경우, 로컬에서만 제거
       if (err.response?.status >= 500 || err.response?.status === 0) {
-       
-        setLikedPosts(prevPosts => {
-          const filteredPosts = prevPosts.filter(post => {
+        setLikedPosts((prevPosts) => {
+          const filteredPosts = prevPosts.filter((post) => {
             const postId = post.eventId || post.postId || post.id;
             return postId !== eventId;
           });
-       
+
           return filteredPosts;
         });
       } else {
@@ -430,12 +426,16 @@ const WishlistPage = () => {
             메인페이지에서 관심 있는 게시물에 하트를 눌러보세요!
           </div>
         ) : (
-                     <div style={{ padding: "0 24px 0 24px" }}>
-                         {likedPosts.map((post, index) => (
-               <React.Fragment key={post.eventId || post.postId || post.id}>
+          <div style={{ padding: "0 24px 0 24px" }}>
+            {likedPosts.map((post, index) => (
+              <React.Fragment key={post.eventId || post.postId || post.id}>
                 <PostCardContainer>
                   {/* 사업자 인증된 게시글에만 모자 표시 */}
-                  {(post.isBusinessVerified || post.businessVerified || post.userRole === 'BUSINESS' || post.role === 'BUSINESS' || post.user?.role === 'BUSINESS') && (
+                  {(post.isBusinessVerified ||
+                    post.businessVerified ||
+                    post.userRole === "BUSINESS" ||
+                    post.role === "BUSINESS" ||
+                    post.user?.role === "BUSINESS") && (
                     <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
                   )}
                   <PostCard onClick={() => handlePostClick(post)}>
@@ -450,82 +450,78 @@ const WishlistPage = () => {
                         ))}
                     </ImageScrollWrapper>
 
-                                     <ContentWrapper>
-                     <LeftContent>
-                       <MemberLogo src={post.userImage} alt="회원로고" />
-                       <TextInfo>
-                        <BoardTitleH1>{post.title}</BoardTitleH1>
-                        <BoardLocationP>{post.location}</BoardLocationP>
-                        <BoardDateP>
-                          {post.startAt && post.endAt ? (
-                            `${dayjs(post.startAt).format(
-                              "YYYY.MM.DD.(dd)"
-                            )} ~ ${dayjs(post.endAt).format(
-                              "YYYY.MM.DD.(dd)"
-                            )} ${dayjs(post.startAt).format("HH:mm")}~${dayjs(
-                              post.endAt
-                            ).format("HH:mm")}`
-                          ) : post.startAt ? (
-                            `${dayjs(post.startAt).format(
-                              "YYYY.MM.DD.(dd)"
-                            )} ${dayjs(post.startAt).format("HH:mm")}`
-                          ) : (
-                            "날짜 정보 없음"
+                    <ContentWrapper>
+                      <LeftContent>
+                        <MemberLogo src={post.userImage} alt="회원로고" />
+                        <TextInfo>
+                          <BoardTitleH1>{post.title}</BoardTitleH1>
+                          <BoardLocationP>{post.location}</BoardLocationP>
+                          <BoardDateP>
+                            {post.startAt && post.endAt
+                              ? `${dayjs(post.startAt).format(
+                                  "YYYY.MM.DD.(dd)"
+                                )} ~ ${dayjs(post.endAt).format(
+                                  "YYYY.MM.DD.(dd)"
+                                )} ${dayjs(post.startAt).format(
+                                  "HH:mm"
+                                )}~${dayjs(post.endAt).format("HH:mm")}`
+                              : post.startAt
+                              ? `${dayjs(post.startAt).format(
+                                  "YYYY.MM.DD.(dd)"
+                                )} ${dayjs(post.startAt).format("HH:mm")}`
+                              : "날짜 정보 없음"}
+                          </BoardDateP>
+                          {post.postType === "CLUB" && (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#154ad0",
+                                fontWeight: "normal",
+                                marginTop: "4px",
+                              }}
+                            >
+                              [소모임]
+                            </span>
                           )}
-                        </BoardDateP>
-                        {post.postType === "CLUB" && (
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#154ad0",
-                              fontWeight: "normal",
-                              marginTop: "4px",
-                            }}
-                          >
-                            [소모임]
-                          </span>
-                        )}
-                        {post.postType === "EVENT" && (
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#ff6b35",
-                              fontWeight: "normal",
-                              marginTop: "4px",
-                            }}
-                          >
-                            [이벤트]
-                          </span>
-                        )}
-                      </TextInfo>
-                    </LeftContent>
+                          {post.postType === "EVENT" && (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#ff6b35",
+                                fontWeight: "normal",
+                                marginTop: "4px",
+                              }}
+                            >
+                              [이벤트]
+                            </span>
+                          )}
+                        </TextInfo>
+                      </LeftContent>
 
-                    <RightContent>
-                                             <HeartArea
-                         onClick={(e) =>
-                           handleRemoveFromWishlist(post.eventId, e)
-                         }
-                       >
-                        <TextStyle>{post.favoriteCount}</TextStyle>
-                        <HeartImg
-                          src={Fullheart}
-                          alt="하트"
-                          style={{ width: "24px", height: "24px" }}
-                        />
-                      </HeartArea>
+                      <RightContent>
+                        <HeartArea
+                          onClick={(e) =>
+                            handleRemoveFromWishlist(post.eventId, e)
+                          }
+                        >
+                          <TextStyle>{post.favoriteCount}</TextStyle>
+                          <HeartImg
+                            src={Fullheart}
+                            alt="하트"
+                            style={{ width: "24px", height: "24px" }}
+                          />
+                        </HeartArea>
 
-                      <CommentArea>
-                        <TextStyle>{post.commentCount}</TextStyle>
-                        <CommentImg src={Comment} alt="댓글" />
-                      </CommentArea>
-                                         </RightContent>
-                   </ContentWrapper>
-
-
-                 </PostCard>
-                 {/* 소모임 게시글에는 프로모션 아이콘이 표시되지 않음 */}
+                        <CommentArea>
+                          <TextStyle>{post.commentCount}</TextStyle>
+                          <CommentImg src={Comment} alt="댓글" />
+                        </CommentArea>
+                      </RightContent>
+                    </ContentWrapper>
+                  </PostCard>
+                  {/* 소모임 게시글에는 프로모션 아이콘이 표시되지 않음 */}
                 </PostCardContainer>
-               </React.Fragment>
+              </React.Fragment>
             ))}
           </div>
         )}

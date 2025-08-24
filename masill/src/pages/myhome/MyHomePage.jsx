@@ -1,25 +1,25 @@
-import React from 'react';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '../../contexts/UserContext';
-import { uploadProfileImage } from '../../api/userService';
+import React from "react";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../../contexts/UserContext";
+import { uploadProfileImage } from "../../api/userService";
 
-import ChatIcon from '@logo/myhome/chat.svg'; 
-import HomeIcon from '@logo/myhome/home.svg';
-import WriteIcon from '@logo/myhome/write.svg';
-import Bird2Icon from '@logo/myhome/birddown.svg';
-import Bird1Icon from '@logo/bird.svg';
-import Avatar1Icon from '@logo/profile/avatar1.svg';
-import Avatar2Icon from '@logo/profile/avatar2.svg';
-import Avatar3Icon from '@logo/profile/avatar3.svg';
-import Avatar4Icon from '@logo/profile/avatar4.svg';
-import Avatar5Icon from '@logo/profile/avatar5.svg';
-import Avatar6Icon from '@logo/profile/avatar6.svg';
-import HeartIcon from '@logo/myhome/heart.svg';
-import CheckIcon from '@logo/myhome/check.svg';
-import SajangIcon from '@logo/myhome/sajang.svg';
-import MasilLogoIcon from '@assets/masill-logo1.svg';
-import Plusbutton from '@logo/myhome/plusbutton.svg';
+import ChatIcon from "@logo/myhome/chat.svg";
+import HomeIcon from "@logo/myhome/home.svg";
+import WriteIcon from "@logo/myhome/write.svg";
+import Bird2Icon from "@logo/myhome/birddown.svg";
+import Bird1Icon from "@logo/bird.svg";
+import Avatar1Icon from "@logo/profile/avatar1.svg";
+import Avatar2Icon from "@logo/profile/avatar2.svg";
+import Avatar3Icon from "@logo/profile/avatar3.svg";
+import Avatar4Icon from "@logo/profile/avatar4.svg";
+import Avatar5Icon from "@logo/profile/avatar5.svg";
+import Avatar6Icon from "@logo/profile/avatar6.svg";
+import HeartIcon from "@logo/myhome/heart.svg";
+import CheckIcon from "@logo/myhome/check.svg";
+import SajangIcon from "@logo/myhome/sajang.svg";
+import MasilLogoIcon from "@assets/masill-logo1.svg";
+import Plusbutton from "@logo/myhome/plusbutton.svg";
 
 const MyHomeContainer = styled.div`
   min-height: 100%;
@@ -28,7 +28,6 @@ const MyHomeContainer = styled.div`
   margin: 0;
   position: relative;
 `;
-
 
 const Header = styled.div`
   display: flex;
@@ -66,7 +65,7 @@ const IconButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &:hover {
     color: #007bff;
   }
@@ -98,7 +97,7 @@ const AvatarContainer = styled.div`
 
 const HiddenFileInput = styled.input`
   display: none;
-  
+
   /* 모바일에서 카메라 접근 허용 */
   &[type="file"] {
     /* iOS Safari에서 카메라 접근 */
@@ -123,11 +122,11 @@ const PlusButton = styled.button`
   box-shadow: none;
   z-index: 20;
   outline: none;
-  
+
   &:focus {
     outline: none;
   }
-  
+
   &:active {
     outline: none;
   }
@@ -169,7 +168,7 @@ const NicknameButton = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
-  
+
   &:hover {
     background: #e9ecef;
   }
@@ -197,9 +196,6 @@ const MenuItem = styled.div`
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  
-
-
 `;
 
 const MenuIcon = styled.div`
@@ -250,16 +246,12 @@ const BirdImage = styled.img`
 const MyHomePage = () => {
   const navigate = useNavigate();
   const { userData, updateProfileImage } = useUser();
-  
 
-  
   // 토큰 상태 확인
   React.useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-    const currentUser = localStorage.getItem('currentUser');
-    
-
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const currentUser = localStorage.getItem("currentUser");
   }, []);
 
   // 아바타 아이콘 매핑
@@ -269,7 +261,7 @@ const MyHomePage = () => {
     3: Avatar3Icon,
     4: Avatar4Icon,
     5: Avatar5Icon,
-    6: Avatar6Icon
+    6: Avatar6Icon,
   };
 
   // 현재 사용자의 아바타 아이콘 가져오기
@@ -304,42 +296,38 @@ const MyHomePage = () => {
   const [bird2Position, setBird2Position] = React.useState({ x: 220, y: 101 });
 
   const handleHome = () => {
-    navigate('/myhome');
+    navigate("/myhome");
   };
 
   const handleEditProfile = () => {
-    navigate('/board');
+    navigate("/board");
   };
 
-  
-
   const handleChat = () => {
-    navigate('/chat');
+    navigate("/chat");
   };
 
   const handleProfile = () => {
-
-    navigate('/main');
+    navigate("/main");
   };
 
   const handleViewPosts = () => {
-            navigate('/myhome/my-posts');
+    navigate("/myhome/my-posts");
   };
 
   const handleViewWishlist = () => {
-    navigate('/myhome/wishlist');
+    navigate("/myhome/wishlist");
   };
 
   const handleVerifyManager = () => {
-    navigate('/myhome/sajang');
+    navigate("/myhome/sajang");
   };
 
   const handleNicknameChange = () => {
-    navigate('/myhome/nickname-change');
+    navigate("/myhome/nickname-change");
   };
 
   const handlePlusButton = () => {
-  
     // 파일 선택 다이얼로그 열기
     fileInputRef.current?.click();
   };
@@ -349,82 +337,77 @@ const MyHomePage = () => {
     if (!file) return;
 
     // 파일 타입 검증
-    if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드 가능합니다.');
+    if (!file.type.startsWith("image/")) {
+      alert("이미지 파일만 업로드 가능합니다.");
       return;
     }
 
     // 파일 크기 검증 (5MB 제한)
     if (file.size > 5 * 1024 * 1024) {
-      alert('파일 크기는 5MB 이하여야 합니다.');
+      alert("파일 크기는 5MB 이하여야 합니다.");
       return;
     }
 
     try {
       setIsUploading(true);
-      
-            // API 호출
+
+      // API 호출
       const result = await uploadProfileImage(file);
-  
-      
+
       // 업로드 성공 시 응답에서 profileImageUrl 사용
       if (result && result.success) {
         const profileImageUrl = result.data?.profileImageUrl;
         if (profileImageUrl) {
-      
-          localStorage.setItem('userProfileImage', profileImageUrl);
+          localStorage.setItem("userProfileImage", profileImageUrl);
           setProfileImage(profileImageUrl);
           // UserContext 업데이트
           updateProfileImage(profileImageUrl);
         } else {
-          console.warn('서버 응답에 profileImageUrl이 없습니다:', result);
+          console.warn("서버 응답에 profileImageUrl이 없습니다:", result);
           // API에서 URL을 반환하지 않는 경우, 파일을 base64로 변환하여 저장
           const reader = new FileReader();
           reader.onload = (e) => {
             const base64Image = e.target.result;
-            localStorage.setItem('userProfileImage', base64Image);
+            localStorage.setItem("userProfileImage", base64Image);
             setProfileImage(base64Image);
             updateProfileImage(base64Image);
           };
           reader.readAsDataURL(file);
         }
       } else {
-        console.warn('프로필 이미지 업로드 API 실패:', result);
+        console.warn("프로필 이미지 업로드 API 실패:", result);
         // API 실패 시에도 base64로 저장하여 임시 사용
         const reader = new FileReader();
         reader.onload = (e) => {
           const base64Image = e.target.result;
-          localStorage.setItem('userProfileImage', base64Image);
+          localStorage.setItem("userProfileImage", base64Image);
           setProfileImage(base64Image);
           updateProfileImage(base64Image);
         };
         reader.readAsDataURL(file);
       }
-      
-      // 성공 메시지 (모바일 친화적)
-      if (window.innerWidth <= 768) {
-        // 모바일에서는 더 간단한 메시지
-    
-      } else {
-        alert('프로필 이미지가 성공적으로 업로드되었습니다.');
-      }
-      
+
+      // // 성공 메시지 (모바일 친화적)
+      // if (window.innerWidth <= 768) {
+      //   // 모바일에서는 더 간단한 메시지
+      // } else {
+      // }
     } catch (error) {
-      console.error('프로필 이미지 업로드 실패:', error);
-      
+      console.error("프로필 이미지 업로드 실패:", error);
+
       // 모바일 친화적 에러 메시지
       if (window.innerWidth <= 768) {
-        console.error('업로드에 실패했습니다.');
+        console.error("업로드에 실패했습니다.");
       } else {
-        alert('프로필 이미지 업로드에 실패했습니다.');
+        alert("프로필 이미지 업로드에 실패했습니다.");
       }
-      
+
       // 실패 시 미리보기 제거
       setProfileImage(null);
     } finally {
       setIsUploading(false);
       // 파일 입력 초기화
-      event.target.value = '';
+      event.target.value = "";
     }
   };
 
@@ -432,17 +415,16 @@ const MyHomePage = () => {
     <MyHomeContainer>
       {/* 상태바 */}
 
-
       {/* 헤더 */}
       <Header>
-        <Logo onClick={handleProfile} style={{ cursor: 'pointer' }}>
+        <Logo onClick={handleProfile} style={{ cursor: "pointer" }}>
           <LogoImage src={MasilLogoIcon} alt="마실" />
         </Logo>
         <ActionIcons>
           <IconButton onClick={handleEditProfile}>
             <IconImage src={WriteIcon} alt="편집" />
           </IconButton>
-         
+
           <IconButton onClick={handleChat}>
             <IconImage src={ChatIcon} alt="채팅" />
           </IconButton>
@@ -455,24 +437,28 @@ const MyHomePage = () => {
       {/* 프로필 섹션 */}
       <ProfileSection>
         <AvatarContainer>
-          <AvatarImage 
-            src={userData?.profileImage || profileImage || getCurrentAvatarIcon()} 
-            alt="프로필" 
+          <AvatarImage
+            src={
+              userData?.profileImage || profileImage || getCurrentAvatarIcon()
+            }
+            alt="프로필"
           />
           {isUploading && (
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '12px'
-            }}>
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: "rgba(0,0,0,0.5)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: "12px",
+              }}
+            >
               업로드 중...
             </div>
           )}
@@ -489,7 +475,7 @@ const MyHomePage = () => {
         </PlusButton>
         <UserInfo>
           <Username>
-                            {userData.username}
+            {userData.username}
             {userData.isSajangVerified && (
               <SajangIconImage src={SajangIcon} alt="사장님 인증" />
             )}
@@ -508,14 +494,14 @@ const MyHomePage = () => {
           </MenuIcon>
           <MenuText>내가 작성한 게시글 보기</MenuText>
         </MenuItem>
-        
+
         <MenuItem onClick={handleViewWishlist}>
           <MenuIcon>
             <MenuIconImage src={HeartIcon} alt="관심목록" />
           </MenuIcon>
           <MenuText>관심 목록 보기</MenuText>
         </MenuItem>
-        
+
         <MenuItem onClick={handleVerifyManager}>
           <MenuIcon>
             <MenuIconImage src={CheckIcon} alt="인증" />
@@ -527,31 +513,35 @@ const MyHomePage = () => {
       {/* 하단 일러스트레이션 */}
       <BottomIllustration>
         <BirdContainer>
-          <BirdImage 
-            src={Bird1Icon} 
-            alt="새1" 
+          <BirdImage
+            src={Bird1Icon}
+            alt="새1"
             style={{
               left: `${bird1Position.x}px`,
               bottom: `${bird1Position.y}px`,
-              transform: 'translateX(-50%)'
+              transform: "translateX(-50%)",
             }}
-            onClick={() => setBird1Position(prev => ({
-              ...prev,
-              y: prev.y === 0 ? -20 : 0
-            }))}
+            onClick={() =>
+              setBird1Position((prev) => ({
+                ...prev,
+                y: prev.y === 0 ? -20 : 0,
+              }))
+            }
           />
-          <BirdImage 
-            src={Bird2Icon} 
-            alt="새2" 
+          <BirdImage
+            src={Bird2Icon}
+            alt="새2"
             style={{
               left: `${bird2Position.x}px`,
               bottom: `${bird2Position.y}px`,
-              transform: 'translateX(-50%)'
+              transform: "translateX(-50%)",
             }}
-            onClick={() => setBird2Position(prev => ({
-              ...prev,
-              y: prev.y === 0 ? -20 : 0
-            }))}
+            onClick={() =>
+              setBird2Position((prev) => ({
+                ...prev,
+                y: prev.y === 0 ? -20 : 0,
+              }))
+            }
           />
         </BirdContainer>
       </BottomIllustration>
