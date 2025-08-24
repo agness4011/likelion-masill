@@ -14,6 +14,8 @@ import GoChatRoom from "../../assets/detail/gochatroom.svg";
 import DeleteImg from "../../assets/detail/delete.png";
 import TrashImgBtn from "../../assets/detail/trash.png";
 
+import { useUser } from "../../contexts/UserContext";
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import ReactDOM from "react-dom";
@@ -305,14 +307,7 @@ function BodyTop() {
       <div
         style={{ position: "relative", display: "inline-block", width: "100%" }}
       >
-        <TitleP
-          style={{
-            paddingRight: "40px",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
+        <TitleP style={{ paddingRight: "40px" }}>
           {club?.title || "로딩 중..."}
         </TitleP>
 
@@ -756,18 +751,26 @@ function AddCommentMessage({
   onCancel,
 }) {
   const [comment, setComment] = useState("");
+  const { userData } = useUser();
 
-  // 로그인 정보 로컬스토리지에서 직접 가져오기
-  const userData = JSON.parse(localStorage.getItem("currentUser")) || {};
-  const profileImg = userData.profileImageUrl || "/default-profile.png";
-  const nickname = userData.nickname || "사용자";
+  // ✅ imgSrc를 상태로 관리
+  const [imgSrc, setImgSrc] = useState(
+    userData?.profileImage || "https://via.placeholder.com/32x32?text=?"
+  );
+
+  useEffect(() => {
+    // userData 값이 실제로 바뀔 때만 업데이트
+    if (userData?.profileImageUrl) {
+      setImgSrc(userData.profileImageUrl);
+    }
+  }, [userData?.profileImageUrl]);
+
+  const nickname = userData?.nickname || "사용자";
 
   const handleAdd = async () => {
     if (!comment.trim()) return;
-
     try {
       if (parentCommentId) {
-        // 대댓글 작성
         const newReply = await addSmallGroupReply(
           eventId,
           clubId,
@@ -775,13 +778,12 @@ function AddCommentMessage({
           comment
         );
         onReplyAdded?.(newReply, parentCommentId);
-        onCancel?.(); // 작성 후 입력창 초기화
       } else {
-        // 일반 댓글 작성
         const newComment = await addSmallGroupComment(eventId, clubId, comment);
         onCommentAdded?.(newComment);
       }
       setComment("");
+      if (onCancel && parentCommentId) onCancel();
     } catch (error) {
       console.error(
         parentCommentId ? "대댓글 작성 실패" : "댓글 작성 실패",
@@ -809,14 +811,21 @@ function AddCommentMessage({
           }}
         >
           <CommentUserImg
-            src={profileImg}
+            src={imgSrc}
             alt={nickname}
             style={{ width: "32px", height: "32px", borderRadius: "50%" }}
-            onError={(e) => {
-              e.currentTarget.src = "/default-profile.png";
-            }}
+            onError={() => setImgSrc("/default-profile.png")} // 실패 시 한 번만 fallback
           />
-          <span style={{ fontSize: "14px", color: "#666" }}>{nickname}</span>
+          <span
+            style={{
+              fontSize: "14px",
+              color: "#666",
+              margin: "0",
+              marginLeft: "5px",
+            }}
+          >
+            {nickname}
+          </span>
         </div>
 
         {parentCommentId && <CancelBtn onClick={onCancel}>취소</CancelBtn>}
