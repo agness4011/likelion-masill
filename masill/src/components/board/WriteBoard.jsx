@@ -60,6 +60,7 @@ import {
   ReigonInput,
   CancleBtn,
   Div,
+  Row,
 } from "./WriteBoard.styled";
 
 export default function WriteBoard({ children }) {
@@ -110,14 +111,13 @@ function Reigon({ regionName, isEditMode, eventId, onBeforeChangeRegion }) {
   };
 
   return (
-    <div>
+    <Div>
       <TextStyle>지역</TextStyle>
       <ReigonInput>
         {regionName}
         <CancleBtn src={Cancle} onClick={handleRegionClick} />
       </ReigonInput>
-      <InputWrapper></InputWrapper>
-    </div>
+    </Div>
   );
 }
 function SetLocation({ location, setLocation, error, setTouched }) {
@@ -126,13 +126,13 @@ function SetLocation({ location, setLocation, error, setTouched }) {
   const selectedDistrict = localStorage.getItem("selectedDistrict") || "";
 
   return (
-    <div>
+    <Div>
       <TextStyle>세부 장소</TextStyle>
 
       <InputWrapper>
         <InputStyle
           type="text"
-          placeholder={`${selectedRegion} ${selectedDistrict} 장소 입력`}
+          placeholder={`${selectedRegion} ${selectedDistrict} 세부 장소 입력`}
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           onBlur={() => setTouched(true)}
@@ -148,7 +148,7 @@ function SetLocation({ location, setLocation, error, setTouched }) {
           }}
         ></div>
       )}
-    </div>
+    </Div>
   );
 }
 
@@ -215,7 +215,7 @@ function SelectCategory({
 
   return (
     <Wrapper>
-      <TextStyle>카테고리</TextStyle>
+      <TextStyle style={{ marginLeft: "24px" }}>카테고리</TextStyle>
 
       <CategoryArea>
         {showLeftBtn && (
@@ -292,9 +292,9 @@ function UploadImg({ images, setImages, error, setTouched }) {
 }
 function SubmitButton() {
   return (
-    <div>
+    <Div>
       <SubmitBtn>작성 완료</SubmitBtn>
-    </div>
+    </Div>
   );
 }
 function WriteContext({ content, setContent, error, setTouched }) {
@@ -309,7 +309,7 @@ function WriteContext({ content, setContent, error, setTouched }) {
     <DetailDiv>
       <TextStyle>내용</TextStyle>
       <TextArea
-        placeholder="내용을 입력하세요..."
+        placeholder="주최하시는 이벤트에 대해 자세히 설명해주세요!"
         value={content}
         onChange={handleChange}
         onBlur={() => setTouched(true)}
@@ -362,8 +362,8 @@ function EventDateTimePicker({
   const blackColor = "#000000";
 
   return (
-    <div>
-      <div style={{ display: "flex", gap: "16px" }}>
+    <Div>
+      <Row>
         <DateDiv>
           <TextStyle>시작 날짜</TextStyle>
           <TimeInput
@@ -383,11 +383,11 @@ function EventDateTimePicker({
             {endDate ? endDate.toLocaleDateString() : "날짜 선택"}
           </TimeInput>
         </DateDiv>
-      </div>
+      </Row>
 
       <div>
         <TextStyle>행사 시간</TextStyle>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <Row>
           <TimeInput
             style={{ color: startTime ? blackColor : grayColor }}
             onClick={() => openModal("startTime")}
@@ -399,7 +399,6 @@ function EventDateTimePicker({
                 })
               : "시작 시간"}
           </TimeInput>
-          {/* {errors?.startTime && <ErrorMessage>{errors.startTime}</ErrorMessage>} */}
 
           <TimeInput
             style={{ color: endTime ? blackColor : grayColor }}
@@ -412,41 +411,9 @@ function EventDateTimePicker({
                 })
               : "종료 시간"}
           </TimeInput>
-          {/* {errors?.endTime && <ErrorMessage>{errors.endTime}</ErrorMessage>} */}
-        </div>
+        </Row>
       </div>
-
-      {modalConfig.open && (
-        <div style={overlayStyle}>
-          <div style={modalStyle}>
-            <DatePicker
-              selected={
-                modalConfig.type === "startDate"
-                  ? startDate || new Date()
-                  : modalConfig.type === "endDate"
-                  ? endDate || new Date()
-                  : modalConfig.type === "startTime"
-                  ? startTime || new Date()
-                  : modalConfig.type === "endTime"
-                  ? endTime || new Date()
-                  : null
-              }
-              onChange={handleSelect}
-              inline
-              showTimeSelect={modalConfig.type.includes("Time")}
-              showTimeSelectOnly={modalConfig.type.includes("Time")}
-              timeIntervals={10}
-              dateFormat={
-                modalConfig.type.includes("Date") ? "yyyy-MM-dd" : "HH:mm"
-              }
-            />
-            <button onClick={closeModal} style={{ marginTop: "10px" }}>
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    </Div>
   );
 }
 // --- 최종 InputForm ---

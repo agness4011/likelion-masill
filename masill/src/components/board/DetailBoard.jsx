@@ -205,13 +205,7 @@ function LowHead() {
   }, [eventId, userData]);
 
   const handleBack = () => {
-    if (location.state?.from) {
-      // 목록에서 넘어올 때 저장해둔 경로로 복귀
-      navigate(location.state.from, { replace: true });
-    } else {
-      // 직접 URL 입력해서 들어온 경우 fallback
-      navigate("/main");
-    }
+    navigate("/main");
   };
 
   const handleEditClick = () => {

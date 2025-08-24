@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { getRegions } from "../../api/userService";
-import MainArrowLeftIcon from '@logo/main/main-arrowleft.svg';
+import MainArrowLeftIcon from "../../assets/logo/main/main-arrowleft.svg";
 
 export default function ChangeRegion() {
   const nav = useNavigate();
@@ -181,4 +181,8 @@ const RegionButton = styled.button`
   &:hover {
     border-color: ${({ selected }) => (selected ? "#1B409C" : "#1B409C")};
   }
+`;
+const BackIcon = styled.img`
+  width: 30px;
+  height: 30px;
 `;
