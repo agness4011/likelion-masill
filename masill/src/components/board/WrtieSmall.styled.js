@@ -425,8 +425,6 @@ export const SubmitBtn = styled.button`
   color: ${({ disabled }) =>
     disabled ? "var(--Gray-900, #727C94)" : "#ffffff"};
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-
-  margin-bottom: 20px;
 `;
 
 export const ErrorMessage = styled.p`
@@ -498,7 +496,6 @@ export const MainEventDiv = styled.div`
   padding: 6px 12px;
 
   margin-left: 24px;
-  max-width: 340px;
 `;
 export const BirdImg = styled.img`
   width: 125px;

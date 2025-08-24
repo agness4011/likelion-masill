@@ -198,7 +198,7 @@ function LowHead() {
       <BackBtn
         src={BackImg}
         alt="페이지 뒤로 가는 버튼"
-        onClick={() => navigate(`/detail/${eventId}`)}
+        onClick={() => navigate(-1)}
       />
       {club?.author && (
         <BtnDiv>
@@ -593,7 +593,7 @@ function UserChat() {
       }}
     >
       {comments.length === 0 ? (
-        <p style={{ textAlign: "center" }}>작성된 댓글이 없습니다.</p>
+        <p>작성된 댓글이 없습니다.</p>
       ) : (
         comments.map((comment) => (
           <CommentWrapper key={comment.commentId}>
@@ -837,6 +837,47 @@ function AddCommentMessage({
   );
 }
 
+function AddReplyMessage({
+  eventId,
+  clubId,
+  parentCommentId,
+  onReplyAdded,
+  onCancel,
+}) {
+  const [content, setContent] = useState("");
+
+  const handleAddReply = async () => {
+    if (!content.trim()) return;
+
+    try {
+      const newReply = await addSmallGroupReply(
+        eventId,
+        clubId,
+        parentCommentId,
+        content
+      );
+      if (onReplyAdded) onReplyAdded(newReply, parentCommentId);
+      setContent("");
+      if (onCancel) onCancel(); // 입력창 닫기
+    } catch (error) {
+      console.error("대댓글 작성 실패", error);
+    }
+  };
+
+  return (
+    <div style={{ marginLeft: "40px", marginTop: "6px" }}>
+      <ReplyKeyboardDiv>
+        <ReplyKeyboard
+          type="text"
+          placeholder="답글을 입력하세요"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <ReplyKeyboardBtn src={KeyboardButton} onClick={handleAddReply} />
+      </ReplyKeyboardDiv>
+    </div>
+  );
+}
 function ChatModal({ user, onClose }) {
   console.log("=== ChatModal 컴포넌트 시작 ===");
   console.log("ChatModal props:", { user, onClose });

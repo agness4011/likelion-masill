@@ -797,7 +797,7 @@ function UserChat() {
       }}
     >
       {comments.length === 0 ? (
-        <p style={{ textAlign: "center" }}>작성된 댓글이 없습니다.</p>
+        <p>작성된 댓글이 없습니다.</p>
       ) : (
         comments.map((comment) => (
           <CommentWrapper key={comment.commentId}>
@@ -1191,7 +1191,7 @@ function Group() {
 
       <div>
         {loading ? (
-          <p style={{ textAlign: "center" }}>소모임을 불러오는 중...</p>
+          <p>소모임을 불러오는 중...</p>
         ) : groups.length > 0 ? (
           groups.map((group) => (
             <div
@@ -1245,7 +1245,7 @@ function Group() {
             </div>
           ))
         ) : (
-          <p style={{ textAlign: "center" }}>아직 등록된 소모임이 없습니다.</p>
+          <p>아직 등록된 소모임이 없습니다.</p>
         )}
       </div>
     </div>
