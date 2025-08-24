@@ -19,7 +19,7 @@ import GoChatRoom from "../../assets/detail/gochatroom.svg";
 import Hat from "../../assets/detail/hat.svg";
 
 import { useState, useEffect } from "react";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useNavigate, Link, useParams, useLocation } from "react-router-dom";
 import ReactDOM from "react-dom";
 import React from "react";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -180,6 +180,7 @@ function Low({ children }) {
 }
 function LowHead() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { eventId } = useParams();
   const { userData } = useUser();
   const [isAuthor, setIsAuthor] = useState(false);
@@ -192,14 +193,6 @@ function LowHead() {
         const data = await detailBoard(eventId);
         setEventData(data);
 
-        // author 필드로 권한 확인
-        console.log("=== 권한 확인 디버깅 (author) ===");
-        console.log("게시글 데이터:", data);
-        console.log("author 필드:", data.author);
-        console.log("author 타입:", typeof data.author);
-        console.log("========================");
-
-        // author가 true일 때만 권한 부여
         const isAuthorized = data.author === true;
         setIsAuthor(isAuthorized);
       } catch (error) {
@@ -210,6 +203,16 @@ function LowHead() {
 
     checkIfAuthor();
   }, [eventId, userData]);
+
+  const handleBack = () => {
+    if (location.state?.from) {
+      // 목록에서 넘어올 때 저장해둔 경로로 복귀
+      navigate(location.state.from, { replace: true });
+    } else {
+      // 직접 URL 입력해서 들어온 경우 fallback
+      navigate("/main");
+    }
+  };
 
   const handleEditClick = () => {
     navigate(`/board/${eventId}`);
@@ -234,12 +237,7 @@ function LowHead() {
 
   return (
     <LowHeaderContainer>
-      <BackBtn
-        src={BackImg}
-        alt="페이지 뒤로 가는 버튼"
-        onClick={() => navigate(-1)}
-      />
-      {/* 게시물 작성자에게만 수정/삭제 아이콘 표시 */}
+      <BackBtn src={BackImg} alt="페이지 뒤로 가는 버튼" onClick={handleBack} />
       {isAuthor && (
         <>
           <PencilBtn
@@ -256,7 +254,6 @@ function LowHead() {
           />
         </>
       )}
-
       {/* 삭제 확인 모달 */}
       {showDeleteModal && (
         <ModalBackground>
@@ -797,7 +794,7 @@ function UserChat() {
       }}
     >
       {comments.length === 0 ? (
-        <p>작성된 댓글이 없습니다.</p>
+        <p style={{ textAlign: "center" }}>작성된 댓글이 없습니다.</p>
       ) : (
         comments.map((comment) => (
           <CommentWrapper key={comment.commentId}>
@@ -1191,7 +1188,7 @@ function Group() {
 
       <div>
         {loading ? (
-          <p>소모임을 불러오는 중...</p>
+          <p style={{ textAlign: "center" }}>소모임을 불러오는 중...</p>
         ) : groups.length > 0 ? (
           groups.map((group) => (
             <div
@@ -1245,7 +1242,7 @@ function Group() {
             </div>
           ))
         ) : (
-          <p>아직 등록된 소모임이 없습니다.</p>
+          <p style={{ textAlign: "center" }}>아직 등록된 소모임이 없습니다.</p>
         )}
       </div>
     </div>
