@@ -8,6 +8,7 @@ import arrowright from "@logo/arrowright.png";
 import arrowleft from "@logo/arrowleft.png";
 import chatonboarding1 from "@logo/chatonboarding1.svg";
 import chatonboarding2 from "@logo/chatonboarding2.svg";
+import Down from "../../assets/logo/onboarding2/down.svg";
 
 export default function OnboardingPage() {
   const nav = useNavigate();
@@ -15,9 +16,9 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setShowSecond(prev => !prev);
+      setShowSecond((prev) => !prev);
     }, 1500);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -29,16 +30,10 @@ export default function OnboardingPage() {
 
         {/* 조건부 렌더링으로 이미지 전환 */}
         {!showSecond && (
-          <ChatImage
-            src={chatonboarding1}
-            alt="chatonboarding1"
-          />
+          <ChatImage src={chatonboarding1} alt="chatonboarding1" />
         )}
         {showSecond && (
-          <ChatImage
-            src={chatonboarding2}
-            alt="chatonboarding2"
-          />
+          <ChatImage src={chatonboarding2} alt="chatonboarding2" />
         )}
 
         <BottomGradient />
@@ -65,7 +60,6 @@ export default function OnboardingPage() {
         <BtnArea>
           <JoinBtn onClick={() => nav("/signup")}>회원가입</JoinBtn>
           <LoginBtn onClick={() => nav("/login")}>로그인</LoginBtn>
-        
         </BtnArea>
       </Wrap>
     </div>

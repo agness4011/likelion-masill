@@ -172,7 +172,7 @@ const Wrap = styled.div`
   overflow: hidden;
   opacity: 0;
   animation: fadeIn 0.1s ease-out forwards;
-  
+
   @keyframes fadeIn {
     to {
       opacity: 1;
@@ -213,13 +213,18 @@ const CircleBottomLeft = styled.div`
 const BottomGradient = styled.div`
   position: absolute;
   left: 53.5%;
-  bottom: -90px;
+  bottom: -115px;
   transform: translateX(-50%);
-  width: 150%;
-  height: 63%;
-  border-top-left-radius: 50% 99%;
-  border-top-right-radius: 50% 83%;
+
   background: linear-gradient(180deg, #1b409c 0%, #ff7852 100%);
+
+  width: 568px;
+  height: 568px;
+
+  border-radius: 568px;
+
+  /* Blur */
+  filter: blur(2.25px);
 `;
 const Bird = styled.img`
   position: absolute;
