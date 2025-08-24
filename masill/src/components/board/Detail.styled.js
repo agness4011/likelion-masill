@@ -262,10 +262,10 @@ export const TabButton = styled.button`
   gap: 4px;
   border: none;
   border-radius: 18px;
-  background: ${({ active }) =>
-    active ? "var(--Primary, #1B409C)" : "var(--Gray-300, #E5ECFF)"};
-  color: ${({ active }) =>
-    active ? "var(--BG, #FBFCFF)" : "var(--Gray-900, #727C94)"};
+  background: ${({ $active }) =>
+    $active ? "var(--Primary, #1B409C)" : "var(--Gray-300, #E5ECFF)"};
+  color: ${({ $active }) =>
+    $active ? "var(--BG, #FBFCFF)" : "var(--Gray-900, #727C94)"};
   cursor: pointer;
   font-family: Pretendard;
   font-size: 16px;
@@ -275,12 +275,15 @@ export const TabButton = styled.button`
   letter-spacing: 0.32px;
 
   &:hover {
-    background: ${({ active }) =>
-      active ? "var(--Primary, #1B409C)" : "var(--Gray-300, #E5ECFF)"};
+    background: ${({ $active }) =>
+      $active ? "var(--Primary, #1B409C)" : "var(--Gray-300, #E5ECFF)"};
   }
 `;
 
-export const SummaryBtn = styled.button`
+// styled-components에서 직접 DOM으로 내려가지 않게 props 이름을 바꿔줌
+export const SummaryBtn = styled.button.withConfig({
+  shouldForwardProp: (prop) => prop !== "summaryDone", // summaryDone은 DOM에 전달되지 않음
+})`
   position: relative;
   display: flex;
   align-items: center;

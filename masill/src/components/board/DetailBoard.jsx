@@ -581,7 +581,7 @@ function TabMenu({ activeTab, setActiveTab }) {
       {tabs.map((tab) => (
         <TabButton
           key={tab.name}
-          active={activeTab === tab.name}
+          $active={activeTab === tab.name} // ✅ 변경
           onClick={() => setActiveTab(tab.name)}
         >
           <img

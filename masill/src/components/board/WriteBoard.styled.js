@@ -218,7 +218,7 @@ export const Categories = styled.div`
   }
 `;
 
-export const CategoryBtn = styled.button`
+export const CategoryBtn = styled.button.attrs({ type: "button" })`
   position: relative;
   display: flex;
   overflow: visible; /* 테두리 잘림 방지 */

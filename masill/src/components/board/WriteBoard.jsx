@@ -829,10 +829,21 @@ function InputForm() {
 
       if (isEditMode) {
         const result = await updateEvent(eventId, formData);
-        navigate(`/detail/${eventId}`);
+        navigate(`/detail/${eventId}`); // 수정 후엔 기존 eventId 그대로 이동
       } else {
         const result = await addBoard(formData);
-        navigate("/main");
+
+        // 서버 응답에서 새 eventId 가져오기
+        const newEventId = result.data?.eventId;
+        if (newEventId) {
+          navigate(`/detail/${newEventId}`); // 새로 생성된 이벤트 상세 페이지로 이동
+        } else {
+          console.error(
+            "이벤트 생성은 성공했지만 eventId를 찾을 수 없습니다.",
+            result
+          );
+          navigate("/main"); // fallback
+        }
       }
 
       // 제출 성공 시 드래프트 정리
