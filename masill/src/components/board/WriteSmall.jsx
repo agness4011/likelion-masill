@@ -1,9 +1,12 @@
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import React, { useState, useRef, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { addSmallGroup, detailBoard } from "../../api/boardApi";
+
+import DatePicker, { registerLocale } from "react-datepicker";
+registerLocale("ko", ko);
+import { ko } from "date-fns/locale";
 
 import BoardIcon from "../../assets/write/board.svg";
 import BackIcon from "../../assets/write/Arrow-Left.svg";
@@ -208,6 +211,7 @@ function EventDateTimePicker({
         <div style={overlayStyle}>
           <div style={modalStyle}>
             <DatePicker
+              locale={ko}
               selected={
                 modalConfig.type === "startDate"
                   ? startDate || new Date()
