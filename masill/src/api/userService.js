@@ -844,8 +844,8 @@ export const verifyBusinessOwner = async (businessData) => {
 
     const status = apiError.response?.status;
     
-    // 개발 중 더미 응답 처리
-    if ([400, 401, 403, 500].includes(status)) {
+    // 개발 중 더미 응답 처리 (400 에러는 실패로 처리)
+    if ([401, 403, 500].includes(status)) {
       console.warn(`${status} 오류로 인해 더미 응답 사용`);
       
       return await new Promise((resolve) => {

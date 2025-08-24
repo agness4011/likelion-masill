@@ -183,6 +183,11 @@ const SearchTerm = styled.span`
   line-height: 140%; /* 22.4px */
   letter-spacing: 0.32px;
   color: var(--Gray-900, #727c94);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 12px;
 `;
 
 const DeleteButton = styled.button`
