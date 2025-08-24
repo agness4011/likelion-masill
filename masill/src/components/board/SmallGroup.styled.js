@@ -127,15 +127,21 @@ export const CategoryMark = styled.p`
 `;
 export const TitleP = styled.p`
   color: var(--Dark-Text, #060d1d);
-  /* Heading 01-1 B */
   font-family: Pretendard;
   font-size: 26px;
   font-style: normal;
   font-weight: 700;
-  line-height: 140%; /* 36.4px */
+  line-height: 140%;
   letter-spacing: 0.52px;
   margin: 0 0 5px 0;
+
+  /* 필요 시 추가 스타일 */
+  padding-right: 40px;
+  white-space: normal; /* 줄바꿈 허용 */
+  overflow: visible;
+  text-overflow: unset;
 `;
+
 export const LoccationP = styled.p`
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -935,4 +941,3 @@ export const CommentWrapper = styled.div`
   min-height: 124px;
 `;
 export const CancelBtn = styled.button``;
-EventTitle;
