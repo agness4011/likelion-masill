@@ -133,36 +133,31 @@ export const LoccationP = styled.p`
   overflow: hidden;
   color: var(--Gray-900, #727c94);
   text-overflow: ellipsis;
-  /* 카테고리 */
   font-family: Pretendard;
   font-size: 14px;
-  font-style: normal;
   font-weight: 500;
-  line-height: 120%; /* 16.8px */
+  line-height: 17px; /* height와 맞춤 */
   letter-spacing: -0.14px;
-  margin: 0 0 3px 0;
+  margin: 0 0 1px 0;
 `;
+
 export const DateP = styled.p`
   display: flex;
-  width: fit-content;
-  height: 13px;
   flex-direction: column;
   justify-content: center;
-  flex-shrink: 0;
+  width: fit-content;
   overflow: hidden;
   color: #727c94;
-
   text-overflow: ellipsis;
   white-space: nowrap;
-  /* 카테고리 */
   font-family: Pretendard;
   font-size: 14px;
-  font-style: normal;
   font-weight: 500;
-  line-height: 120%; /* 16.8px */
+  line-height: 17px; /* height와 맞춤 */
   letter-spacing: -0.14px;
-  margin: 0;
+  margin: 0 0 2px 0;
 `;
+
 export const BodyTopDiv = styled.div`
   margin-top: 24px;
   margin-left: 24px;

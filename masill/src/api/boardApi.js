@@ -3,6 +3,23 @@ import { APIService, publicAPI, privateAPI, multipartAPI } from "./axios";
 /* --- API 호출 --- */
 // api.js 같은 곳
 // ✅ 업하기 API 호출 함수
+export const TodayPost = async (
+  regionId,
+  page = 1,
+  size = 100,
+  sort = "DATE"
+) => {
+  try {
+    const res = await privateAPI.get(`/events/today`, {
+      params: { regionId, page, size, sort },
+    });
+    return res.data; // res.data 안에 content 배열이 있는지 확인
+  } catch (error) {
+    console.error("게시물 불러오기 실패:", error);
+    throw error;
+  }
+};
+
 export const UpPostMain = async (eventId) => {
   try {
     const res = await privateAPI.get(`/events/ai-recommendations`, { params });
@@ -27,29 +44,20 @@ export const UpPost = async (eventId) => {
   }
 };
 
-export const AiRecommend = async (
-  category = null, // 기본값 null
-  today = false, // 기본값 false
+// api
+export const AiRecommend = async ({
+  regionId,
+  eventType = null, // ex) "CULTURE_ART"
+  today = false,
   page = 1,
-  size = 100
-) => {
+  size = 100,
+}) => {
   try {
-    // params 초기화
-    const params = {
-      page,
-      size,
-      today, // Boolean 값 항상 전송
-    };
-
-    // category가 존재하면 eventType으로 전달
-    if (category) {
-      params.eventType = category;
-    }
+    const params = { regionId, page, size, today };
+    if (eventType) params.eventType = eventType;
 
     const res = await privateAPI.get(`/events/ai-recommendations`, { params });
-
-    // 정상적으로 content 반환
-    return res.data?.data?.content || [];
+    return res?.data?.data?.content || [];
   } catch (error) {
     console.error("AI 추천 조회 실패", error);
     throw error;
@@ -273,13 +281,13 @@ export const changeRegion = async (regionId) => {
 export const fetchAllBoards = async (
   regionId,
   page = 1,
-  size = 20,
-  sortBy = "createdAt",
-  sortDir = "desc"
+  size = 100,
+  sortDir = "desc",
+  sort = "DATE"
 ) => {
   try {
     const res = await privateAPI.get(`/events/all`, {
-      params: { regionId, page, size, sortBy, sortDir },
+      params: { regionId, page, size, sortDir, sort },
     });
     return res.data; // res.data 안에 content 배열이 있는지 확인
   } catch (error) {
@@ -344,21 +352,18 @@ export const fetchMyFavorites = async (
 };
 
 // boardApi.js
-export const eventTypeBoards = async (eventType, regionId) => {
+export const eventTypeBoards = async (eventType, regionId, sort = "DATE") => {
   try {
     const params = {
       regionId,
-      eventType, // ENUM 값 직접 받음
+      eventType, // ENUM 값
       page: 1,
       size: 20,
-      sortBy: "createdAt",
+      sort, // ✅ 정렬 반영
       sortDir: "desc",
     };
 
-    const res = await privateAPI.get(`/events/eventType/list`, {
-      params,
-    });
-
+    const res = await privateAPI.get(`/events/eventType/list`, { params });
     return res.data;
   } catch (error) {
     console.error("게시물 불러오기 실패:", error);

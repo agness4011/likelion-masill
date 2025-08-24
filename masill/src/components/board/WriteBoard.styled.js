@@ -184,10 +184,8 @@ export const Wrapper = styled.div`
 export const CategoryArea = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: var(--White, #fff);
   height: 60px;
-  padding: 0 8px; /* 버튼 포함 여백 조정 */
+  justify-content: center;
 `;
 
 export const LeftBtn = styled.img`
@@ -195,12 +193,14 @@ export const LeftBtn = styled.img`
   height: 30px;
   cursor: pointer;
   transform: scaleX(-1);
+  margin-left: 8px;
 `;
 
 export const RightBtn = styled.img`
   width: 30px;
   height: 30px;
   cursor: pointer;
+  margin-right: 8px;
 `;
 
 export const Categories = styled.div`
@@ -210,11 +210,12 @@ export const Categories = styled.div`
   overflow-y: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  padding-left: 24px;
+  padding-right: 24px;
   flex: 1; /* 남은 공간 다 차지 */
   &::-webkit-scrollbar {
     display: none;
   }
-  margin-left: 24px;
 `;
 
 export const CategoryBtn = styled.button`
@@ -265,6 +266,7 @@ export const TextStyle = styled.p`
   line-height: 140%; /* 22.4px */
   letter-spacing: 0.32px;
   margin-left: 24px;
+  margin-bottom: 8px;
 `;
 
 export const InputStyle = styled.input`
@@ -294,6 +296,7 @@ export const InputStyle = styled.input`
   letter-spacing: 0.32px;
 
   margin-left: 24px;
+  padding-left: 15px;
 `;
 
 export const InputWrapper = styled.div`
@@ -415,6 +418,8 @@ export const SubmitBtn = styled.button`
   color: ${({ disabled }) =>
     disabled ? "var(--Gray-900, #727c94)" : "#ffffff"};
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+
+  margin-bottom: 20px;
 `;
 
 export const ErrorMessage = styled.p`
@@ -468,4 +473,6 @@ export const CancleBtn = styled.img`
   width: 18px;
   height: 18px;
 `;
-export const Div = styled.div``;
+export const Div = styled.div`
+  gap: 8px;
+`;
