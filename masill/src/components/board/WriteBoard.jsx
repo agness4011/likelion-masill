@@ -829,7 +829,6 @@ function InputForm() {
 
       if (isEditMode) {
         const result = await updateEvent(eventId, formData);
-        alert("게시글이 성공적으로 수정되었습니다.");
         navigate(`/detail/${eventId}`);
       } else {
         const result = await addBoard(formData);
