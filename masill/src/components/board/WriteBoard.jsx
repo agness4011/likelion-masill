@@ -85,7 +85,10 @@ function Form({ children }) {
 function SetTitle({ title, setTitle, error, setTouched }) {
   return (
     <Div>
-      <TextStyle>제목</TextStyle>
+      <ErrorDiv>
+        <TextStyle>제목</TextStyle>
+        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+      </ErrorDiv>
 
       <InputStyle
         type="text"
@@ -111,11 +114,16 @@ function Reigon({ regionName, isEditMode, eventId, onBeforeChangeRegion }) {
 
   return (
     <div>
-      <TextStyle>지역</TextStyle>
-      <ReigonInput>
-        {regionName}
-        <CancleBtn src={Cancle} onClick={handleRegionClick} />
-      </ReigonInput>
+      <ErrorDiv>
+        <TextStyle>지역</TextStyle>
+      </ErrorDiv>
+      <div>
+        <ReigonInput>
+          {regionName}
+          <CancleBtn src={Cancle} onClick={handleRegionClick} />
+        </ReigonInput>
+      </div>
+      <InputWrapper></InputWrapper>
     </div>
   );
 }
@@ -126,7 +134,9 @@ function SetLocation({ location, setLocation, error, setTouched }) {
 
   return (
     <div>
-      <TextStyle>세부 장소</TextStyle>
+      <ErrorDiv>
+        <TextStyle>세부 장소</TextStyle>
+      </ErrorDiv>
 
       <InputWrapper>
         <InputStyle
@@ -214,7 +224,10 @@ function SelectCategory({
 
   return (
     <Wrapper>
-      <TextStyle>카테고리</TextStyle>
+      <ErrorDiv>
+        <TextStyle>카테고리</TextStyle>
+        {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+      </ErrorDiv>
 
       <CategoryArea>
         {showLeftBtn && (
@@ -307,6 +320,7 @@ function WriteContext({ content, setContent, error, setTouched }) {
   return (
     <DetailDiv>
       <TextStyle>내용</TextStyle>
+      {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
       <TextArea
         placeholder="내용을 입력하세요..."
         value={content}
@@ -364,7 +378,12 @@ function EventDateTimePicker({
     <div>
       <div style={{ display: "flex", gap: "16px" }}>
         <DateDiv>
-          <TextStyle>시작 날짜</TextStyle>
+          <ErrorDiv>
+            <TextStyle>시작 날짜</TextStyle>
+            {/* {errors?.startDate && (
+              <ErrorMessage>{errors.startDate}</ErrorMessage>
+            )} */}
+          </ErrorDiv>
           <TimeInput
             style={{ color: startDate ? blackColor : grayColor }}
             onClick={() => openModal("startDate")}
@@ -374,7 +393,10 @@ function EventDateTimePicker({
         </DateDiv>
 
         <DateDiv>
-          <TextStyle>종료 날짜</TextStyle>
+          <ErrorDiv>
+            <TextStyle>종료 날짜</TextStyle>
+            {/* {errors?.endDate && <ErrorMessage>{errors.endDate}</ErrorMessage>} */}
+          </ErrorDiv>
           <TimeInput
             style={{ color: endDate ? blackColor : grayColor }}
             onClick={() => openModal("endDate")}
@@ -546,6 +568,8 @@ function InputForm() {
         try {
           setLoading(true);
           const eventData = await detailBoard(eventId);
+
+
 
           // 폼 데이터 설정
           setTitle(eventData.title || "");
@@ -785,7 +809,7 @@ function InputForm() {
         endTime.getMinutes()
       );
       if (startAt > endAt) {
-        setFormError("종료 날짜는 시작 날짜 이후여야 합니다.");
+        setFormError("종료 시간은 시작 시간 이후여야 합니다.");
         return;
       }
 
@@ -825,14 +849,14 @@ function InputForm() {
         navigate(`/detail/${eventId}`);
       } else {
         const result = await addBoard(formData);
-        navigate("/main");
+        navigate("/myhome/my-posts");
       }
 
       // 제출 성공 시 드래프트 정리
       localStorage.removeItem(DRAFT_KEY);
     } catch (error) {
       console.error("저장 실패:", error);
-
+      
       const errorDetails = {
         status: error.response?.status,
         statusText: error.response?.statusText,
@@ -841,18 +865,16 @@ function InputForm() {
         url: error.config?.url,
         method: error.config?.method,
         stack: error.stack,
-        name: error.name,
+        name: error.name
       };
-
+      
       console.error("에러 상세 정보:", errorDetails);
-
+      
       // 모바일 디버깅을 위한 상세 오류 메시지
       let errorMessage = "서버 저장 중 오류가 발생했습니다.";
-
+      
       if (error.response?.status === 400) {
-        errorMessage = `입력 정보를 확인해주세요. (400 오류)\n상세: ${JSON.stringify(
-          error.response?.data
-        )}`;
+        errorMessage = `입력 정보를 확인해주세요. (400 오류)\n상세: ${JSON.stringify(error.response?.data)}`;
       } else if (error.response?.status === 401) {
         errorMessage = "로그인이 필요합니다. (401 오류)";
       } else if (error.response?.status === 403) {
@@ -860,25 +882,19 @@ function InputForm() {
       } else if (error.response?.status === 404) {
         errorMessage = "요청한 리소스를 찾을 수 없습니다. (404 오류)";
       } else if (error.response?.status === 500) {
-        errorMessage = `서버 내부 오류가 발생했습니다. (500 오류)\n상세: ${JSON.stringify(
-          error.response?.data
-        )}`;
+        errorMessage = `서버 내부 오류가 발생했습니다. (500 오류)\n상세: ${JSON.stringify(error.response?.data)}`;
       } else if (error.response?.status === 502) {
         errorMessage = "서버 게이트웨이 오류가 발생했습니다. (502 오류)";
       } else if (error.response?.status === 503) {
         errorMessage = "서비스가 일시적으로 사용할 수 없습니다. (503 오류)";
-      } else if (error.code === "NETWORK_ERROR") {
+      } else if (error.code === 'NETWORK_ERROR') {
         errorMessage = "네트워크 연결을 확인해주세요.";
       } else if (error.message) {
-        errorMessage = `오류: ${error.message}\n상세: ${JSON.stringify(
-          errorDetails
-        )}`;
+        errorMessage = `오류: ${error.message}\n상세: ${JSON.stringify(errorDetails)}`;
       }
-
+      
       // 모바일에서 확인할 수 있도록 상세 정보를 포함한 오류 메시지
-      const debugMessage = `[디버그] 상태: ${
-        error.response?.status || "N/A"
-      }, 메시지: ${error.message || "N/A"}, URL: ${error.config?.url || "N/A"}`;
+      const debugMessage = `[디버그] 상태: ${error.response?.status || 'N/A'}, 메시지: ${error.message || 'N/A'}, URL: ${error.config?.url || 'N/A'}`;
       setFormError(`${errorMessage}\n\n${debugMessage}`);
     }
   };
