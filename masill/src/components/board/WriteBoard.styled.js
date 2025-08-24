@@ -32,7 +32,7 @@ export const HeadDiv = styled.div`
   background: var(--White, #fff);
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
   height: 110px;
-  padding: 10px 24px 16.768px 0; /* 오른쪽에 24px 여백 */
+  padding: 10px 24px 16.768px 24px; /* 오른쪽에 24px 여백 */
   gap: 16.768px;
   flex-shrink: 0;
 `;
@@ -265,7 +265,7 @@ export const TextStyle = styled.p`
   font-weight: 500;
   line-height: 140%; /* 22.4px */
   letter-spacing: 0.32px;
-  margin-left: 24px;
+
   margin-bottom: 8px;
 `;
 
@@ -295,7 +295,6 @@ export const InputStyle = styled.input`
   line-height: 140%; /* 22.4px */
   letter-spacing: 0.32px;
 
-  margin-left: 24px;
   padding-left: 15px;
 `;
 
@@ -336,27 +335,26 @@ export const TimeInput = styled.div`
   font-weight: 400;
   line-height: 140%;
   letter-spacing: 0.36px;
-  margin-left: 24px;
 
   /* margin-left 제거 */
 `;
 
-export const DateDiv = styled.div`
-  width: 165px;
-`;
 export const DetailDiv = styled.div`
   position: relative;
-  width: 346px; /* TextArea 너비와 맞춤 */
+  display: flex;
+  flex-direction: column; /* 세로 쌓기 */
+  align-items: flex-start; /* 자식들을 왼쪽 정렬 */
+  max-width: 345px;
+  margin: 0 auto;
 `;
 
 export const TextArea = styled.textarea`
-  width: 330px;
+  width: 345px;
   height: 180px;
   flex-shrink: 0;
   border-radius: 18px;
   border: 1px solid var(--Gray-700, #959eb7);
   background: var(--Gray-100, #f4f7ff);
-  margin-left: 24px;
 
   /* placeholder 색상 */
   &::placeholder {
@@ -380,7 +378,7 @@ export const TextArea = styled.textarea`
 export const CharCount = styled.div`
   position: absolute;
   bottom: 8px;
-  right: 12px;
+  right: 25px;
   font-family: Pretendard;
   font-size: 12px;
   font-style: normal;
@@ -393,15 +391,13 @@ export const CharCount = styled.div`
 export const SubmitBtn = styled.button`
   display: flex;
   flex-direction: row;
-  width: 345px;
   height: 50px;
-  padding: 12px 157px;
+  padding: 12px 140px;
   justify-content: center;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
   border-radius: 18px;
-  margin-left: 18px;
   text-align: center;
   font-family: Pretendard;
   font-size: 18px;
@@ -419,7 +415,7 @@ export const SubmitBtn = styled.button`
     disabled ? "var(--Gray-900, #727c94)" : "#ffffff"};
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 
-  margin-bottom: 20px;
+  margin: 10px auto 20px; /* 좌우 auto, 아래쪽 20px */
 `;
 
 export const ErrorMessage = styled.p`
@@ -460,19 +456,43 @@ export const modalStyle = {
 };
 export const ReigonInput = styled.div`
   display: inline-flex;
-  padding: 10px 15px;
   justify-content: center;
   align-items: center;
   gap: 8px;
   border-radius: 18px;
   border: 1px solid var(--Gray-700, #959eb7);
   background: var(--Gray-100, #f4f7ff);
-  margin-left: 24px;
+  height: 42px;
+  width: fit-content;
+  padding: 0 15px 0 15px;
 `;
 export const CancleBtn = styled.img`
   width: 18px;
   height: 18px;
 `;
+// export const Div = styled.div`
+//   display: flex;
+//   flex-direction: column; /* 세로 쌓기 */
+//   align-items: flex-start; /* 자식들을 왼쪽 정렬 */
+//   gap: 8px;
+//   max-width: 345px;
+//   margin: 0 auto; /* Div 자체는 부모 가운데 */
+// `;
 export const Div = styled.div`
-  gap: 8px;
+  display: flex;
+  flex-direction: column; /* 세로 정렬 */
+  /* 좌우 여백 */
+  max-width: 345px; /* 최대 폭 지정 */
+  margin: 0 auto; /* 화면 가운데 정렬 */
+`;
+
+export const Row = styled.div`
+  display: flex;
+  gap: 43px;
+  flex-wrap: wrap; /* 화면 좁을 때 아래로 내려가기 */
+`;
+export const DateDiv = styled.div`
+  display: flex;
+  flex-direction: column; /* 글자 + 입력창 세로 배치 */
+  align-items: flex-start; /* TextStyle 왼쪽 정렬 */
 `;

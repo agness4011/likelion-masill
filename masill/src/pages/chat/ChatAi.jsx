@@ -28,7 +28,7 @@ const BackButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  margin-right: 16px;
+  margin-right: 1px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -47,7 +47,7 @@ const UserProfile = styled.div`
   display: flex;
   align-items: center;
   flex: 1;
-  margin-left: 8px;
+  margin-left: 3px;
 `;
 
 const ProfileImage = styled.img`
@@ -175,16 +175,18 @@ export default function ChatAi() {
 
   // 사용자 정보 디버깅
   useEffect(() => {
-    console.log('=== ChatAi 사용자 정보 ===');
-    console.log('user:', user);
-    console.log('user.nickname:', user?.nickname);
-    console.log('user.username:', user?.username);
-    
+    console.log("=== ChatAi 사용자 정보 ===");
+    console.log("user:", user);
+    console.log("user.nickname:", user?.nickname);
+    console.log("user.username:", user?.username);
+
     // localStorage에서 직접 확인
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-    console.log('localStorage currentUser:', currentUser);
-    console.log('localStorage currentUser.nickname:', currentUser?.nickname);
-    console.log('========================');
+    const currentUser = JSON.parse(
+      localStorage.getItem("currentUser") || "null"
+    );
+    console.log("localStorage currentUser:", currentUser);
+    console.log("localStorage currentUser.nickname:", currentUser?.nickname);
+    console.log("========================");
   }, [user]);
 
   // 메시지 시간 포맷
@@ -240,7 +242,6 @@ export default function ChatAi() {
           time: formatMessageTime(new Date()),
         };
         setMessages((prev) => [...prev, aiGroupMessage]);
-   
       }
     } catch (error) {
       setMessages((prev) => [
@@ -312,16 +313,21 @@ export default function ChatAi() {
             return (
               <div key={msg.id}>
                 {/* 안내 문구 추가 */}
-                                 <AiMessage
-                   style={{
-                     textAlign: "left",
-                     margin: "12px 0",
-                     fontWeight: "bold",
-                     color: "#555",
-                   }}
-                 >
-                   {(user?.nickname || user?.username || JSON.parse(localStorage.getItem('currentUser') || 'null')?.nickname || "사용자")}님이 좋아하실만한 행사들을 찾아봤어요! 🎉
-                 </AiMessage>
+                <AiMessage
+                  style={{
+                    textAlign: "left",
+                    margin: "12px 0",
+                    fontWeight: "bold",
+                    color: "#555",
+                  }}
+                >
+                  {user?.nickname ||
+                    user?.username ||
+                    JSON.parse(localStorage.getItem("currentUser") || "null")
+                      ?.nickname ||
+                    "사용자"}
+                  님이 좋아하실만한 행사들을 찾아봤어요! 🎉
+                </AiMessage>
 
                 {msg.posts.map((item, index) => (
                   <RecommendPost

@@ -533,11 +533,7 @@ function PostCard({ post, clickHeart }) {
   return (
     <PostWrapper
       key={post.eventId}
-      onClick={() =>
-        navigate(`/detail/${post.eventId}`, {
-          state: { from: location.pathname },
-        })
-      }
+      onClick={() => navigate(`/detail/${post.eventId}`)}
     >
       {post.isBusinessVerified && (
         <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
