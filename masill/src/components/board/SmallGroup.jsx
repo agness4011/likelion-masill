@@ -849,32 +849,16 @@ function AddCommentMessage({
 }
 
 function ChatModal({ user, onClose }) {
-  console.log("=== ChatModal 컴포넌트 시작 ===");
-  console.log("ChatModal props:", { user, onClose });
-  console.log("user.commentId:", user?.commentId);
-  console.log("user.username:", user?.username);
-
   const navigate = useNavigate();
   const [chatLoading, setChatLoading] = useState(false);
   const modalRoot = document.getElementById("modal-root");
 
-  console.log("modalRoot 존재 여부:", !!modalRoot);
   if (!modalRoot) {
-    console.log("modalRoot가 없어서 ChatModal 렌더링 중단");
     return null;
   }
 
-  console.log("ChatModal 렌더링 계속...");
-
   const handleStartChat = async () => {
-    console.log("=== handleStartChat 함수 호출됨 ===");
-    console.log("chatLoading 상태:", chatLoading);
-    console.log("user 객체:", user);
-    console.log("user.commentId:", user.commentId);
-    console.log("user.commentId 타입:", typeof user.commentId);
-
     if (chatLoading) {
-      console.log("이미 로딩 중이므로 함수 종료");
       return;
     }
 
@@ -885,21 +869,12 @@ function ChatModal({ user, onClose }) {
     }
 
     try {
-      console.log("로딩 상태를 true로 설정");
       setChatLoading(true);
-      console.log("댓글 채팅 시작:", user.commentId);
-
-      console.log("=== startCommentChat 함수 호출 전 ===");
       const response = await startCommentChat(user.commentId);
-      console.log("=== startCommentChat 함수 호출 후 ===");
-      console.log("댓글 채팅 시작 응답:", response);
 
       if (response.success && response.data?.roomId) {
         const roomId = response.data.roomId;
-        console.log("생성된 채팅방 ID:", roomId);
-        console.log("모달 닫기");
         onClose(); // 모달 닫기
-        console.log("채팅방으로 이동:", `/chat/room/${roomId}`);
         navigate(`/chat/room/${roomId}`); // 채팅방으로 이동
       } else {
         console.error("채팅방 생성 실패:", response);
@@ -909,7 +884,6 @@ function ChatModal({ user, onClose }) {
       console.error("댓글 채팅 시작 실패:", error);
       alert(error.message || "채팅방 생성에 실패했습니다.");
     } finally {
-      console.log("로딩 상태를 false로 설정");
       setChatLoading(false);
     }
   };
@@ -931,10 +905,6 @@ function ChatModal({ user, onClose }) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log("=== GoChat 버튼 클릭됨 ===");
-                console.log("클릭 이벤트 객체:", e);
-                console.log("chatLoading 상태:", chatLoading);
-                console.log("handleStartChat 함수 호출");
                 handleStartChat();
               }}
               disabled={chatLoading}

@@ -175,18 +175,13 @@ export default function ChatAi() {
 
   // 사용자 정보 디버깅
   useEffect(() => {
-    console.log("=== ChatAi 사용자 정보 ===");
-    console.log("user:", user);
-    console.log("user.nickname:", user?.nickname);
-    console.log("user.username:", user?.username);
+
 
     // localStorage에서 직접 확인
     const currentUser = JSON.parse(
       localStorage.getItem("currentUser") || "null"
     );
-    console.log("localStorage currentUser:", currentUser);
-    console.log("localStorage currentUser.nickname:", currentUser?.nickname);
-    console.log("========================");
+
   }, [user]);
 
   // 메시지 시간 포맷

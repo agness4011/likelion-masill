@@ -16,14 +16,7 @@ export default function MainPage() {
     const refreshToken = localStorage.getItem("refreshToken");
     const currentUser = localStorage.getItem("currentUser");
 
-    console.log("=== 메인페이지 토큰 상태 ===");
-    console.log("Access Token:", accessToken ? "있음" : "없음");
-    console.log("Refresh Token:", refreshToken ? "있음" : "없음");
-    console.log(
-      "Current User:",
-      currentUser ? JSON.parse(currentUser) : "없음"
-    );
-    console.log("===========================");
+
   }, []);
 
   return (
