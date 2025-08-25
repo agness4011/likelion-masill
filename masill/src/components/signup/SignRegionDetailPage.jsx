@@ -255,7 +255,7 @@ export default function SignRegionDetailPage() {
       try {
         setLoading(true);
         const districtData = await getDistricts(selectedRegion);
-        console.log("가져온 구/군 데이터:", districtData);
+     
         setDistricts(districtData);
       } catch (error) {
         console.error("구/군 데이터 가져오기 실패:", error);
@@ -277,7 +277,7 @@ export default function SignRegionDetailPage() {
   );
 
   const handleDistrictSelect = async (district) => {
-    console.log("구/군 선택됨:", district);
+  
     setSelectedDistrict(district);
     setIsSigningUp(true);
 
@@ -286,20 +286,20 @@ export default function SignRegionDetailPage() {
 
     try {
       // 지역 ID 조회
-      console.log("지역 ID 조회 시작:", { selectedRegion, district });
+
       const regionId = await getRegionId(selectedRegion, district);
-      console.log("조회된 지역 ID:", regionId);
+    
 
       // 지역 ID도 저장
       localStorage.setItem("selectedRegionId", regionId);
-      console.log("저장된 지역 ID:", localStorage.getItem("selectedRegionId"));
+    
 
       // 회원가입 진행
       await handleSignUp(regionId);
     } catch (error) {
       console.error("지역 ID 조회 실패:", error);
       // 지역 ID 조회 실패 시에도 회원가입 진행 (기본값 사용)
-      console.log("지역 ID 조회 실패, 기본값으로 회원가입 진행:", district);
+ 
       await handleSignUp(141); // 기본값 141 사용
     }
   };
@@ -330,19 +330,19 @@ export default function SignRegionDetailPage() {
         district: selectedDistrict
       };
       
-      console.log("회원가입 데이터:", userData);
+   
       
       // 회원가입 API 호출
       let response;
       try {
         response = await signUp(userData);
-        console.log("회원가입 응답:", response);
+      
       } catch (error) {
         console.error("회원가입 API 오류:", error);
         
         // 500 오류인 경우 더미 응답 생성
         if (error.response?.status === 500) {
-          console.log("500 오류로 인해 더미 응답 사용");
+
           response = {
             success: true,
             code: 200,
@@ -358,7 +358,7 @@ export default function SignRegionDetailPage() {
       if (response && response.success) {
         // 성공 시 닉네임을 localStorage에 저장하고 UserContext 업데이트
         const finalNickname = response.data?.nickname || savedNickname;
-        console.log('설정할 닉네임:', finalNickname);
+    
         localStorage.setItem('nickname', finalNickname);
         updateNickname(finalNickname);
         
@@ -372,7 +372,7 @@ export default function SignRegionDetailPage() {
         // 회원가입 완료 플래그 설정
         localStorage.setItem('signupCompleted', 'true');
         
-        console.log('회원가입 성공!');
+
         
         // 로그인 페이지로 이동
         nav("/login");
@@ -460,7 +460,7 @@ export default function SignRegionDetailPage() {
                   selected={selectedDistrict === district}
                   onClick={() => {
                     if (district && district.trim() !== "" && !isSigningUp) {
-                      console.log("구/군 버튼 클릭:", district);
+                 
                       handleDistrictSelect(district);
                     }
                   }}

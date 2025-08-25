@@ -7,7 +7,6 @@ import { publicAPI, privateAPI, multipartAPI } from './axios';
 // 로그인 API (응답 구조: data.data.accessToken 기준)
 export const login = async (loginData) => {
   try {
-    console.log('[login] 요청:', loginData);
     const res = await publicAPI.post('/auth/login', loginData);
     const body = res?.data ?? res;
 
@@ -24,12 +23,7 @@ export const login = async (loginData) => {
     const savedUser = dummyUsers.find(u => u.email === body.data.email);
     const savedNickname = savedUser ? savedUser.nickname : null;
     
-    console.log('=== 실제 로그인 닉네임 처리 ===');
-    console.log('body.data:', body.data);
-    console.log('dummyUsers:', dummyUsers);
-    console.log('savedUser:', savedUser);
-    console.log('savedNickname:', savedNickname);
-    console.log('================================');
+
     
     const user = body?.data
       ? {
@@ -57,23 +51,17 @@ export const login = async (loginData) => {
         localStorage.setItem('nickname', user.nickname);
       }
       
-      console.log('=== 실제 로그인 사용자 정보 저장 ===');
-      console.log('저장된 currentUser:', user);
-      console.log('nickname:', user.nickname);
-      console.log('====================================');
+
     }
     
     // UserContext 업데이트를 위한 커스텀 이벤트 발생
     window.dispatchEvent(new CustomEvent('userLogin'));
 
     // 3) 저장 직후 검증
-    console.log('[login] 저장 직후 accessToken:', localStorage.getItem('accessToken'));
-    console.log('[login] 저장 직후 currentUser:', JSON.parse(localStorage.getItem('currentUser') || 'null'));
-
     // (선택) JWT payload 확인
     if (accessToken.split('.').length === 3) {
       try {
-        console.log('[login] JWT payload:', JSON.parse(atob(accessToken.split('.')[1])));
+        // JWT payload 확인 (로그 제거)
       } catch (e) {
         console.warn('[login] JWT payload 파싱 실패:', e);
       }
@@ -97,10 +85,7 @@ export const login = async (loginData) => {
           { email: 'test2@gmail.com', password: 'masill@1', nickname: 'test2' },
         ];
         
-        console.log('=== 사용자 정보 확인 ===');
-        console.log('dummyUsers:', dummyUsers);
-        console.log('defaultUsers:', defaultUsers);
-        console.log('==========================');
+       
 
         // 먼저 dummyUsers에서 매칭 확인 (회원가입된 사용자 우선)
         let matched = dummyUsers.find(
@@ -116,11 +101,7 @@ export const login = async (loginData) => {
         
         // 매칭된 사용자가 있으면 해당 닉네임 사용, 없으면 이메일 기반으로 생성
         if (matched) {
-          console.log('=== 기존 사용자 로그인 ===');
-          console.log('매칭된 사용자:', matched);
-          console.log('사용할 닉네임:', matched.nickname);
-          console.log('========================');
-          
+         
           const fake = {
             success: true,
             message: '로그인 성공 (더미)',
@@ -142,10 +123,7 @@ export const login = async (loginData) => {
           const currentUserId = Math.floor(Math.random() * 1000) + 100;
           localStorage.setItem('currentUserId', currentUserId.toString());
           
-          console.log('=== 더미 로그인 사용자 정보 저장 ===');
-          console.log('저장된 currentUser:', fake.user);
-          console.log('nickname:', matched.nickname);
-          console.log('====================================');
+  
           
           // UserContext 업데이트를 위한 커스텀 이벤트 발생
           window.dispatchEvent(new CustomEvent('userLogin'));
@@ -155,10 +133,7 @@ export const login = async (loginData) => {
           const emailPrefix = loginData.email.split('@')[0];
           const generatedNickname = emailPrefix;
           
-          console.log('=== 이메일 기반 닉네임 생성 ===');
-          console.log('이메일:', loginData.email);
-          console.log('생성된 닉네임:', generatedNickname);
-          console.log('=============================');
+
           
           const fake = {
             success: true,
@@ -181,10 +156,7 @@ export const login = async (loginData) => {
           const currentUserId = Math.floor(Math.random() * 1000) + 100;
           localStorage.setItem('currentUserId', currentUserId.toString());
           
-          console.log('=== 더미 로그인 사용자 정보 저장 ===');
-          console.log('저장된 currentUser:', fake.user);
-          console.log('nickname:', generatedNickname);
-          console.log('====================================');
+
           
           // UserContext 업데이트를 위한 커스텀 이벤트 발생
           window.dispatchEvent(new CustomEvent('userLogin'));
@@ -213,7 +185,7 @@ export const signUp = async (userData) => {
          regionId: userData.regionId || null
        };
       
-      console.log('백엔드로 전송할 데이터:', requestData);
+  
       
       const { data } = await publicAPI.post('/users/sign-up', requestData);
       // 백엔드가 자동 로그인 토큰을 주면 저장
@@ -221,19 +193,10 @@ export const signUp = async (userData) => {
       if (data?.user) localStorage.setItem('currentUser', JSON.stringify(data.user));
       return data;
     } catch (apiError) {
-      console.warn('API 서버 연결 실패, 더미 응답 사용:', apiError);
-      console.error('API 오류 상세:', {
-        status: apiError.response?.status,
-        statusText: apiError.response?.statusText,
-        data: apiError.response?.data,
-        message: apiError.message,
-      });
 
       // 400 오류인 경우 백엔드 응답 메시지 확인
       if (apiError.response?.status === 400) {
-        console.error('400 오류 - 백엔드 응답:', apiError.response?.data);
-        console.error('전송한 데이터:', userData);
-      }
+
 
              if ([400, 500].includes(apiError.response?.status)) {
          console.warn(`${apiError.response?.status} 오류로 인해 더미 응답 사용`);
@@ -253,22 +216,14 @@ export const signUp = async (userData) => {
                  regionId: userData.regionId || null
                };
                
-               console.log('=== 회원가입 사용자 정보 저장 ===');
-               console.log('userData:', userData);
-               console.log('설정된 nickname:', nickname);
-               console.log('저장할 newUser:', newUser);
-               console.log('================================');
-             
+   
              const idx = dummyUsers.findIndex((u) => u.email === newUser.email);
              if (idx >= 0) dummyUsers[idx] = newUser;
              else dummyUsers.push(newUser);
 
              localStorage.setItem('dummyUsers', JSON.stringify(dummyUsers));
              
-             console.log('=== 회원가입 완료 ===');
-             console.log('생성된 닉네임:', nickname);
-             console.log('저장된 사용자:', newUser);
-             console.log('========================');
+
 
              resolve({
                success: true,
@@ -279,6 +234,7 @@ export const signUp = async (userData) => {
            }, 600);
          });
        }
+      }
       throw apiError;
     }
   } catch (error) {
@@ -290,23 +246,22 @@ export const signUp = async (userData) => {
 // 닉네임 중복 확인 API (실제 API 호출 + 403 오류 처리)
 export const checkNicknameDuplicate = async (nickname) => {
   try {
-    console.log('닉네임 중복 확인 API 호출 시작:', nickname);
+ 
     
     // 실제 API 호출
     const { data } = await publicAPI.get('/users/nickname/check', {
       params: { nickname }, // => ?nickname=...
     });
-    console.log('닉네임 중복 확인 API 성공:', data);
+
     
     // 백엔드 응답 형식에 맞게 처리
     if (data && typeof data === 'object') {
-      console.log('원본 API 응답:', data);
-      
+ 
       // success 필드가 false인 경우 중복으로 처리
       if (data.success === false) {
         const available = false;
         const message = data.message || '이미 사용 중인 닉네임입니다.';
-        console.log('처리된 응답 (중복):', { available, message });
+     
         return { available, message };
       }
       
@@ -316,14 +271,14 @@ export const checkNicknameDuplicate = async (nickname) => {
         if (data.data && data.data.duplicate === true) {
           const available = false;
           const message = data.message || '이미 사용 중인 닉네임입니다.';
-          console.log('처리된 응답 (success true, duplicate true):', { available, message });
+
           return { available, message };
         }
         
         // data.duplicate가 false이거나 없는 경우 사용 가능으로 처리
         const available = true;
         const message = data.message || '사용 가능한 닉네임입니다.';
-        console.log('처리된 응답 (사용 가능):', { available, message });
+  
         return { available, message };
       }
       
@@ -335,12 +290,12 @@ export const checkNicknameDuplicate = async (nickname) => {
       const message = data.message || data.msg || 
                      (available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
       
-      console.log('처리된 응답:', { available, message });
+
       return { available, message };
     }
     
     // data가 없거나 객체가 아닌 경우
-    console.log('예상치 못한 응답 형태:', data);
+
     return { available: false, message: '응답 처리 중 오류가 발생했습니다.' };
     
     return data; // { available: boolean, message: string } 형태 가정
@@ -357,7 +312,7 @@ export const checkNicknameDuplicate = async (nickname) => {
     
     // 400 오류인 경우 API 응답 데이터를 사용
     if (status === 400 && apiError.response?.data) {
-      console.log('400 오류 - API 응답 데이터 사용:', apiError.response.data);
+
       const data = apiError.response.data;
       
       if (data.success === false) {
@@ -388,9 +343,7 @@ export const checkNicknameDuplicate = async (nickname) => {
           const isDup = existingNicknames.includes(nickname) || 
                        reservedNicknames.includes(String(nickname).toLowerCase());
           
-          console.log('더미 응답 - 닉네임:', nickname, '중복여부:', isDup);
-          console.log('기존 닉네임들:', existingNicknames);
-          console.log('현재 사용자 닉네임:', currentUser.nickname);
+  
           
           const available = !isDup;
           resolve({
@@ -409,11 +362,10 @@ export const checkNicknameDuplicate = async (nickname) => {
 // 닉네임 변경 API
 export const updateNickname = async (nickname) => {
   try {
-    console.log('닉네임 변경 API 호출 시작:', nickname);
-    console.log('현재 토큰:', localStorage.getItem('accessToken'));
+
     
     const res = await privateAPI.patch('/users/me/nickname', { nickname });
-    console.log('닉네임 변경 API 성공:', res);
+
     
     return {
       success: true,
@@ -476,7 +428,7 @@ export const uploadProfileImage = async (imageFile) => {
 
     // multipartAPI 사용
     const res = await multipartAPI.private.post("/users/me/profile-image", formData);
-    console.log('프로필 이미지 업로드 API 응답:', res.data);
+
     return res.data;
   } catch (error) {
     console.error("프로필 이미지 업로드 에러:", error);
@@ -517,9 +469,9 @@ export const uploadProfileImage = async (imageFile) => {
 // 지역 API
 export const getRegions = async () => {
   try {
-    console.log('지역 목록 API 호출 시작');
+ 
     const { data } = await publicAPI.get('/regions/sidos');
-    console.log('지역 목록 API 성공:', data);
+
     
     // API 응답 구조에 맞게 처리
     if (data && data.data && data.data.items) {
@@ -579,9 +531,9 @@ export const getRegions = async () => {
 
 export const getDistricts = async (region) => {
   try {
-    console.log('구/군 목록 API 호출 시작:', region);
+  
     const { data } = await publicAPI.get(`/regions/sidos/${region}/sigungus`);
-    console.log('구/군 목록 API 성공:', data);
+ 
     
     // API 응답 구조에 맞게 처리
     if (data && data.data && data.data.items) {
@@ -701,32 +653,32 @@ export const getRegionId = async (sido, sigungu) => {
       throw new Error('sido와 sigungu는 필수 파라미터입니다.');
     }
     
-    console.log('지역 ID 조회 API 호출 시작:', { sido, sigungu });
+
     const { data } = await publicAPI.get('/regions/id', {
       params: { sido, sigungu }
     });
-    console.log('지역 ID 조회 API 성공:', data);
+   
     
     // API 응답 구조에 맞게 처리 (Swagger 문서 기반)
-    console.log('지역 ID API 응답 데이터:', data);
+   
     
     if (data && typeof data === 'object') {
       // Swagger 문서의 응답 구조: { success: true, code: 200, message: "...", data: { regionId: 141 } }
       if (data.success && data.data && data.data.regionId !== undefined) {
-        console.log('지역 ID 추출 성공:', data.data.regionId);
+
         return data.data.regionId;
       }
       // 다른 가능한 구조들
       else if (data.regionId !== undefined) {
-        console.log('지역 ID 직접 추출:', data.regionId);
+  
         return data.regionId;
       } else if (data.data && data.data.regionId !== undefined) {
-        console.log('지역 ID data에서 추출:', data.data.regionId);
+     
         return data.data.regionId;
       }
     } else if (typeof data === 'number') {
       // 직접 숫자로 반환되는 경우
-      console.log('지역 ID 직접 숫자:', data);
+ 
       return data;
     }
     
@@ -819,12 +771,10 @@ export const verifyBusinessOwner = async (businessData) => {
       businessNumber: String(businessData.businessNumber ?? '').replace(/\D/g, ''), // 숫자만 10자리
     };
 
-    console.log('사업자 인증 API payload:', payload);
-    console.log('사업자 인증 API URL:', '/users/me/verify-owner');
 
     // 스웨거 스펙 기준 엔드포인트
     const { data } = await privateAPI.post('/users/me/verify-owner', payload);
-    console.log('사업자 인증 API 성공:', data);
+  
 
     return data;
   } catch (apiError) {

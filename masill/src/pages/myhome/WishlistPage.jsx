@@ -251,21 +251,10 @@ const WishlistPage = () => {
         const content = res?.data?.content || [];
 
         if (content.length > 0) {
-          console.log("관심목록 데이터:", content);
+        
           // 사업자 인증 상태 확인 및 날짜 정보 디버깅
           content.forEach((post, index) => {
-            console.log(`게시글 ${index + 1}:`, {
-              title: post.title,
-              postType: post.postType,
-              startAt: post.startAt,
-              endAt: post.endAt,
-              startAtType: typeof post.startAt,
-              endAtType: typeof post.endAt,
-              isBusinessVerified: post.isBusinessVerified,
-              businessVerified: post.businessVerified,
-              userRole: post.userRole,
-              role: post.role,
-            });
+
           });
         }
         setLikedPosts(content);

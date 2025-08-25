@@ -257,7 +257,7 @@ const MyPostsPage = () => {
         const content = data?.content || [];
 
         setPosts(content); // posts 배열 안에 바로 up이 들어옴
-        console.log("첫 번째 게시물 up 값:", content[0]?.up); // true / false 확인
+    
       } catch (err) {
         console.error("내가 작성한 게시물 불러오기 실패", err);
         setError(err);

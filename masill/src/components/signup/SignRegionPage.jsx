@@ -136,7 +136,7 @@ export default function SignRegionPage() {
       try {
         setLoading(true);
         const regionData = await getRegions();
-        console.log('가져온 지역 데이터:', regionData);
+ 
         setRegions(regionData);
       } catch (error) {
         console.error('지역 데이터 가져오기 실패:', error);

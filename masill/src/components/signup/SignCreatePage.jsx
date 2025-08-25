@@ -382,8 +382,7 @@ export default function SignCreatePage() {
       
       setDuplicateCheckAttempted(true);
       const response = await checkNicknameDuplicate(nickname);
-      console.log("닉네임 중복 확인 결과:", response);
-      
+ 
       // API 응답에 따라 처리 - duplicate: true일 때만 사용불가로 처리
       if (response && response.available === true && response.success !== false) {
         setNicknameCompleted(true);
@@ -433,11 +432,7 @@ export default function SignCreatePage() {
     localStorage.setItem('signupNickname', nickname);
     localStorage.setItem('signupPassword', password);
     
-    console.log('회원가입 정보 저장:', {
-      email: `${emailId}@${emailDomain}`,
-      nickname: nickname,
-      password: password
-    });
+
     
     // 지역 선택 페이지로 이동
     nav("/signup/region");
