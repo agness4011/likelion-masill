@@ -987,6 +987,7 @@ function AddCommentMessage({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            gap: "8px",
           }}
         >
           <CommentUserImg
@@ -995,9 +996,20 @@ function AddCommentMessage({
               "https://via.placeholder.com/32x32?text=?"
             }
             alt="내 프로필"
-            style={{ width: "32px", height: "32px", borderRadius: "50%" }}
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "50%",
+              margin: "0",
+            }}
           />
-          <span style={{ fontSize: "14px", color: "#666", margin: "0" }}>
+          <span
+            style={{
+              fontSize: "14px",
+              color: "#666",
+              margin: "0",
+            }}
+          >
             {userData?.nickname || "사용자"}
           </span>
         </div>
