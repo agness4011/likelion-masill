@@ -155,9 +155,7 @@ export default function SignCompletePage() {
       const selectedDistrict = localStorage.getItem('selectedDistrict') || '';
       const savedRegionId = localStorage.getItem('selectedRegionId');
       
-      console.log('회원가입 정보 확인:', {
-        email, savedNickname, selectedRegion, selectedDistrict, savedRegionId
-      });
+
       
       // 필수 정보 검증
       if (!email || !savedNickname || !password) {
@@ -170,13 +168,10 @@ export default function SignCompletePage() {
       // 지역 ID 조회 (이미 저장된 것이 있으면 사용, 없으면 새로 조회)
       let regionId = null;
       if (savedRegionId) {
-        console.log('저장된 지역 ID 사용:', savedRegionId);
         regionId = parseInt(savedRegionId);
       } else if (selectedRegion && selectedDistrict) {
         try {
-          console.log('지역 정보 확인:', { selectedRegion, selectedDistrict });
           regionId = await getRegionId(selectedRegion, selectedDistrict);
-          console.log('조회된 지역 ID:', regionId);
           // 조회된 지역 ID 저장
           if (regionId) {
             localStorage.setItem('selectedRegionId', regionId.toString());
@@ -201,19 +196,19 @@ export default function SignCompletePage() {
         district: selectedDistrict
       };
       
-      console.log("회원가입 데이터:", userData);
+
       
       // 회원가입 API 호출
       let response;
       try {
         response = await signUp(userData);
-        console.log("회원가입 응답:", response);
+
       } catch (error) {
         console.error("회원가입 API 오류:", error);
         
         // 500 오류인 경우 더미 응답 생성
         if (error.response?.status === 500) {
-          console.log("500 오류로 인해 더미 응답 사용");
+          // 500 오류로 인해 더미 응답 사용
           response = {
             success: true,
             code: 200,
@@ -245,7 +240,7 @@ export default function SignCompletePage() {
         // 회원가입 완료 플래그 설정
         localStorage.setItem('signupCompleted', 'true');
         
-        console.log('회원가입 성공!');
+
              } else {
          // 실패 시 에러 메시지 표시
          const errorMessage = response?.message || "회원가입에 실패했습니다.";

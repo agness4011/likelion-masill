@@ -367,10 +367,7 @@ function BodyTop() {
       try {
         const data = await detailBoard(eventId); // API 호출
         setEvent(data); // API에서 받아온 이벤트 데이터 저장
-        console.log("title", data.title);
-        console.log("eventType", data.eventType);
-        console.log("location", data.location);
-        console.log("favoriteCount", data.favoriteCount);
+
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -485,7 +482,7 @@ function MiddleWho() {
     // 로그인 상태 확인 (accessToken도 함께 확인)
     const accessToken = localStorage.getItem("accessToken");
     if (!userData || !accessToken) {
-      console.log("로그인 상태 확인:", { userData, accessToken });
+    
       alert("로그인이 필요합니다.");
       navigate("/login");
       return;
@@ -493,25 +490,21 @@ function MiddleWho() {
 
     try {
       setChatLoading(true);
-      console.log("=== 채팅방 생성 시작 ===");
-      console.log("eventId:", eventId);
-      console.log("userData:", userData);
-      console.log("eventData:", eventData);
-      console.log("accessToken:", accessToken);
+ 
 
       try {
         // 이벤트 작성자와 채팅 시작
-        console.log("startEventChat 호출 중...");
+    
         const response = await startEventChat(eventId);
-        console.log("startEventChat 응답:", response);
+     
 
         if (response && response.success && response.data) {
           const roomId = response.data.roomId;
-          console.log("채팅방 생성 성공, roomId:", roomId);
+
           // 생성된 채팅방으로 이동
           navigate(`/chat/room/${roomId}`);
         } else {
-          console.log("채팅방 생성 실패 - 응답 구조 문제:", response);
+       
           alert("채팅방 생성에 실패했습니다. 다시 시도해주세요.");
         }
       } catch (error) {
@@ -611,8 +604,7 @@ function DetailContent() {
       try {
         const data = await detailBoard(eventId);
         setEvent(data);
-        console.log("content", data.content);
-        console.log("summary", data.summary);
+
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -672,13 +664,11 @@ function UserChat() {
     const fetchComments = async () => {
       try {
         const items = await commentBoards(eventId);
-        console.log("=== 댓글 데이터 구조 확인 ===");
-        console.log("댓글 목록:", items);
+   
         if (items && items.length > 0) {
-          console.log("첫 번째 댓글 객체:", items[0]);
-          console.log("첫 번째 댓글의 모든 키:", Object.keys(items[0]));
+
         }
-        console.log("========================");
+    
         setComments(items);
       } catch (error) {
         console.error("댓글 조회 실패", error);
@@ -722,13 +712,11 @@ function UserChat() {
   const currentNickname = localStorage.getItem("nickname"); // 또는 로그인 정보에 맞는 key 사용
 
   const handleProfileClick = (user, commentId) => {
-    console.log("=== handleProfileClick 호출 ===");
-    console.log("user:", user);
-    console.log("commentId:", commentId);
+
 
     // 자기 자신이면 모달 열지 않음
     if (user.username === currentNickname) {
-      console.log("자기 자신 프로필 클릭: 모달 미표시");
+   
       return;
     }
 
@@ -751,13 +739,11 @@ function UserChat() {
         });
       } else {
         const items = await showReplies(eventId, commentId);
-        console.log("=== 대댓글 데이터 구조 확인 ===");
-        console.log("대댓글 목록:", items);
+
         if (items && items.length > 0) {
-          console.log("첫 번째 대댓글 객체:", items[0]);
-          console.log("첫 번째 대댓글의 모든 키:", Object.keys(items[0]));
+
         }
-        console.log("========================");
+  
         setReplies((prev) => ({ ...prev, [commentId]: items }));
       }
     } catch (error) {
@@ -1062,21 +1048,19 @@ function ChatModal({ user, onClose, commentId }) {
 
     try {
       setChatLoading(true);
-      console.log("=== 댓글 작성자와 채팅 시작 ===");
-      console.log("commentId:", commentId);
-      console.log("commentId 타입:", typeof commentId);
-      console.log("user:", user);
+  
+    
 
       const response = await startCommentChat(commentId);
-      console.log("댓글 채팅방 생성 응답:", response);
+  
 
       if (response && response.success && response.data) {
         const roomId = response.data.roomId;
-        console.log("댓글 채팅방 생성 성공, roomId:", roomId);
+     
         // 생성된 채팅방으로 이동
         navigate(`/chat/room/${roomId}`);
       } else {
-        console.log("댓글 채팅방 생성 실패 - 응답 구조 문제:", response);
+   
         alert("채팅방 생성에 실패했습니다. 다시 시도해주세요.");
       }
     } catch (error) {

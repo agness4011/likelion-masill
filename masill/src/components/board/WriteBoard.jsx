@@ -613,33 +613,23 @@ function InputForm() {
               })
               .catch((err) => {
                 console.error("지역 이름 가져오기 실패:", err);
-                console.log(
-                  "지역 정보를 가져올 수 없습니다. 지역을 다시 선택해주세요."
-                );
+
                 setRegionName(null);
               });
           } else {
-            console.log("eventData.regionId가 없음:", eventData.regionId);
-            console.log(
-              "regionId가 undefined/null이므로 지역 정보를 설정하지 않음"
-            );
+
 
             // 서버에서 regionId를 반환하지 않는 문제가 있습니다.
             // 이는 서버 측 문제로, 게시글 생성 시 regionId가 저장되지 않았거나
             // 조회 시 regionId가 반환되지 않고 있습니다.
-            console.log("⚠️ 서버 문제: regionId가 API 응답에 없습니다.");
-            console.log("서버 개발자에게 다음을 확인 요청하세요:");
-            console.log("1. 게시글 저장 시 regionId가 제대로 저장되는지");
-            console.log("2. 게시글 조회 시 regionId가 응답에 포함되는지");
+ 
 
             // regionId가 없으면 기본값 설정하지 않음
             setRegionId(null);
             setRegionName(null);
 
             // 사용자에게 지역 재선택 안내
-            console.log(
-              "지역 정보가 없습니다. 사용자가 지역을 다시 선택해야 합니다."
-            );
+
           }
 
           // 기존 이미지 설정

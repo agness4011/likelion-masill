@@ -250,7 +250,7 @@ export default function ChangeRegionDetail() {
       try {
         setLoading(true);
         const districtData = await getDistricts(selectedRegion);
-        console.log("가져온 구/군 데이터:", districtData);
+    
         setDistricts(districtData);
       } catch (error) {
         console.error("구/군 데이터 가져오기 실패:", error);
@@ -275,16 +275,16 @@ export default function ChangeRegionDetail() {
     (currentPage + 1) * itemsPerPage
   );
   const handleDistrictSelect = async (district) => {
-    console.log("구/군 선택됨:", district);
+
     setSelectedDistrict(district);
 
     // 선택된 구/군을 즉시 저장
     localStorage.setItem("selectedDistrict", district);
 
     try {
-      console.log("지역 ID 조회 시작:", { selectedRegion, district });
+
       const regionId = await getRegionId(selectedRegion, district);
-      console.log("조회된 지역 ID:", regionId);
+  
 
       // currentUser 가져오기
       let currentUser = null;
@@ -316,7 +316,7 @@ export default function ChangeRegionDetail() {
 
       // 1초 후 자동 이동
       setTimeout(() => {
-        console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
+    
         nav(-2);
       }, 500);
     } catch (error) {
@@ -324,7 +324,7 @@ export default function ChangeRegionDetail() {
 
       // 실패해도 이동
       setTimeout(() => {
-        console.log("지역 ID 조회 실패, 기본값으로 이동:", district);
+
         nav(-2);
       }, 500);
     }
@@ -379,7 +379,7 @@ export default function ChangeRegionDetail() {
                 selected={selectedDistrict === district}
                 onClick={() => {
                   if (district && district.trim() !== "") {
-                    console.log("구/군 버튼 클릭:", district);
+                  
                     handleDistrictSelect(district);
                   }
                 }}

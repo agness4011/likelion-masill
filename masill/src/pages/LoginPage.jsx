@@ -334,10 +334,10 @@ export default function LoginPage() {
 
     try {
       const loginData = { email, password };
-      console.log("[LoginPage] 로그인 시도:", loginData);
+
 
       const response = await login(loginData); // userService가 토큰 저장함
-      console.log("[LoginPage] 로그인 응답:", response);
+
 
       if (response?.success) {
         // (보강) 백엔드 스펙 경로만 사용해 재저장 — 잘못된 키로 덮어쓰지 않기!
@@ -366,7 +366,7 @@ export default function LoginPage() {
             localStorage.setItem("userProfileImage", userData.profileImageUrl);
           }
           
-          console.log("[LoginPage] 사용자 정보 저장:", currentUser);
+          
         }
 
         // 닉네임 갱신은 유지 (여러 경로 시도)
@@ -379,14 +379,10 @@ export default function LoginPage() {
         if (nick) {
           localStorage.setItem("nickname", nick);
           updateNickname(nick);
-          console.log("[LoginPage] 닉네임 저장/갱신:", nick);
+       
         }
 
-        // 최종 토큰 확인 로그
-        console.log(
-          "[LoginPage] 최종 accessToken:",
-          localStorage.getItem("accessToken")
-        );
+
 
         // UserContext 업데이트를 위한 커스텀 이벤트 발생
         window.dispatchEvent(new CustomEvent('userLogin', { 
@@ -395,7 +391,7 @@ export default function LoginPage() {
 
         nav("/main");
       } else {
-        console.log("[LoginPage] 로그인 실패:", response?.message);
+    
         alert(response?.message || "로그인에 실패했습니다.");
       }
     } catch (error) {

@@ -27,10 +27,7 @@ export const UserProvider = ({ children }) => {
         userNickname = "user"; // 기본값
       }
       
-      console.log('=== UserContext getCurrentUser ===');
-      console.log('currentUser from localStorage:', currentUser);
-      console.log('userNickname:', userNickname);
-      console.log('isBusinessVerified:', isBusinessVerified);
+
       
       return {
         id: currentUser.userId,
@@ -81,9 +78,7 @@ export const UserProvider = ({ children }) => {
     
     // currentUser의 닉네임만 사용 (localStorage nickname 무시)
     if (currentUser?.nickname) {
-      console.log('=== currentUser 닉네임 사용 ===');
-      console.log('사용할 닉네임:', currentUser.nickname);
-      console.log('============================');
+  
       
       setUserData(prev => ({
         ...prev,
@@ -91,17 +86,10 @@ export const UserProvider = ({ children }) => {
         nickname: currentUser.nickname
       }));
     } else {
-      console.log('=== currentUser에 nickname이 없음 ===');
-      console.log('currentUser:', currentUser);
-      console.log('==============================');
+
     }
     
-    console.log('=== UserContext 초기화 ===');
-    console.log('currentUser nickname:', currentUser?.nickname);
-    console.log('localStorage nickname:', savedNickname);
-    console.log('전체 currentUser 객체:', currentUser);
-    console.log('dummyUsers:', JSON.parse(localStorage.getItem('dummyUsers') || '[]'));
-    console.log('========================');
+
   }, []);
 
   // localStorage 변경 감지 및 커스텀 이벤트 감지
@@ -151,7 +139,7 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   const updateNickname = (newNickname) => {
-    console.log('UserContext: 닉네임 업데이트:', newNickname);
+
     
     // currentUser 업데이트
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
@@ -180,7 +168,7 @@ export const UserProvider = ({ children }) => {
       isSajangVerified: true
     }));
     
-    console.log('사업자 인증 완료 - localStorage에 저장됨');
+ 
   };
 
   const updateAvatar = (avatarId) => {

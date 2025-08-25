@@ -10,7 +10,6 @@ const rid = (p = 'r') => `${p}-${Math.random().toString(36).slice(2, 10)}`;
 // WebSocket 연결 설정
 export const connectWebSocket = (onConnect, onError, onDisconnect) => {
   if (stompClient && stompClient.connected) {
-    console.log('WebSocket이 이미 연결되어 있습니다.');
     if (onConnect) onConnect(stompClient);
     return stompClient;
   }
@@ -20,7 +19,7 @@ export const connectWebSocket = (onConnect, onError, onDisconnect) => {
     try {
       stompClient.deactivate();
     } catch (error) {
-      console.log('기존 클라이언트 정리 중 에러:', error);
+      // 기존 클라이언트 정리 중 에러 (로그 제거)
     }
   }
 
@@ -34,7 +33,7 @@ export const connectWebSocket = (onConnect, onError, onDisconnect) => {
       'accept-version': '1.1,1.2', // 서버 버전 호환성
       'heart-beat': '0,0'
     },
-    debug: (str) => console.log('[STOMP]', str),
+    debug: (str) => {}, // STOMP 디버그 로그 제거
     reconnectDelay: 5000,
     heartbeatIncoming: 0,
     heartbeatOutgoing: 0,
@@ -48,21 +47,6 @@ export const connectWebSocket = (onConnect, onError, onDisconnect) => {
   });
 
   client.onConnect = (frame) => {
-    console.log('WebSocket 연결 성공:', frame);
-    console.log('연결된 사용자:', frame.headers['user-name']);
-    console.log('서버 버전:', frame.headers.version);
-    
-    // 사용자 정보 상세 로그
-    const userName = frame.headers['user-name'];
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const currentUserId = localStorage.getItem('currentUserId');
-    
-    console.log('=== WebSocket 사용자 정보 ===');
-    console.log('WebSocket user-name:', userName);
-    console.log('localStorage currentUser:', currentUser);
-    console.log('localStorage currentUserId:', currentUserId);
-    console.log('============================');
-    
     if (onConnect) onConnect(client, frame);
   };
 
@@ -75,7 +59,7 @@ export const connectWebSocket = (onConnect, onError, onDisconnect) => {
       
       // ExecutorSubscribableChannel 에러인 경우 재연결 시도
       if (frame.headers.message.includes('ExecutorSubscribableChannel')) {
-        console.log('서버 측 WebSocket 문제 감지. HTTP 기반 채팅으로 폴백합니다.');
+        // 서버 측 WebSocket 문제 감지. HTTP 기반 채팅으로 폴백합니다.
       }
     }
     
@@ -83,7 +67,6 @@ export const connectWebSocket = (onConnect, onError, onDisconnect) => {
   };
 
   client.onDisconnect = () => {
-    console.log('WebSocket 연결 해제');
     if (onDisconnect) onDisconnect();
   };
 
@@ -105,10 +88,6 @@ export const sendMessage = (destination, message) => {
   }
 
   try {
-    console.log('=== 메시지 전송 시도 ===');
-    console.log('목적지:', destination);
-    console.log('메시지:', message);
-    
     // 메시지 크기 제한 확인
     const messageStr = JSON.stringify(message);
     if (messageStr.length > 8192) { // 8KB 제한
@@ -124,8 +103,6 @@ export const sendMessage = (destination, message) => {
       }
     });
     
-    console.log('메시지 전송 성공:', destination);
-    console.log('========================');
     return true;
   } catch (error) {
     console.error('메시지 전송 실패:', error);
@@ -144,8 +121,6 @@ export const sendChatMessage = (roomId, text) => {
     const destination = `/app/chat/rooms/${roomId}/messages`;
     const payload = { content: text };
     
-    console.log('채팅 메시지 전송:', destination, payload);
-    
     stompClient.publish({
       destination,
       body: JSON.stringify(payload),
@@ -154,7 +129,6 @@ export const sendChatMessage = (roomId, text) => {
       }
     });
     
-    console.log('채팅 메시지 전송 성공:', destination);
     return true;
   } catch (error) {
     console.error('채팅 메시지 전송 실패:', error);
@@ -172,14 +146,11 @@ export const markChatAsRead = (roomId) => {
   try {
     const destination = `/app/chat/rooms/${roomId}/read`;
     
-    console.log('채팅방 읽음 처리:', destination);
-    
     stompClient.publish({
       destination,
       body: '{}'
     });
     
-    console.log('채팅방 읽음 처리 성공:', destination);
     return true;
   } catch (error) {
     console.error('채팅방 읽음 처리 실패:', error);
@@ -203,7 +174,7 @@ export const sendUnreadNotification = (roomId, messageContent, targetUserId) => 
       timestamp: new Date().toISOString()
     };
     
-    console.log('안 읽음 수 증가 알림 전송:', destination, payload);
+
     
     stompClient.publish({
       destination,
@@ -213,7 +184,7 @@ export const sendUnreadNotification = (roomId, messageContent, targetUserId) => 
       }
     });
     
-    console.log('안 읽음 수 증가 알림 전송 성공:', destination);
+
     return true;
   } catch (error) {
     console.error('안 읽음 수 증가 알림 전송 실패:', error);
@@ -231,8 +202,7 @@ export const sendTypingStart = (roomId) => {
   try {
     const destination = `/app/chat/rooms/${roomId}/typing`;
     const payload = { type: 'START' };
-    
-    console.log('타이핑 시작 전송:', destination, payload);
+ 
     
     stompClient.publish({
       destination,
@@ -242,7 +212,7 @@ export const sendTypingStart = (roomId) => {
       }
     });
     
-    console.log('타이핑 시작 전송 성공:', destination);
+
     return true;
   } catch (error) {
     console.error('타이핑 시작 전송 실패:', error);
@@ -261,8 +231,7 @@ export const sendTypingStop = (roomId) => {
     const destination = `/app/chat/rooms/${roomId}/typing`;
     const payload = { type: 'STOP' };
     
-    console.log('타이핑 종료 전송:', destination, payload);
-    
+
     stompClient.publish({
       destination,
       body: JSON.stringify(payload),
@@ -271,7 +240,7 @@ export const sendTypingStop = (roomId) => {
       }
     });
     
-    console.log('타이핑 종료 전송 성공:', destination);
+
     return true;
   } catch (error) {
     console.error('타이핑 종료 전송 실패:', error);
@@ -287,28 +256,22 @@ export const subscribe = (destination, callback) => {
   }
 
   try {
-    console.log('=== 구독 시도 ===');
-    console.log('목적지:', destination);
-    
+
     const subscription = stompClient.subscribe(destination, (message) => {
-      console.log('=== 메시지 수신 ===');
-      console.log('목적지:', destination);
-      console.log('원본 메시지:', message);
-      
+
       try {
         const body = JSON.parse(message.body);
-        console.log('파싱된 메시지:', body);
+ 
         callback(body);
       } catch (error) {
         console.error('메시지 파싱 실패:', error);
-        console.log('원본 메시지 바디:', message.body);
+    
         callback(message.body);
       }
-      console.log('==================');
+
     });
     
-    console.log('구독 성공:', destination);
-    console.log('==================');
+
     return subscription;
   } catch (error) {
     console.error('구독 실패:', error);
@@ -325,10 +288,10 @@ export const subscribeChatRoom = (roomId, callback) => {
 
   try {
     const destination = `/user/queue/rooms.${roomId}`;
-    console.log('채팅방 구독 시도:', destination);
+
     
     const subscription = stompClient.subscribe(destination, (message) => {
-      console.log('채팅 메시지 수신:', destination, message);
+   
       try {
         const body = JSON.parse(message.body);
         callback(body);
@@ -338,7 +301,7 @@ export const subscribeChatRoom = (roomId, callback) => {
       }
     });
     
-    console.log('채팅방 구독 성공:', destination);
+   
     return subscription;
   } catch (error) {
     console.error('채팅방 구독 실패:', error);
@@ -352,7 +315,7 @@ export const disconnect = () => {
     try {
       stompClient.deactivate();
       stompClient = null;
-      console.log('WebSocket 연결 해제 완료');
+   
     } catch (error) {
       console.error('WebSocket 연결 해제 실패:', error);
     }

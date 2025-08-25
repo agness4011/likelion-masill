@@ -296,7 +296,7 @@ export default function SelectRegionDetail() {
       // 1초 후 자동으로 다음 페이지로 이동
       setTimeout(() => {
 
-        console.log("선택된 구/군으로 이동:", district, "지역 ID:", regionId);
+    
 
         // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
         const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");
@@ -312,7 +312,7 @@ export default function SelectRegionDetail() {
       console.error("지역 ID 조회 실패:", error);
       // 지역 ID 조회 실패 시에도 다음 페이지로 이동 (기본값 사용)
       setTimeout(() => {
-        console.log("지역 ID 조회 실패, 기본값으로 이동:", district);
+    
 
         // 수정 페이지에서 온 경우 해당 페이지로 돌아가기
         const editPageReturnUrl = localStorage.getItem("editPageReturnUrl");

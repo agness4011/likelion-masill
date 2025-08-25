@@ -212,18 +212,12 @@ const NicknameChangePage = () => {
     try {
       const response = await checkNicknameDuplicate(nickname);
       
-      console.log('중복 확인 응답:', response);
-      console.log('response.available:', response?.available);
-      console.log('response.success:', response?.success);
-      
       // 응답 구조에 따라 다르게 처리
       if (response && response.available === true && response.success !== false) {
-        console.log('사용 가능으로 설정');
         setDuplicateStatus('available');
         setStep(3);
       } else {
         // available이 false이거나 undefined인 경우, 또는 success가 false인 경우 모두 사용 불가로 처리
-        console.log('사용 불가로 설정');
         setDuplicateStatus('unavailable');
         setStep(4);
       }
@@ -244,8 +238,6 @@ const NicknameChangePage = () => {
       try {
         const response = await updateNickname(nickname);
       
-        console.log('닉네임 변경 API 응답:', response);
-        
         if (response && response.success === true) {
           // UserContext 업데이트
           updateUserNickname(nickname);
@@ -254,7 +246,6 @@ const NicknameChangePage = () => {
           setStep(5);
         } else {
           // success가 false인 경우 사용 불가로 처리
-          console.log('닉네임 변경 실패 - 사용 불가로 설정');
           setDuplicateStatus('unavailable');
           setStep(4);
           alert(response?.message || '이미 사용 중인 닉네임입니다.');
