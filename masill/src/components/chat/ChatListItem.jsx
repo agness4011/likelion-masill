@@ -72,11 +72,16 @@ const Name = styled.p`
   text-overflow: ellipsis;
 `;
 
+const TimeAndUnreadContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+`;
+
 const Time = styled.span`
   font-size: 12px;
   color: #999;
-  margin-left: 8px;
-  flex-shrink: 0;
 `;
 
 const LastMessage = styled.p`
@@ -94,8 +99,6 @@ const UnreadIndicator = styled.div`
   height: 8px;
   border-radius: 50%;
   background: #007AFF;
-  margin-left: 8px;
-  flex-shrink: 0;
 `;
 
 export default function ChatListItem({ room, onClick }) {
@@ -112,11 +115,13 @@ export default function ChatListItem({ room, onClick }) {
         <Info>
           <NameRow>
             <Name>{room.name}</Name>
-            <Time>{room.time}</Time>
+            <TimeAndUnreadContainer>
+              <Time>{room.time}</Time>
+              {room.unread && <UnreadIndicator />}
+            </TimeAndUnreadContainer>
           </NameRow>
           <LastMessage>{room.lastMessage}</LastMessage>
         </Info>
-        {room.unread && <UnreadIndicator />}
       </ItemWrapper>
     );
   }
@@ -161,11 +166,13 @@ export default function ChatListItem({ room, onClick }) {
       <Info>
         <NameRow>
           <Name>{room.name}</Name>
-          <Time>{room.time}</Time>
+          <TimeAndUnreadContainer>
+            <Time>{room.time}</Time>
+            {room.unread && <UnreadIndicator />}
+          </TimeAndUnreadContainer>
         </NameRow>
         <LastMessage>{room.lastMessage}</LastMessage>
       </Info>
-      {room.unread && <UnreadIndicator />}
     </ItemWrapper>
   );
 }
