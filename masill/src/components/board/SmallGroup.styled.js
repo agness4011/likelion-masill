@@ -128,18 +128,19 @@ export const CategoryMark = styled.p`
 export const TitleP = styled.p`
   color: var(--Dark-Text, #060d1d);
   font-family: Pretendard;
-  font-size: 26px;
+  font-size: 23px;
   font-style: normal;
   font-weight: 700;
-  line-height: 140%;
   letter-spacing: 0.52px;
   margin: 0 0 5px 0;
 
   /* 필요 시 추가 스타일 */
-  padding-right: 40px;
   white-space: normal; /* 줄바꿈 허용 */
   overflow: visible;
   text-overflow: unset;
+  max-width: 280px;
+  word-break: keep-word; /* 단어 단위로 줄바꿈 (권장) */
+  line-break: normal;
 `;
 
 export const LoccationP = styled.p`
@@ -410,11 +411,12 @@ export const KeyboardBtn = styled.img`
   cursor: pointer;
 `;
 export const CommentUserImg = styled.img`
-  width: 51px;
-  height: 51px;
+  width: 33px;
+  height: 33px;
   flex-shrink: 0;
   border-radius: 50%;
   cursor: pointer;
+  margin-left: 24px;
 `;
 export const CommentUserName = styled.p`
   display: -webkit-box;
@@ -430,23 +432,43 @@ export const CommentUserName = styled.p`
   font-weight: 700;
   line-height: 140%; /* 19.6px */
   letter-spacing: 0.28px;
+
+  margin: 0;
 `;
 export const CommentContent = styled.p`
-  display: -webkit-box;
-  max-width: 254px;
+  max-width: 280px;
   min-height: 30px;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
   color: var(--Dark-Text, #060d1d);
-  text-overflow: ellipsis;
   font-family: Pretendard;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
   line-height: 120%; /* 16.8px */
   margin: 0;
+
+  white-space: pre-wrap; /* 줄바꿈 + 공백 유지 */
+  word-wrap: break-word; /* 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 긴 단어 줄바꿈 (표준) */
 `;
+
+export const ReplyComment = styled.p`
+  max-width: 230px;
+  min-height: 30px;
+  color: var(--Dark-Text, #060d1d);
+  font-family: Pretendard;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 16.8px */
+  margin: 0;
+
+  white-space: pre-wrap; /* 줄바꿈 + 공백 유지 */
+  word-wrap: break-word; /* 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 긴 단어 줄바꿈 (표준) */
+
+  padding-right: 10px;
+`;
+
 export const CommentWriteTime = styled.span`
   color: var(--Gray-700, #959eb7);
   /* SUB MID */
@@ -921,18 +943,23 @@ export const ReadMoreBtn = styled.button`
   overflow: hidden;
   color: var(--Gray-900, #727c94);
   text-overflow: ellipsis;
-  /* SUB Text 01 */
   font-family: Pretendard;
-  font-size: 12px;
+  font-size: 9px;
   font-style: normal;
   font-weight: 400;
-  line-height: 120%; /* 14.4px */
+  line-height: 120%;
   letter-spacing: -0.12px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
   height: fit-content;
+  text-align: center;
+
+  /** ✅ 버튼 전체를 위로 이동 **/
+  position: relative;
+  top: -4px; /* 필요에 따라 -2px까지 조정 가능 */
 `;
+
 export const CommentWrapper = styled.div`
   display: flex;
   border-bottom: 1px solid #e0e0e0;
@@ -941,3 +968,4 @@ export const CommentWrapper = styled.div`
   min-height: 124px;
 `;
 export const CancelBtn = styled.button``;
+EventTitle;

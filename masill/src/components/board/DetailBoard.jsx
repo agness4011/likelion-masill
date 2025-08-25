@@ -112,6 +112,7 @@ import {
   ModalMain,
   CancelBtn,
   CommentWrapper,
+  ReplyComment,
 } from "./Detail.styled";
 
 export default function DetailBoard({ children }) {
@@ -418,7 +419,14 @@ function BodyTop() {
           )}~${dayjs(event.endAt).format("HH:mm")}`}
         </DateP>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          margin: "0",
+        }}
+      >
         <FavoriteCountP>{event.favoriteCount}</FavoriteCountP>
         <HeartImg
           src={event.liked ? FullHeart : Heart}
@@ -851,7 +859,7 @@ function UserChat() {
                           alignItems: "flex-start",
                           gap: "12px",
                           marginTop: "10px",
-                          marginLeft: "40px",
+                          marginRight: "28px",
                         }}
                       >
                         <CommentUserImg
@@ -883,7 +891,7 @@ function UserChat() {
                               • {formatRelativeTime(reply.createdAt)}
                             </CommentWriteTime>
                           </div>
-                          <CommentContent>{reply.content}</CommentContent>
+                          <ReplyComment>{reply.content}</ReplyComment>
                         </div>
                       </div>
                     ))}
