@@ -120,10 +120,14 @@ export const TitleP = styled.p`
   letter-spacing: 0.52px;
   margin: 0 0 5px 0;
 
-  /* 길면 자동 줄바꿈 */
-  word-break: break-word;
+  /* 한 줄에 최대 16자까지 표시하고 단어 단위로 줄바꿈 */
+  word-break: keep-all;
   white-space: normal;
-  max-width: 280px;
+  max-width: 16ch; /* 16자 제한 */
+  overflow-wrap: break-word;
+  hyphens: none;
+  word-spacing: normal;
+  letter-spacing: 0.52px;
 `;
 
 export const LoccationP = styled.p`
