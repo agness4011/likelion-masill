@@ -471,7 +471,7 @@ function Post() {
       <ToggleLoctionDiv>
         <LocationDiv onClick={handleRegionClick} style={{ marginTop: "10px" }}>
           <LocationImg src={SetLocation} />
-          <LocationP>우리 마을 [ {myRegion} ]</LocationP>
+          <LocationP>우리 동네 [ {myRegion} ]</LocationP>
         </LocationDiv>
 
         {!isSearchActive && (
@@ -541,7 +541,7 @@ function PostCard({ post, clickHeart }) {
       const { scrollLeft, scrollWidth, clientWidth } = imageScrollRef.current;
       const atEnd = scrollLeft + clientWidth >= scrollWidth - 1;
       setIsAtEnd(atEnd);
-      
+
       // 왼쪽으로 스크롤 중이면 계속 왼쪽 버튼 유지
       if (isScrollingLeft && scrollLeft > 0) {
         setIsScrollingLeft(true);
@@ -554,50 +554,65 @@ function PostCard({ post, clickHeart }) {
   useEffect(() => {
     const scrollElement = imageScrollRef.current;
     if (scrollElement) {
-      scrollElement.addEventListener('scroll', checkScrollPosition);
+      scrollElement.addEventListener("scroll", checkScrollPosition);
       checkScrollPosition(); // 초기 상태 확인
-      return () => scrollElement.removeEventListener('scroll', checkScrollPosition);
+      return () =>
+        scrollElement.removeEventListener("scroll", checkScrollPosition);
     }
   }, [post.images, isScrollingLeft]);
-
-
 
   return (
     <PostWrapper
       key={post.eventId}
-      onClick={() => navigate(`/detail/${post.eventId}`)}
+      onClick={() =>
+        // 목록 → 상세 이동
+        navigate(`/detail/${post.eventId}`, {
+          state: { from: location.pathname },
+        })
+      }
     >
       {post.isBusinessVerified && (
         <OwnerHatOverlay src={OwnerHat} alt="사업자 인증" />
       )}
-             <div style={{ marginLeft: "24px", position: "relative" }}>
-         <ImageScrollWrapper ref={imageScrollRef}>
-           {Array.isArray(post.images) &&
-             post.images.map((img, idx) => (
-               <ImageContainer key={idx}>
-                 <BoardImage src={img.imageUrl} alt={`${post.title}-${idx}`} />
-               </ImageContainer>
-             ))}
-         </ImageScrollWrapper>
-         
-                   {post.images.length > 2 && (
-            <ImageNextButton onClick={(e) => {
+      <div style={{ marginLeft: "24px", position: "relative" }}>
+        <ImageScrollWrapper ref={imageScrollRef}>
+          {Array.isArray(post.images) &&
+            post.images.map((img, idx) => (
+              <ImageContainer key={idx}>
+                <BoardImage src={img.imageUrl} alt={`${post.title}-${idx}`} />
+              </ImageContainer>
+            ))}
+        </ImageScrollWrapper>
+
+        {post.images.length > 2 && (
+          <ImageNextButton
+            onClick={(e) => {
               e.stopPropagation();
               if (imageScrollRef.current) {
                 if (isAtEnd || isScrollingLeft) {
                   // 마지막에 도달했거나 왼쪽 스크롤 중이면 왼쪽으로 이동
                   setIsScrollingLeft(true);
-                  imageScrollRef.current.scrollBy({ left: -144, behavior: "smooth" });
+                  imageScrollRef.current.scrollBy({
+                    left: -144,
+                    behavior: "smooth",
+                  });
                 } else {
                   // 다음 이미지로 이동
                   setIsScrollingLeft(false);
-                  imageScrollRef.current.scrollBy({ left: 144, behavior: "smooth" });
+                  imageScrollRef.current.scrollBy({
+                    left: 144,
+                    behavior: "smooth",
+                  });
                 }
               }
-            }}>
-              <ImageNextIcon src={(isAtEnd || isScrollingLeft) ? LeftButton : Btn} alt={(isAtEnd || isScrollingLeft) ? "이전 이미지" : "다음 이미지"} />
-            </ImageNextButton>
-          )}
+            }}
+          >
+            <ImageNextIcon
+              src={isAtEnd || isScrollingLeft ? LeftButton : Btn}
+              alt={isAtEnd || isScrollingLeft ? "이전 이미지" : "다음 이미지"}
+            />
+          </ImageNextButton>
+        )}
 
         <ContentWrapper>
           <LeftContent>
@@ -791,7 +806,7 @@ const ImageScrollWrapper = styled.div`
 
 const ImageNextButton = styled.button`
   position: absolute;
-  left:300px;
+  left: 300px;
   top: 70px;
   opacity: 0.7;
   transform: translateY(-50%);
@@ -816,7 +831,6 @@ const ImageNextButton = styled.button`
 const ImageNextIcon = styled.img`
   width: 20px;
   height: 20px;
-
 `;
 
 const BoardImage = styled.img`

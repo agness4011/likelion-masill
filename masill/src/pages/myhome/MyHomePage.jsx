@@ -32,10 +32,11 @@ const MyHomeContainer = styled.div`
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 20px 20px;
+  align-items: flex-start; /* 위쪽 기준 정렬 */
+  padding: 0 20px;
   background: white;
   border-bottom: 1px solid #f0f0f0;
+  height: 104px;
 `;
 
 const Logo = styled.div`
@@ -44,6 +45,7 @@ const Logo = styled.div`
   gap: 9px;
   font-weight: bold;
   font-size: 18px;
+  margin-top: 39px; /* 위에서 50px 내려오기 */
 `;
 
 const LogoImage = styled.img`
@@ -54,6 +56,7 @@ const ActionIcons = styled.div`
   display: flex;
   gap: 1px;
   align-items: center;
+  margin-top: 44px; /* 위에서 62px 내려오기 */
 `;
 
 const IconButton = styled.button`
@@ -72,8 +75,10 @@ const IconButton = styled.button`
 `;
 
 const IconImage = styled.img`
-  width: 18px;
-  height: 19px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
 `;
 
 const ProfileSection = styled.div`

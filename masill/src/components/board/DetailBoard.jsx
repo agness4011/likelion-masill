@@ -205,7 +205,11 @@ function LowHead() {
   }, [eventId, userData]);
 
   const handleBack = () => {
-    navigate("/main");
+    if (location.state?.from) {
+      navigate(location.state.from);
+    } else {
+      navigate("/main"); // fallback
+    }
   };
 
   const handleEditClick = () => {
