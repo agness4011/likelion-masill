@@ -4,12 +4,11 @@ import { useNavigate } from "react-router-dom";
 import Bird from "@logo/bird.svg";
 import EyeOff from "@logo/eyeoff.svg";
 import EyeOn from "@logo/eyeon.svg";
-import { signUp, checkNicknameDuplicate, getRegionId } from "../../api/userService";
+import { checkNicknameDuplicate } from "../../api/userService";
 import { useUser } from "../../contexts/UserContext";
 
 const Container = styled.div`
   width: 100%;
-  
   background: #fff;
   padding: 0;
   display: flex;
@@ -107,13 +106,13 @@ const InputBox = styled.div`
   max-width: 340px;
   background:#ECF1FF;
   border-radius: 16px;
-  padding: 20px 28px 10px 20px;
+  padding: 16px 28px 14px 20px;
   margin-bottom: 25px;
   display: flex;
   flex-direction: column;
   position: relative;
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  max-height: ${({ $visible }) => ($visible ? '200px' : '0')};
+  max-height: ${({ $visible }) => ($visible ? '220px' : '0')};
   overflow: hidden;
   transition: all 0.3s ease;
   flex-shrink: 0;
@@ -127,8 +126,8 @@ const InputBox = styled.div`
 
 const InputLabel = styled.label`
   font-size: 14px;
-  color: #b0b4c0;
-  margin-bottom: 2px;
+  color: #727C94;
+  margin-bottom: 6px;
 `;
 
 const Input = styled.input`
@@ -190,99 +189,10 @@ const CheckButton = styled.button`
 const PasswordInputGroup = styled.div`
   position: relative;
   width: 100%;
-  
-  /* 전역적으로 비밀번호 입력 필드의 기본 아이콘 제거 */
-  input[type="password"]::-ms-reveal,
-  input[type="password"]::-ms-clear,
-  input[type="password"]::-webkit-credentials-auto-fill-button,
-  input[type="password"]::-webkit-contacts-auto-fill-button,
-  input[type="password"]::-webkit-strong-password-auto-fill-button {
-    display: none !important;
-    visibility: hidden !important;
-    width: 0 !important;
-    height: 0 !important;
-  }
 `;
 
 const PasswordInput = styled(Input)`
   width: 100%;
-  
-  /* 모든 브라우저의 기본 비밀번호 표시/숨기기 버튼 완전 제거 */
-  &::-ms-reveal,
-  &::-ms-clear,
-  &::-webkit-credentials-auto-fill-button,
-  &::-webkit-contacts-auto-fill-button,
-  &::-webkit-strong-password-auto-fill-button,
-  &::-moz-credentials-auto-fill-button {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    pointer-events: none !important;
-  }
-  
-  /* 추가적인 Webkit 스타일 완전 제거 */
-  &::-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 1000px white inset !important;
-  }
-  
-  /* Safari 특별 처리 */
-  &::-webkit-search-cancel-button,
-  &::-webkit-search-decoration {
-    display: none !important;
-  }
-  
-  /* Chrome/Safari 비밀번호 표시 버튼 완전 제거 */
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button,
-  &::-webkit-textfield-decoration-container,
-  &::-webkit-password-decoration-container {
-    display: none !important;
-    -webkit-appearance: none !important;
-    margin: 0 !important;
-  }
-  
-  /* Firefox 비밀번호 표시 버튼 제거 */
-  &::-moz-password-decoration {
-    display: none !important;
-  }
-  
-  /* 모든 브라우저에서 기본 스타일 제거 */
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  appearance: none !important;
-  
-  /* 추가 강력한 제거 방법 */
-  &::-webkit-password-decoration {
-    display: none !important;
-  }
-  
-  &::-webkit-password-decoration-container {
-    display: none !important;
-  }
-  
-  &::-webkit-password-decoration-button {
-    display: none !important;
-  }
-  
-  &::-webkit-password-decoration-icon {
-    display: none !important;
-  }
-  
-  /* Edge 특별 처리 */
-  &::-ms-reveal {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-  }
-  
-  &::-ms-clear {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-  }
 `;
 
 const TogglePasswordBtn = styled.button`
@@ -305,16 +215,11 @@ const InfoText = styled.div`
   font-size: 12px;
   color: ${({ color }) => color || "#b0b4c0"};
   text-align: left;
-  width: 90%;
-  max-width: 340px;
-  margin-top: -10px;
-  margin-bottom: -13px;
-  min-height: 20px;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  max-height: ${({ $visible }) => ($visible ? '20px' : '0')};
-  overflow: hidden;
+  width: 100%;
+  margin-bottom: 6px;   /* 라벨 위쪽에 작게 간격 */
+  min-height: 16px;
   transition: all 0.3s ease;
-  flex-shrink: 0;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
 `;
 
 const ButtonContainer = styled.div`
@@ -348,166 +253,114 @@ const NextButton = styled.button`
 export default function SignCreatePage() {
   const nav = useNavigate();
   const { updateNickname } = useUser();
-  
-  // 단계별 상태 관리
-  const [currentStep, setCurrentStep] = useState(1); // 1: 이메일, 2: 닉네임, 3: 비밀번호, 4: 완료
-  
-  // 입력값 상태
+
+  // 단계: 1 이메일, 2 닉네임, 3 비밀번호, 4 비밀번호 재입력
+  const [currentStep, setCurrentStep] = useState(1);
+
+  // 입력값
   const [emailId, setEmailId] = useState("");
   const [emailDomain, setEmailDomain] = useState("gmail.com");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  
-  // 각 단계별 완료 상태
+
+  // 유틸 상태
   const [emailCompleted, setEmailCompleted] = useState(false);
   const [nicknameCompleted, setNicknameCompleted] = useState(false);
-  const [passwordCompleted, setPasswordCompleted] = useState(false);
+  const [duplicateCheckAttempted, setDuplicateCheckAttempted] = useState(false);
 
-  // 이메일 단계 처리
+  // 이메일
   const handleEmailNext = () => {
-    if (emailId.length > 0 && emailDomain.length > 0) {
+    if (emailId && emailDomain) {
       setEmailCompleted(true);
       setCurrentStep(2);
     }
   };
 
-  // 닉네임 중복확인 및 다음 단계
+  // 닉네임
   const handleNicknameCheck = async () => {
+    if (!nickname) {
+      alert("닉네임을 입력해주세요.");
+      return;
+    }
+    setDuplicateCheckAttempted(true);
     try {
-      if (nickname.length === 0) {
-        alert("닉네임을 입력해주세요.");
-        return;
-      }
-      
-      setDuplicateCheckAttempted(true);
       const response = await checkNicknameDuplicate(nickname);
- 
-      // API 응답에 따라 처리 - duplicate: true일 때만 사용불가로 처리
-      if (response && response.available === true && response.success !== false) {
+      if (response && response.available) {
         setNicknameCompleted(true);
-        // 중복확인 성공 시 자동으로 다음 단계로 이동
         setCurrentStep(3);
       } else {
         alert("이미 사용 중인 닉네임입니다.");
         setNicknameCompleted(false);
       }
-    } catch (error) {
-      console.error("닉네임 중복 확인 오류:", error);
+    } catch (e) {
       alert("닉네임 중복 확인 중 오류가 발생했습니다.");
       setNicknameCompleted(false);
     }
   };
 
-  // 중복확인 상태에 따른 버튼 텍스트 결정
-  const getDuplicateCheckButtonText = () => {
-    if (nickname.length === 0) return "중복확인";
-    if (nicknameCompleted) return "사용가능";
-    // 중복확인을 시도했지만 실패한 경우에만 "사용불가" 표시
-    if (duplicateCheckAttempted && !nicknameCompleted) return "사용불가";
-    return "중복확인";
-  };
-
-  // 중복확인 시도 여부를 추적하는 상태 추가
-  const [duplicateCheckAttempted, setDuplicateCheckAttempted] = useState(false);
-
-  const handleNicknameNext = () => {
-    if (nickname.length > 0) {
-      setCurrentStep(3);
-    }
-  };
-
-  // 비밀번호 단계 처리
+  // 비밀번호
   const handlePasswordNext = () => {
     if (isPasswordValid()) {
-      setPasswordCompleted(true);
       setCurrentStep(4);
     }
   };
 
-    // 최종 완료 - 지역 선택 페이지로 이동
+  // 완료
   const handleComplete = () => {
-    // 입력된 정보를 localStorage에 저장
-    localStorage.setItem('signupEmail', `${emailId}@${emailDomain}`);
-    localStorage.setItem('signupNickname', nickname);
-    localStorage.setItem('signupPassword', password);
-    
-
-    
-    // 지역 선택 페이지로 이동
+    if (!isConfirmPasswordValid()) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+    localStorage.setItem("signupEmail", `${emailId}@${emailDomain}`);
+    localStorage.setItem("signupNickname", nickname);
+    localStorage.setItem("signupPassword", password);
     nav("/signup/region");
   };
 
-  // 이메일 유효성 검사
-  const isEmailValid = emailId.length > 0 && emailDomain.length > 0;
-  
-  // 닉네임 유효성 검사 - 중복확인 완료된 경우에만 다음으로 넘어갈 수 있도록 수정
-  const isNicknameValid = nickname.length > 0 && nicknameCompleted;
-  
-  // 비밀번호 유효성 검사
+  // 유효성
+  const isEmailValid = emailId && emailDomain;
+  const isNicknameValid = nickname && nicknameCompleted;
+
   const isPasswordValid = () => {
     if (password.length < 6) return false;
-    
-    // 영문, 숫자, 특수문자 중 2가지 조합 확인
     const hasLetter = /[a-zA-Z]/.test(password);
     const hasNumber = /\d/.test(password);
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    
-    const conditions = [hasLetter, hasNumber, hasSpecial];
-    const validConditions = conditions.filter(Boolean).length;
-    
-    return validConditions >= 2;
+    return [hasLetter, hasNumber, hasSpecial].filter(Boolean).length >= 2;
   };
 
+  const isConfirmPasswordValid = () =>
+    confirmPassword.length > 0 && confirmPassword === password;
+
+  // 메시지
   const passwordValidationMessage = () => {
-    if (password.length === 0) return (
-      <span>
-        <span style={{ marginLeft: "5px" }}>영문,특수문자,숫자</span> 중 2가지 조합 6자 이상
-      </span>
-    );
-    if (isPasswordValid()) return "사용가능한 비밀번호입니다.";
-    return "유효하지 않은 비밀번호입니다.";
+    if (!password) return "영문, 특수문자, 숫자 중 2가지 조합 6자 이상";
+    return isPasswordValid()
+      ? "사용가능한 비밀번호입니다."
+      : "유효하지 않은 비밀번호입니다.";
   };
 
-  const passwordValidationColor = () => {
-    if (password.length === 0) return "#b0b4c0";
-    if (isPasswordValid()) return "#1B409C";
-    return "#ff4757";
+  const confirmPasswordValidationMessage = () => {
+    if (!confirmPassword) return "비밀번호를 다시 입력해주세요.";
+    return isConfirmPasswordValid()
+      ? "비밀번호가 일치합니다."
+      : "비밀번호가 일치하지 않습니다.";
   };
 
-  // 버튼 텍스트와 클릭 핸들러 결정
   const getButtonConfig = () => {
     switch (currentStep) {
       case 1:
-        return {
-          text: "다음",
-          disabled: !isEmailValid,
-          onClick: handleEmailNext
-        };
+        return { text: "다음", disabled: !isEmailValid, onClick: handleEmailNext };
       case 2:
-        return {
-          text: "다음",
-          disabled: !isNicknameValid,
-          onClick: handleNicknameNext
-        };
+        return { text: "다음", disabled: !isNicknameValid, onClick: () => setCurrentStep(3) };
       case 3:
-        return {
-          text: "다음",
-          disabled: !isPasswordValid(),
-          onClick: handlePasswordNext
-        };
+        return { text: "다음", disabled: !isPasswordValid(), onClick: handlePasswordNext };
       case 4:
-        return {
-          text: "다음",
-          disabled: false,
-          onClick: handleComplete
-        };
+        return { text: "다음", disabled: !isConfirmPasswordValid(), onClick: handleComplete };
       default:
-        return {
-          text: "다음",
-          disabled: true,
-          onClick: () => {}
-        };
+        return { text: "다음", disabled: true, onClick: () => {} };
     }
   };
 
@@ -521,9 +374,11 @@ export default function SignCreatePage() {
         </BackBtn>
         <TitleText>회원가입</TitleText>
       </TopBar>
+
       <ProgressBarWrap>
         <ProgressBar />
       </ProgressBarWrap>
+
       <ContentSection>
         <BirdWrap>
           <img src={Bird} alt="bird" style={{ width: 80, height: 80 }} />
@@ -531,8 +386,9 @@ export default function SignCreatePage() {
         <SectionTitle>아이디 생성</SectionTitle>
 
         <InputsContainer>
-          {/* 이메일 입력 */}
+          {/* 이메일 */}
           <InputBox $visible={currentStep >= 1}>
+            {/* 이메일은 별도 메시지 없음 */}
             <InputLabel htmlFor="email">이메일</InputLabel>
             <EmailInputGroup>
               <EmailIdInput
@@ -554,9 +410,15 @@ export default function SignCreatePage() {
               </EmailDomainSelect>
             </EmailInputGroup>
           </InputBox>
-          
-          {/* 닉네임 입력 */}
+
+          {/* 닉네임 */}
           <InputBox $visible={currentStep >= 2}>
+            <InfoText
+              $visible={currentStep >= 2}
+              color={nicknameCompleted ? "#1B409C" : "#b0b4c0"}
+            >
+              {nicknameCompleted ? "사용가능한 닉네임입니다." : ""}
+            </InfoText>
             <InputLabel htmlFor="nickname">닉네임</InputLabel>
             <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
               <Input
@@ -564,67 +426,92 @@ export default function SignCreatePage() {
                 value={nickname}
                 onChange={(e) => {
                   setNickname(e.target.value);
-                  // 닉네임이 변경되면 중복확인 완료 상태를 초기화
                   setNicknameCompleted(false);
                   setDuplicateCheckAttempted(false);
                 }}
                 style={{ flex: 1 }}
                 disabled={currentStep > 2}
               />
-              <CheckButton 
+              <CheckButton
                 onClick={handleNicknameCheck}
                 disabled={currentStep > 2}
                 $isDuplicate={duplicateCheckAttempted && !nicknameCompleted}
               >
-                {getDuplicateCheckButtonText()}
+                {nicknameCompleted ? "사용가능" : "중복확인"}
               </CheckButton>
             </div>
           </InputBox>
-          <InfoText 
-            $visible={currentStep >= 2} 
-            color={nicknameCompleted ? "#1B409C" : "#ff4757"}
-            style={nicknameCompleted ? { marginTop: "-15px", marginBottom: "5px", marginLeft: "10px" } : { marginTop: "-15px", marginBottom: "5px", marginLeft: "10px" }}
-          >
-            {nicknameCompleted ? "사용가능한 닉네임입니다." : ""}
-          </InfoText>
 
-          {/* 비밀번호 입력 */}
+          {/* 비밀번호 */}
           <InputBox $visible={currentStep >= 3}>
+            <InfoText
+              $visible={currentStep >= 3}
+              color={isPasswordValid() || !password ? "#1B409C" : "#ff4757"}
+            >
+              {passwordValidationMessage()}
+            </InfoText>
             <InputLabel htmlFor="password">비밀번호</InputLabel>
             <PasswordInputGroup>
               <PasswordInput
                 id="password"
+                name="password"
                 type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (currentStep >= 4) setConfirmPassword("");
+                }}
                 disabled={currentStep > 3}
               />
-              <TogglePasswordBtn 
+              <TogglePasswordBtn
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={currentStep > 3}
               >
-                <img 
-                  src={showPassword ? EyeOn : EyeOff} 
-                  alt={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
-                  style={{ width: "20px", height: "20px" }}
+                <img
+                  src={showPassword ? EyeOn : EyeOff}
+                  alt="비밀번호 토글"
+                  style={{ width: 20, height: 20 }}
                 />
               </TogglePasswordBtn>
             </PasswordInputGroup>
           </InputBox>
-          <InfoText 
-            $visible={currentStep >= 3} 
-            color={passwordValidationColor()}
-          >
-            {passwordValidationMessage()}
-          </InfoText>
+
+          {/* 비밀번호 재입력 */}
+          <InputBox $visible={currentStep >= 4}>
+            <InfoText
+              $visible={currentStep >= 4}
+              color={isConfirmPasswordValid() || !confirmPassword ? "#1B409C" : "#ff4757"}
+            >
+              {confirmPasswordValidationMessage()}
+            </InfoText>
+            <InputLabel htmlFor="confirmPassword">비밀번호 재입력</InputLabel>
+            <PasswordInputGroup>
+              <PasswordInput
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={currentStep > 4}
+              />
+              <TogglePasswordBtn
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={currentStep > 4}
+              >
+                <img
+                  src={showPassword ? EyeOn : EyeOff}
+                  alt="비밀번호 토글"
+                  style={{ width: 20, height: 20 }}
+                />
+              </TogglePasswordBtn>
+            </PasswordInputGroup>
+          </InputBox>
         </InputsContainer>
 
-        {/* 고정된 버튼 */}
         <ButtonContainer>
-          <NextButton 
-            disabled={buttonConfig.disabled} 
-            onClick={buttonConfig.onClick}
-          >
+          <NextButton disabled={buttonConfig.disabled} onClick={buttonConfig.onClick}>
             {buttonConfig.text}
           </NextButton>
         </ButtonContainer>
