@@ -112,7 +112,6 @@ import {
   ModalMain,
   CancelBtn,
   CommentWrapper,
-  ReplyComment,
 } from "./Detail.styled";
 
 export default function DetailBoard({ children }) {
@@ -368,6 +367,7 @@ function BodyTop() {
       try {
         const data = await detailBoard(eventId); // API 호출
         setEvent(data); // API에서 받아온 이벤트 데이터 저장
+
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -415,14 +415,7 @@ function BodyTop() {
           )}~${dayjs(event.endAt).format("HH:mm")}`}
         </DateP>
       </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          margin: "0",
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
         <FavoriteCountP>{event.favoriteCount}</FavoriteCountP>
         <HeartImg
           src={event.liked ? FullHeart : Heart}
@@ -489,6 +482,7 @@ function MiddleWho() {
     // 로그인 상태 확인 (accessToken도 함께 확인)
     const accessToken = localStorage.getItem("accessToken");
     if (!userData || !accessToken) {
+    
       alert("로그인이 필요합니다.");
       navigate("/login");
       return;
@@ -496,11 +490,13 @@ function MiddleWho() {
 
     try {
       setChatLoading(true);
+ 
 
       try {
         // 이벤트 작성자와 채팅 시작
-
+    
         const response = await startEventChat(eventId);
+     
 
         if (response && response.success && response.data) {
           const roomId = response.data.roomId;
@@ -508,6 +504,7 @@ function MiddleWho() {
           // 생성된 채팅방으로 이동
           navigate(`/chat/room/${roomId}`);
         } else {
+       
           alert("채팅방 생성에 실패했습니다. 다시 시도해주세요.");
         }
       } catch (error) {
@@ -558,7 +555,7 @@ function MiddleWho() {
 
 const CeoMark = styled.img`
   position: absolute;
-  top: -11px; /* 프로필 이미지 위에 걸치도록 */
+  top: -12px; /* 프로필 이미지 위에 걸치도록 */
   left: 1px;
   width: 20px;
   height: 20px;
@@ -607,6 +604,7 @@ function DetailContent() {
       try {
         const data = await detailBoard(eventId);
         setEvent(data);
+
       } catch (error) {
         console.error("이벤트 조회 실패", error);
       } finally {
@@ -666,10 +664,11 @@ function UserChat() {
     const fetchComments = async () => {
       try {
         const items = await commentBoards(eventId);
-
+   
         if (items && items.length > 0) {
-        }
 
+        }
+    
         setComments(items);
       } catch (error) {
         console.error("댓글 조회 실패", error);
@@ -713,8 +712,11 @@ function UserChat() {
   const currentNickname = localStorage.getItem("nickname"); // 또는 로그인 정보에 맞는 key 사용
 
   const handleProfileClick = (user, commentId) => {
+
+
     // 자기 자신이면 모달 열지 않음
     if (user.username === currentNickname) {
+   
       return;
     }
 
@@ -739,8 +741,9 @@ function UserChat() {
         const items = await showReplies(eventId, commentId);
 
         if (items && items.length > 0) {
-        }
 
+        }
+  
         setReplies((prev) => ({ ...prev, [commentId]: items }));
       }
     } catch (error) {
@@ -834,7 +837,7 @@ function UserChat() {
                           alignItems: "flex-start",
                           gap: "12px",
                           marginTop: "10px",
-                          marginRight: "28px",
+                          marginLeft: "40px",
                         }}
                       >
                         <CommentUserImg
@@ -866,7 +869,7 @@ function UserChat() {
                               • {formatRelativeTime(reply.createdAt)}
                             </CommentWriteTime>
                           </div>
-                          <ReplyComment>{reply.content}</ReplyComment>
+                          <CommentContent>{reply.content}</CommentContent>
                         </div>
                       </div>
                     ))}
@@ -1045,15 +1048,19 @@ function ChatModal({ user, onClose, commentId }) {
 
     try {
       setChatLoading(true);
+  
+    
 
       const response = await startCommentChat(commentId);
+  
 
       if (response && response.success && response.data) {
         const roomId = response.data.roomId;
-
+     
         // 생성된 채팅방으로 이동
         navigate(`/chat/room/${roomId}`);
       } else {
+   
         alert("채팅방 생성에 실패했습니다. 다시 시도해주세요.");
       }
     } catch (error) {
