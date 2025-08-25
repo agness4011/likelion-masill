@@ -97,6 +97,7 @@ import {
   DeleteModalMain,
   CommentWrapper,
   CancelBtn,
+  ReplyComment,
 } from "./SmallGroup.styled";
 
 export default function SmallGroup({ children }) {
@@ -304,12 +305,11 @@ function BodyTop() {
           자세히 보기
         </ReadMoreBtn>
       </div>
+
       <div
         style={{ position: "relative", display: "inline-block", width: "100%" }}
       >
-        <TitleP style={{ paddingRight: "40px" }}>
-          {club?.title || "로딩 중..."}
-        </TitleP>
+        <TitleP>{club?.title || "로딩 중..."}</TitleP>
 
         <HeartImg
           src={club?.liked ? FullHeart : Heart}
@@ -649,7 +649,8 @@ function UserChat() {
                         alignItems: "flex-start",
                         gap: "12px",
                         marginTop: "10px",
-                        marginLeft: "40px",
+                        marginRight: "28px",
+                        maxWidth: "280px",
                       }}
                     >
                       <CommentUserImg
@@ -680,7 +681,7 @@ function UserChat() {
                             display: "flex",
                             alignItems: "center",
                             gap: "6px",
-                            height: "20px",
+                            minHeight: "20px",
                           }}
                         >
                           <CommentUserName>{reply.username}</CommentUserName>
@@ -688,7 +689,7 @@ function UserChat() {
                             • {formatRelativeTime(reply.createdAt)}
                           </CommentWriteTime>
                         </div>
-                        <CommentContent>{reply.content}</CommentContent>
+                        <ReplyComment>{reply.content}</ReplyComment>
                       </div>
                     </div>
                   ))}
@@ -808,6 +809,7 @@ function AddCommentMessage({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            gap: "8px",
           }}
         >
           <CommentUserImg

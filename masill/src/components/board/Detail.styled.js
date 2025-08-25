@@ -123,7 +123,7 @@ export const TitleP = styled.p`
   /* 길면 자동 줄바꿈 */
   word-break: break-word;
   white-space: normal;
-  max-width: 270px;
+  max-width: 280px;
 `;
 
 export const LoccationP = styled.p`
@@ -184,7 +184,6 @@ export const UserImg = styled.img`
   height: 26px;
   flex-shrink: 0;
   border-radius: 50%; /* 원형 */
-  object-fit: cover; /* 이미지 비율 유지하면서 잘림 */
 `;
 export const UserNickName = styled.p`
   display: flex;
@@ -397,12 +396,11 @@ export const KeyboardBtn = styled.img`
   cursor: pointer;
 `;
 export const CommentUserImg = styled.img`
-  width: 51px;
-  height: 51px;
+  width: 33px;
+  height: 33px;
   flex-shrink: 0;
   border-radius: 50%;
   cursor: pointer;
-  margin-top: 10px;
   margin-left: 24px;
 `;
 export const CommentUserName = styled.p`
@@ -421,21 +419,39 @@ export const CommentUserName = styled.p`
   letter-spacing: 0.28px;
 `;
 export const CommentContent = styled.p`
-  display: -webkit-box;
-  max-width: 254px;
+  max-width: 280px;
   min-height: 30px;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
   color: var(--Dark-Text, #060d1d);
-  text-overflow: ellipsis;
   font-family: Pretendard;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
   line-height: 120%; /* 16.8px */
   margin: 0;
+
+  white-space: pre-wrap; /* 줄바꿈 + 공백 유지 */
+  word-wrap: break-word; /* 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 긴 단어 줄바꿈 (표준) */
 `;
+
+export const ReplyComment = styled.p`
+  max-width: 230px;
+  min-height: 30px;
+  color: var(--Dark-Text, #060d1d);
+  font-family: Pretendard;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 16.8px */
+  margin: 0;
+
+  white-space: pre-wrap; /* 줄바꿈 + 공백 유지 */
+  word-wrap: break-word; /* 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 긴 단어 줄바꿈 (표준) */
+
+  padding-right: 10px;
+`;
+
 export const CommentWriteTime = styled.span`
   color: var(--Gray-700, #959eb7);
   /* SUB MID */
